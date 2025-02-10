@@ -7,33 +7,35 @@ document.addEventListener("DOMContentLoaded", () => {
     const words = ["Dayyan Hamid", "Software Engineer", "Full-Stack Developer", "QA Developer"];
     let wordIndex = 0;
     let letterIndex = 0;
-    let currentText = "";
     let isDeleting = false;
+    let currentText = "";
+    let typingSpeed = 200; // Consistent typing speed
 
     function typeEffect() {
-        if (!isDeleting && letterIndex < words[wordIndex].length) {
-            currentText += words[wordIndex][letterIndex];
-            letterIndex++;
-        } else if (isDeleting && letterIndex > 0) {
-            currentText = currentText.substring(0, letterIndex - 1);
-            letterIndex--;
+        if (!isDeleting) {
+            if (letterIndex < words[wordIndex].length) {
+                currentText += words[wordIndex][letterIndex];
+                letterIndex++;
+            } else {
+                isDeleting = true;
+                setTimeout(typeEffect, 1500); // Pause before deleting
+                return;
+            }
+        } else {
+            if (letterIndex > 0) {
+                currentText = currentText.substring(0, letterIndex - 1);
+                letterIndex--;
+            } else {
+                isDeleting = false;
+                wordIndex = (wordIndex + 1) % words.length;
+            }
         }
 
         textElement.innerHTML = currentText + '<span class="cursor">|</span>';
-
-        if (!isDeleting && letterIndex === words[wordIndex].length) {
-            isDeleting = true;
-            setTimeout(typeEffect, 1500); // Pause before deleting
-        } else if (isDeleting && letterIndex === 0) {
-            isDeleting = false;
-            wordIndex = (wordIndex + 1) % words.length;
-        }
-
-        setTimeout(typeEffect, isDeleting ? 100 : 200);
+        setTimeout(typeEffect, typingSpeed);
     }
 
-    typeEffect(); // Start the typing effect
-
+    typeEffect();
     // Fetch GitHub Repos
     fetch(`https://api.github.com/users/${username}/repos?sort=updated`)
         .then(response => response.json())

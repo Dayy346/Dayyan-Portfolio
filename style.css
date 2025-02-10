@@ -112,3 +112,10 @@ main {
     color: #ff7eb3;
     text-decoration: underline;
 }
+
+.bio {
+    font-size: 1em;
+    font-weight: 300;
+    opacity: 0.8;
+    margin-top: 5px;
+}
