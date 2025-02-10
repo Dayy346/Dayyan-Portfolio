@@ -27,7 +27,6 @@ header h1, header p {
 .profile-pic {
     width: 100px;
     height: 100px;
-    border-radius: 50%;
     object-fit: cover;
     border: 2px solid #d4af37;
     position: absolute;
