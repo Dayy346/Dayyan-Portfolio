@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Typing Animation
     const textElement = document.getElementById("animated-text");
-    const words = ["Dayyan Hamid", "Software Engineer", "Full-Stack Developer"];
+    const words = ["Dayyan Hamid", "Software Engineer", "Full-Stack Developer", "QA Developer"];
     let wordIndex = 0;
     let letterIndex = 0;
     let currentText = "";
@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
             wordIndex = (wordIndex + 1) % words.length;
         }
 
-        setTimeout(typeEffect, isDeleting ? 50 : 100);
+        setTimeout(typeEffect, isDeleting ? 100 : 200);
     }
 
     typeEffect(); // Start the typing effect

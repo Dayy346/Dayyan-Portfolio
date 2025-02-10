@@ -6,34 +6,30 @@
     font-family: 'Poppins', sans-serif;
 }
 
-/* Dark Batman Theme */
 body {
-    background-color: #121212; /* Deep black */
-    color: #f8d210; /* Yellow for Batman vibes */
+    background-color: #0a0a0a;
+    color: #d4af37;
     text-align: center;
     padding: 20px;
 }
 
-/* Header with Dark Theme */
 header {
-    background: linear-gradient(135deg, #000000, #1a1a1a); /* Black gradient */
+    background: linear-gradient(135deg, #000000, #1a1a1a);
     padding: 40px 20px;
     border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(255, 255, 0, 0.2); /* Subtle yellow glow */
+    box-shadow: 0 4px 8px rgba(212, 175, 55, 0.1);
 }
 
-/* Change heading colors */
 header h1, header p {
-    color: #f8d210; /* Yellow text */
+    color: #d4af37;
 }
 
-/* Headshot - Smaller and Positioned to the Left */
 .profile-pic {
-    width: 100px; /* Reduce size */
+    width: 100px;
     height: 100px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid #f8d210; /* Yellow border */
+    border: 2px solid #d4af37;
     position: absolute;
     left: 20px;
     top: 15px;
@@ -83,10 +79,9 @@ main {
     text-decoration: underline;
 }
 
-/* Typing Effect */
 .cursor {
-    animation: blink 0.7s infinite;
-    color: #fff;
+    animation: blink 1s infinite;
+    color: #d4af37;
     font-weight: bold;
 }
 
