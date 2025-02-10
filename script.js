@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const username = "YOUR_GITHUB_USERNAME"; // Replace with your GitHub username
+    const username = "dayy346"; 
     const projectList = document.getElementById("project-list");
 
-    fetch(`https://api.github.com/users/${username}/repos?sort=updated`)
+    fetch(`https://api.github.com/users/dayy346/repos?sort=updated`)
         .then(response => response.json())
         .then(data => {
             projectList.innerHTML = ""; // Clear the list first
