@@ -2,21 +2,43 @@ document.addEventListener("DOMContentLoaded", () => {
     const username = "dayy346"; // Your GitHub username
     const projectList = document.getElementById("project-list");
 
-    fetch(`https://api.github.com/users/${username}/repos?sort=stars`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`GitHub API error: ${response.status}`);
-            }
-            return response.json();
-        })
+    // Typing Animation
+    const textElement = document.getElementById("animated-text");
+    const words = ["Dayyan Hamid", "Software Engineer", "Full-Stack Developer"];
+    let wordIndex = 0;
+    let letterIndex = 0;
+    let currentText = "";
+    let isDeleting = false;
+
+    function typeEffect() {
+        if (!isDeleting && letterIndex < words[wordIndex].length) {
+            currentText += words[wordIndex][letterIndex];
+            letterIndex++;
+        } else if (isDeleting && letterIndex > 0) {
+            currentText = currentText.substring(0, letterIndex - 1);
+            letterIndex--;
+        }
+
+        textElement.innerHTML = currentText + '<span class="cursor">|</span>';
+
+        if (!isDeleting && letterIndex === words[wordIndex].length) {
+            isDeleting = true;
+            setTimeout(typeEffect, 1500); // Pause before deleting
+        } else if (isDeleting && letterIndex === 0) {
+            isDeleting = false;
+            wordIndex = (wordIndex + 1) % words.length;
+        }
+
+        setTimeout(typeEffect, isDeleting ? 50 : 100);
+    }
+
+    typeEffect(); // Start the typing effect
+
+    // Fetch GitHub Repos
+    fetch(`https://api.github.com/users/${username}/repos?sort=updated`)
+        .then(response => response.json())
         .then(data => {
-            console.log("GitHub API response:", data); // Debugging
             projectList.innerHTML = "";
-
-            if (!Array.isArray(data)) {
-                throw new Error("Unexpected API response format");
-            }
-
             data.forEach(repo => {
                 if (!repo.fork) {
                     const project = document.createElement("div");
@@ -32,6 +54,6 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .catch(error => {
             console.error("Error fetching repos:", error);
-            projectList.innerHTML = `<p>Failed to load projects. ${error.message}</p>`;
+            projectList.innerHTML = "<p>Failed to load projects.</p>";
         });
 });
