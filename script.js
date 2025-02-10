@@ -1,14 +1,23 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const username = "dayy346"; 
+    const username = "dayy346"; // Your GitHub username
     const projectList = document.getElementById("project-list");
 
-    fetch(`https://api.github.com/users/dayy346/repos?sort=updated`)
-        .then(response => response.json())
+    fetch(`https://api.github.com/users/${username}/repos?sort=updated`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`GitHub API error: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
-            projectList.innerHTML = ""; // Clear the list first
+            console.log("GitHub API response:", data); // Debugging
+            projectList.innerHTML = "";
+
+            if (!Array.isArray(data)) {
+                throw new Error("Unexpected API response format");
+            }
 
             data.forEach(repo => {
-                // Only show repositories that are not forks
                 if (!repo.fork) {
                     const project = document.createElement("div");
                     project.classList.add("project-item");
@@ -23,6 +32,6 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .catch(error => {
             console.error("Error fetching repos:", error);
-            projectList.innerHTML = "<p>Failed to load projects.</p>";
+            projectList.innerHTML = `<p>Failed to load projects. ${error.message}</p>`;
         });
 });
