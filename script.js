@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const username = "dayy346"; // Your GitHub username
     const projectList = document.getElementById("project-list");
 
-    fetch(`https://api.github.com/users/${username}/repos?sort=updated`)
+    fetch(`https://api.github.com/users/${username}/repos?sort=stars`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`GitHub API error: ${response.status}`);
