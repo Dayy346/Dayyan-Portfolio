@@ -33,7 +33,6 @@ header {
     width: 120px; 
     height: auto; 
     border-radius: 8px; 
-    object-fit: contain;
     border: 2px solid #d4af37;
     margin-right: 20px;
 }
