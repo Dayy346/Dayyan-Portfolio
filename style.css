@@ -12,26 +12,50 @@ body {
     text-align: center;
     padding: 20px;
 }
-
 header {
     background: linear-gradient(135deg, #000000, #1a1a1a);
-    padding: 40px 20px;
+    padding: 50px 20px;
     border-radius: 12px;
     box-shadow: 0 4px 8px rgba(212, 175, 55, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: left;
 }
 
-header h1, header p {
-    color: #d4af37;
+.header-content {
+    display: flex;
+    align-items: center;
+    max-width: 900px;
 }
 
 .profile-pic {
-    width: 100px;
-    height: 100px;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
     object-fit: cover;
     border: 2px solid #d4af37;
-    position: absolute;
-    left: 20px;
-    top: 15px;
+    margin-right: 20px;
+}
+
+.header-text {
+    flex: 1;
+}
+
+.resume-btn {
+    display: inline-block;
+    background: #d4af37;
+    color: #000;
+    padding: 12px 18px;
+    border-radius: 6px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background 0.3s ease;
+    margin-top: 10px;
+}
+
+.resume-btn:hover {
+    background: #b89630;
 }
 
 
