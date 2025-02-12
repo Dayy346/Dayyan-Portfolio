@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Typing Animation
     const textElement = document.getElementById("animated-text");
-    const words = ["Dayyan Hamid", "Software Engineer", "Full-Stack Developer", "QA Developer"];
+    const words = ["Dayyan Hamid", "Software Engineer", "Full-Stack Developer", "Data Engineer" , "QA Developer", "Data Analyst"];
     let wordIndex = 0;
     let letterIndex = 0;
     let isDeleting = false;
