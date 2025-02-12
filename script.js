@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const username = "dayy346"; // Your GitHub username
+    const username = "dayy346"; 
     const projectList = document.getElementById("project-list");
 
     // Typing Animation
@@ -38,24 +38,24 @@ document.addEventListener("DOMContentLoaded", () => {
     typeEffect();
     // Fetch GitHub Repos
     fetch(`https://api.github.com/users/${username}/repos?sort=updated`)
-        .then(response => response.json())
-        .then(data => {
-            projectList.innerHTML = "";
-            data.forEach(repo => {
-                if (!repo.fork) {
-                    const project = document.createElement("div");
-                    project.classList.add("project-item");
-                    project.innerHTML = `
-                        <h3>${repo.name.replace(/-/g, " ")}</h3>
-                        <p>${repo.description || "No description provided."}</p>
-                        <a href="${repo.html_url}" target="_blank">View on GitHub</a>
-                    `;
-                    projectList.appendChild(project);
-                }
-            });
-        })
-        .catch(error => {
-            console.error("Error fetching repos:", error);
-            projectList.innerHTML = "<p>Failed to load projects.</p>";
+    .then(response => response.json())
+    .then(data => {
+        projectList.innerHTML = "";
+        data.forEach(repo => {
+            if (!repo.fork && repo.name !== "Dayyan-Portfolio" && repo.name !== "Dayy346") {
+                const project = document.createElement("div");
+                project.classList.add("project-item");
+                project.innerHTML = `
+                    <h3 class="project-title">${repo.name.replace(/-/g, " ")}</h3>
+                    <p class="project-desc">${repo.description || "No description provided."}</p>
+                    <a href="${repo.html_url}" target="_blank" class="github-link">View on GitHub</a>
+                `;
+                projectList.appendChild(project);
+            }
         });
+    })
+    .catch(error => {
+        console.error("Error fetching repos:", error);
+        projectList.innerHTML = "<p>Failed to load projects.</p>";
+    });
 });
