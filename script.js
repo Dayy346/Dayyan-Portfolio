@@ -58,4 +58,41 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error("Error fetching repos:", error);
         projectList.innerHTML = "<p>Failed to load projects.</p>";
     });
+    async function fetchLeetCodeSubmissions() {
+        const usernamel = "dayy345"; 
+        const query = `
+            {
+                recentAcSubmissionList(username: "${usernamel}") {
+                    title
+                    titleSlug
+                    timestamp
+                }
+            }
+        `;
+    
+        const response = await fetch("https://leetcode.com/graphql", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query }),
+        });
+    
+        const data = await response.json();
+        const problems = data.data.recentAcSubmissionList;
+        
+        const leetCodeList = document.getElementById("leetcode-list");
+        leetCodeList.innerHTML = "";
+    
+        problems.slice(0, 5).forEach(problem => {
+            const problemElement = document.createElement("div");
+            problemElement.classList.add("leetcode-item");
+            problemElement.innerHTML = `
+                <p><strong>${problem.title}</strong> - Solved on ${new Date(problem.timestamp * 1000).toLocaleDateString()}</p>
+                <a href="https://leetcode.com/problems/${problem.titleSlug}" target="_blank">View Problem</a>
+            `;
+            leetCodeList.appendChild(problemElement);
+        });
+    }
+    
+    fetchLeetCodeSubmissions();
+    
 });
