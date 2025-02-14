@@ -204,22 +204,13 @@ main {
     border-radius: 10px;
     margin-top: 20px;
     box-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
+    text-align: center;
 }
 
-.leetcode-item {
-    background: rgba(0, 0, 0, 0.2);
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 5px;
-    box-shadow: 2px 2px 10px rgba(255, 255, 0, 0.2);
+.leetcode-badge {
+    width: 100%;
+    max-width: 500px;
+    border-radius: 10px;
+    margin-top: 15px;
 }
 
-.leetcode-item a {
-    color: #f8d210;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.leetcode-item a:hover {
-    text-decoration: underline;
-}
