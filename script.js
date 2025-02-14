@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         `;
     
-        const response = await fetch("https://leetcode.com/graphql", {
+        const response = await fetch("https://cors-anywhere.herokuapp.com/https://leetcode.com/graphql", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ query }),
