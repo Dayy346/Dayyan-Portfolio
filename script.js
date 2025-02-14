@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
         projectList.innerHTML = "<p>Failed to load projects.</p>";
     });
     async function fetchLeetCodeStats() {
-        const username = "dayy346"; // Replace with your actual LeetCode username
+        const username = "dayy345"; 
         const apiUrl = `https://leetcode-stats-api.herokuapp.com/${username}`;
     
         try {
