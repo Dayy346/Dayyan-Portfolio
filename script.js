@@ -58,41 +58,33 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error("Error fetching repos:", error);
         projectList.innerHTML = "<p>Failed to load projects.</p>";
     });
-    async function fetchLeetCodeSubmissions() {
-        const usernamel = "dayy345"; 
-        const query = `
-            {
-                recentAcSubmissionList(username: "${usernamel}") {
-                    title
-                    titleSlug
-                    timestamp
-                }
+    async function fetchLeetCodeStats() {
+        const username = "dayy346"; // Replace with your actual LeetCode username
+        const apiUrl = `https://leetcode-stats-api.herokuapp.com/${username}`;
+    
+        try {
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+    
+            if (data.status !== "success") {
+                document.getElementById("leetcode-list").innerHTML = "Failed to fetch data.";
+                return;
             }
-        `;
     
-        const response = await fetch("https://cors-anywhere.herokuapp.com/https://leetcode.com/graphql", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ query }),
-        });
-    
-        const data = await response.json();
-        const problems = data.data.recentAcSubmissionList;
-        
-        const leetCodeList = document.getElementById("leetcode-list");
-        leetCodeList.innerHTML = "";
-    
-        problems.slice(0, 5).forEach(problem => {
-            const problemElement = document.createElement("div");
-            problemElement.classList.add("leetcode-item");
-            problemElement.innerHTML = `
-                <p><strong>${problem.title}</strong> - Solved on ${new Date(problem.timestamp * 1000).toLocaleDateString()}</p>
-                <a href="https://leetcode.com/problems/${problem.titleSlug}" target="_blank">View Problem</a>
+            document.getElementById("leetcode-list").innerHTML = `
+                <p><strong>Total Solved:</strong> ${data.totalSolved} / ${data.totalQuestions}</p>
+                <p><strong>Easy:</strong> ${data.easySolved} / ${data.totalEasy}</p>
+                <p><strong>Medium:</strong> ${data.mediumSolved} / ${data.totalMedium}</p>
+                <p><strong>Hard:</strong> ${data.hardSolved} / ${data.totalHard}</p>
+                <p><strong>Ranking:</strong> #${data.ranking}</p>
+                <p><strong>Acceptance Rate:</strong> ${data.acceptanceRate}%</p>
             `;
-            leetCodeList.appendChild(problemElement);
-        });
+        } catch (error) {
+            console.error("Error fetching LeetCode stats:", error);
+            document.getElementById("leetcode-list").innerHTML = "Error fetching data.";
+        }
     }
     
-    fetchLeetCodeSubmissions();
-    
+    fetchLeetCodeStats();
+        
 });
