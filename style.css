@@ -214,3 +214,17 @@ main {
     margin-top: 15px;
 }
 
+#github-stats {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 30px;
+    border-radius: 10px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.github-chart {
+    width: 100%;
+    max-width: 800px;
+    border-radius: 10px;
+}
+
