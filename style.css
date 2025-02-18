@@ -238,8 +238,8 @@ main {
 }
 
 .powerlifting-img {
-    width: 60%; /* Adjust size */
-    max-width: 350px; /* Limit max size */
+    width: 60%; 
+    max-width: 350px; 
     border-radius: 10px;
     margin-top: 15px;
     box-shadow: 0 4px 10px rgba(255, 215, 0, 0.2);
