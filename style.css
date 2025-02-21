@@ -265,3 +265,10 @@ main {
 .powerlifting-link:hover {
     background: #b89630;
 }
+#particles-js {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: #0a0a0a;
+}
