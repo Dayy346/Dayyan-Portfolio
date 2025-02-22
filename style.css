@@ -215,7 +215,7 @@ main {
 }
 
 #github-stats {
-    background: rgba(255, 255, 255, 0.1);
+    background: #1a1a1a;
     padding: 30px;
     border-radius: 10px;
     margin-top: 20px;
@@ -271,14 +271,13 @@ main {
     height: 100%;
     top: 0;
     left: 0;
-    z-index: -9999;  
+    z-index: -100; 
     background: #0a0a0a;
     pointer-events: none;  
 }
 
 main, header, footer, section {
-    position: relative;  
-    z-index: 10;
+    position: relative; 
+    z-index: 1;
 }
-
 
