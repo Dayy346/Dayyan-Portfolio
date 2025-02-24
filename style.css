@@ -282,7 +282,7 @@ main, header, footer, section {
 }
 
 #chatbot {
-    background: rgba(255, 255, 255, 0.1);
+    background: #1a1a1a;
     padding: 30px;
     border-radius: 10px;
     margin-top: 20px;
@@ -293,7 +293,7 @@ main, header, footer, section {
     max-width: 600px;
     margin: auto;
     padding: 20px;
-    background: rgba(0, 0, 0, 0.5);
+    background: #1a1a1a;
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(255, 215, 0, 0.2);
 }
