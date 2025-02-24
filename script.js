@@ -97,24 +97,27 @@ document.addEventListener("DOMContentLoaded", () => {
         chatBox.innerHTML += `<p><strong>You:</strong> ${userMessage}</p>`;
         inputField.value = "";
     
-        const apiKey = ""; // GPT API KEY 
-        const response = await fetch("https://api.openai.com/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-                model: "gpt-3.5-turbo",
-                messages: [{ role: "user", content: `Answer based on Dayyan Hamid's projects: ${userMessage}` }]
-            })
-        });
+        try {
+            const response = await fetch("https://api.aivvm.com/gpt", {  // Public GPT proxy
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: "gpt-3.5-turbo",
+                    messages: [{ role: "user", content: userMessage }]
+                })
+            });
     
-        const data = await response.json();
-        const botReply = data.choices[0].message.content;
+            const data = await response.json();
+            const botReply = data.choices ? data.choices[0].message.content : "Sorry, I can't respond right now.";
     
-        chatBox.innerHTML += `<p><strong>Bot:</strong> ${botReply}</p>`;
-        chatBox.scrollTop = chatBox.scrollHeight;
+            chatBox.innerHTML += `<p><strong>Bot:</strong> ${botReply}</p>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        } catch (error) {
+            chatBox.innerHTML += `<p><strong>Bot:</strong> Sorry, there was an error processing your request.</p>`;
+        }
     }
+    
         
 });
