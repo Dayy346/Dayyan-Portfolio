@@ -91,33 +91,37 @@ document.addEventListener("DOMContentLoaded", () => {
         const inputField = document.getElementById("chat-input");
         const chatBox = document.getElementById("chat-box");
     
-        const userMessage = inputField.value;
-        if (!userMessage.trim()) return;
+        const userMessage = inputField.value.trim();
+        if (!userMessage) return;
     
         chatBox.innerHTML += `<p><strong>You:</strong> ${userMessage}</p>`;
         inputField.value = "";
     
         try {
-            const response = await fetch("https://api.aivvm.com/gpt", {  // Public GPT proxy
+            const response = await fetch("https://api.mistral.ai/v1/chat/completions", {  // Free GPT API alternative
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    model: "gpt-3.5-turbo",
+                    model: "mistral-7b-instruct",  // A free and powerful model
                     messages: [{ role: "user", content: userMessage }]
                 })
             });
     
+            if (!response.ok) throw new Error(`API error: ${response.status}`);
+    
             const data = await response.json();
-            const botReply = data.choices ? data.choices[0].message.content : "Sorry, I can't respond right now.";
+            const botReply = data.choices?.[0]?.message?.content || "I couldn't generate a response.";
     
             chatBox.innerHTML += `<p><strong>Bot:</strong> ${botReply}</p>`;
             chatBox.scrollTop = chatBox.scrollHeight;
         } catch (error) {
+            console.error("Chatbot error:", error);
             chatBox.innerHTML += `<p><strong>Bot:</strong> Sorry, there was an error processing your request.</p>`;
         }
     }
+    
     
         
 });
