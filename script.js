@@ -85,6 +85,36 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
     
+    
     fetchLeetCodeStats();
+    async function sendMessage() {
+        const inputField = document.getElementById("chat-input");
+        const chatBox = document.getElementById("chat-box");
+    
+        const userMessage = inputField.value;
+        if (!userMessage.trim()) return;
+    
+        chatBox.innerHTML += `<p><strong>You:</strong> ${userMessage}</p>`;
+        inputField.value = "";
+    
+        const apiKey = ""; // GPT API KEY 
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: "gpt-3.5-turbo",
+                messages: [{ role: "user", content: `Answer based on Dayyan Hamid's projects: ${userMessage}` }]
+            })
+        });
+    
+        const data = await response.json();
+        const botReply = data.choices[0].message.content;
+    
+        chatBox.innerHTML += `<p><strong>Bot:</strong> ${botReply}</p>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
         
 });
