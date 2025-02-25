@@ -9,7 +9,7 @@ async function sendMessage() {
     inputField.value = "";
 
     try {
-        const response = await fetch("https://api.mistral.ai/v1/chat/completions", {  // Free GPT API alternative
+        const response = await fetch("https://api.aivvm.com/gpt", {  
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -33,10 +33,10 @@ async function sendMessage() {
     }
 }
 
-// Ensure the function is globally available
+// the function is globally available
 window.sendMessage = sendMessage;
 
-// Keep all other code inside DOMContentLoaded
+
 document.addEventListener("DOMContentLoaded", () => {
     const username = "dayy346"; 
     const projectList = document.getElementById("project-list");
@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let letterIndex = 0;
     let isDeleting = false;
     let currentText = "";
-    let typingSpeed = 200; // Consistent typing speed
+    let typingSpeed = 200; //  typing speed
 
     function typeEffect() {
         if (!isDeleting) {
@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 letterIndex++;
             } else {
                 isDeleting = true;
-                setTimeout(typeEffect, 1500); // Pause before deleting
+                setTimeout(typeEffect, 1500); // Pause 
                 return;
             }
         } else {
