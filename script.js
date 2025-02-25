@@ -1,3 +1,42 @@
+async function sendMessage() {
+    const inputField = document.getElementById("chat-input");
+    const chatBox = document.getElementById("chat-box");
+
+    const userMessage = inputField.value.trim();
+    if (!userMessage) return;
+
+    chatBox.innerHTML += `<p><strong>You:</strong> ${userMessage}</p>`;
+    inputField.value = "";
+
+    try {
+        const response = await fetch("https://api.mistral.ai/v1/chat/completions", {  // Free GPT API alternative
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                model: "mistral-7b-instruct",
+                messages: [{ role: "user", content: userMessage }]
+            })
+        });
+
+        if (!response.ok) throw new Error(`API error: ${response.status}`);
+
+        const data = await response.json();
+        const botReply = data.choices?.[0]?.message?.content || "I couldn't generate a response.";
+
+        chatBox.innerHTML += `<p><strong>Bot:</strong> ${botReply}</p>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+    } catch (error) {
+        console.error("Chatbot error:", error);
+        chatBox.innerHTML += `<p><strong>Bot:</strong> Sorry, there was an error processing your request.</p>`;
+    }
+}
+
+// Ensure the function is globally available
+window.sendMessage = sendMessage;
+
+// Keep all other code inside DOMContentLoaded
 document.addEventListener("DOMContentLoaded", () => {
     const username = "dayy346"; 
     const projectList = document.getElementById("project-list");
@@ -36,28 +75,30 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     typeEffect();
+
     // Fetch GitHub Repos
     fetch(`https://api.github.com/users/${username}/repos?sort=updated`)
-    .then(response => response.json())
-    .then(data => {
-        projectList.innerHTML = "";
-        data.forEach(repo => {
-            if (!repo.fork && repo.name !== "Dayyan-Portfolio" && repo.name !== "Dayy346") {
-                const project = document.createElement("div");
-                project.classList.add("project-item");
-                project.innerHTML = `
-                    <h3 class="project-title">${repo.name.replace(/-/g, " ")}</h3>
-                    <p class="project-desc">${repo.description || "No description provided."}</p>
-                    <a href="${repo.html_url}" target="_blank" class="github-link">View on GitHub</a>
-                `;
-                projectList.appendChild(project);
-            }
+        .then(response => response.json())
+        .then(data => {
+            projectList.innerHTML = "";
+            data.forEach(repo => {
+                if (!repo.fork && repo.name !== "Dayyan-Portfolio" && repo.name !== "Dayy346") {
+                    const project = document.createElement("div");
+                    project.classList.add("project-item");
+                    project.innerHTML = `
+                        <h3 class="project-title">${repo.name.replace(/-/g, " ")}</h3>
+                        <p class="project-desc">${repo.description || "No description provided."}</p>
+                        <a href="${repo.html_url}" target="_blank" class="github-link">View on GitHub</a>
+                    `;
+                    projectList.appendChild(project);
+                }
+            });
+        })
+        .catch(error => {
+            console.error("Error fetching repos:", error);
+            projectList.innerHTML = "<p>Failed to load projects.</p>";
         });
-    })
-    .catch(error => {
-        console.error("Error fetching repos:", error);
-        projectList.innerHTML = "<p>Failed to load projects.</p>";
-    });
+
     async function fetchLeetCodeStats() {
         const username = "dayy345"; 
         const apiUrl = `https://leetcode-stats-api.herokuapp.com/${username}`;
@@ -85,43 +126,5 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
     
-    
     fetchLeetCodeStats();
-    async function sendMessage() {
-        const inputField = document.getElementById("chat-input");
-        const chatBox = document.getElementById("chat-box");
-    
-        const userMessage = inputField.value.trim();
-        if (!userMessage) return;
-    
-        chatBox.innerHTML += `<p><strong>You:</strong> ${userMessage}</p>`;
-        inputField.value = "";
-    
-        try {
-            const response = await fetch("https://api.mistral.ai/v1/chat/completions", {  // Free GPT API alternative
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    model: "mistral-7b-instruct",  // A free and powerful model
-                    messages: [{ role: "user", content: userMessage }]
-                })
-            });
-    
-            if (!response.ok) throw new Error(`API error: ${response.status}`);
-    
-            const data = await response.json();
-            const botReply = data.choices?.[0]?.message?.content || "I couldn't generate a response.";
-    
-            chatBox.innerHTML += `<p><strong>Bot:</strong> ${botReply}</p>`;
-            chatBox.scrollTop = chatBox.scrollHeight;
-        } catch (error) {
-            console.error("Chatbot error:", error);
-            chatBox.innerHTML += `<p><strong>Bot:</strong> Sorry, there was an error processing your request.</p>`;
-        }
-    }
-    
-    
-        
 });
