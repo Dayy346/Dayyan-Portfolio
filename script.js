@@ -9,7 +9,7 @@ async function sendMessage() {
     inputField.value = "";
 
     try {
-        const response = await fetch("https://cors-anywhere.herokuapp.com/https://api.aivvm.com/gpt", {  
+        const response = await fetch("https://thingproxy.freeboard.io/fetch/https://api.aivvm.com/gpt", {  
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
