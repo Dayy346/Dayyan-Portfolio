@@ -9,7 +9,7 @@ async function sendMessage() {
     inputField.value = "";
 
     try {
-        const response = await fetch("https://api.aivvm.com/gpt", {  
+        const response = await fetch("https://cors-anywhere.herokuapp.com/https://api.aivvm.com/gpt", {  
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -32,23 +32,19 @@ async function sendMessage() {
         chatBox.innerHTML += `<p><strong>Bot:</strong> Sorry, there was an error processing your request.</p>`;
     }
 }
-
-// the function is globally available
 window.sendMessage = sendMessage;
-
 
 document.addEventListener("DOMContentLoaded", () => {
     const username = "dayy346"; 
     const projectList = document.getElementById("project-list");
 
-    // Typing Animation
     const textElement = document.getElementById("animated-text");
-    const words = ["Dayyan Hamid", "Software Engineer", "Full-Stack Developer", "Data Engineer" , "QA Developer", "Data Analyst"];
+    const words = ["Dayyan Hamid", "Software Engineer", "Full-Stack Developer", "Data Engineer", "QA Developer", "Data Analyst"];
     let wordIndex = 0;
     let letterIndex = 0;
     let isDeleting = false;
     let currentText = "";
-    let typingSpeed = 200; //  typing speed
+    let typingSpeed = 200;
 
     function typeEffect() {
         if (!isDeleting) {
@@ -57,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 letterIndex++;
             } else {
                 isDeleting = true;
-                setTimeout(typeEffect, 1500); // Pause 
+                setTimeout(typeEffect, 1500);
                 return;
             }
         } else {
@@ -69,14 +65,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 wordIndex = (wordIndex + 1) % words.length;
             }
         }
-
         textElement.innerHTML = currentText + '<span class="cursor">|</span>';
         setTimeout(typeEffect, typingSpeed);
     }
-
     typeEffect();
 
-    // Fetch GitHub Repos
     fetch(`https://api.github.com/users/${username}/repos?sort=updated`)
         .then(response => response.json())
         .then(data => {
@@ -102,16 +95,13 @@ document.addEventListener("DOMContentLoaded", () => {
     async function fetchLeetCodeStats() {
         const username = "dayy345"; 
         const apiUrl = `https://leetcode-stats-api.herokuapp.com/${username}`;
-    
         try {
             const response = await fetch(apiUrl);
             const data = await response.json();
-    
             if (data.status !== "success") {
                 document.getElementById("leetcode-list").innerHTML = "Failed to fetch data.";
                 return;
             }
-    
             document.getElementById("leetcode-list").innerHTML = `
                 <p><strong>Total Solved:</strong> ${data.totalSolved} / ${data.totalQuestions}</p>
                 <p><strong>Easy:</strong> ${data.easySolved} / ${data.totalEasy}</p>
@@ -125,6 +115,5 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("leetcode-list").innerHTML = "Error fetching data.";
         }
     }
-    
     fetchLeetCodeStats();
 });
