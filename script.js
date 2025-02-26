@@ -29,7 +29,7 @@ async function sendMessage() {
         chatBox.scrollTop = chatBox.scrollHeight;
     } catch (error) {
         console.error("Chatbot error:", error);
-        chatBox.innerHTML += `<p><strong>Bot:</strong> Sorry, there was an error processing your request.</p>`;
+        chatBox.innerHTML += `<p><strong>Bot:</strong> Sorry, I'm still working on this feature.</p>`;
     }
 }
 window.sendMessage = sendMessage;
