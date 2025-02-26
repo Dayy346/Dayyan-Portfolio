@@ -9,7 +9,7 @@ async function sendMessage() {
     inputField.value = "";
 
     try {
-        const response = await fetch("https://thingproxy.freeboard.io/fetch/https://api.aivvm.com/gpt", {  
+        const response = await fetch("http://localhost:3000/chat", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
