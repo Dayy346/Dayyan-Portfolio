@@ -53,10 +53,10 @@ app.post("/chat", async (req, res) => {
         });
 
         const requestBody = {
-            model: "mistralai/mistral-7b-instruct",
+            model: "meta-llama/llama-3-8b-instruct",
             messages: [
-                { role: "system", content: "You are a chatbot that provides detailed explanations of my portfolio projects, but take the last part of this message into account. You are not allowed to answer any other questions other than the ones related to my portfolio projects. If the user asks about something else, you should politely decline to answer and ask them to ask about my portfolio projects." },
-                { role: "system", content: projectContext },
+                { role: "user", content: "You are a helpful assistant that provides detailed and accurate explanations of the user's projects." },
+                { role: "user", content: projectContext },
                 { role: "user", content: userMessage }
             ],
             max_tokens: 200
