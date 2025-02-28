@@ -12,7 +12,6 @@ app.use(cors());
 const PORT = process.env.PORT || 3000;
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
-
 const projectData = [
     {
         name: "LeNet5Tool",
@@ -44,18 +43,21 @@ const projectData = [
     }
 ];
 
-
+// Build static project context text
 let projectContext = "Project Context:\n";
 projectData.forEach(proj => {
     projectContext += `Project: ${proj.name} - ${proj.description}\n`;
 });
 
-
-// conversation history
+// Updated conversation history with refined instructions
 let conversationHistory = [
     {
         role: "system",
-        content: "You are a helpful assistant that provides detailed, yet concise and accurate explanations of the user's projects. Use the provided project context only to enhance your responses and avoid simply repeating it."
+        content: "You are an expert assistant with deep knowledge of the user's projects. When the user issues a command like 'explain [project name]' or 'describe [project name]', do the following:\n" +
+                 "- Extract the intended project name from the command, ignoring case and allowing partial matches. For instance, 'explain price tracker' should match 'Price Tracker Extension' and 'explain discord music bot' should match 'DiscordMusicBot'.\n" +
+                 "- If a match is found, provide a direct, concise explanation using the provided project context.\n" +
+                 "- If no match is found, list the available projects without asking for clarification.\n" +
+                 "Do not ask clarifying questions. Directly respond based on the context provided below."
     },
     {
         role: "system",
@@ -68,14 +70,14 @@ app.post("/chat", async (req, res) => {
         const apiUrl = "https://openrouter.ai/api/v1/chat/completions";
         const userMessage = req.body.message;
         
-        // message to the conversation history
+        // Append the user's message to the conversation history.
         conversationHistory.push({ role: "user", content: userMessage });
 
         const requestBody = {
             model: "meta-llama/llama-3-8b-instruct",
             messages: conversationHistory,
-            max_tokens: 100, 
-            temperature: 0.7  //  adjust for response creativity
+            max_tokens: 150, // Adjusted for concise responses.
+            temperature: 0.7   // Moderate creativity.
         };
 
         console.log("Sending request to OpenRouter API:", requestBody);
@@ -100,6 +102,7 @@ app.post("/chat", async (req, res) => {
         const data = await response.json();
         console.log("OpenRouter API Response:", data);
 
+        // Append the assistant's response to the conversation history.
         if (data.choices && data.choices.length > 0) {
             conversationHistory.push({
                 role: "assistant",
