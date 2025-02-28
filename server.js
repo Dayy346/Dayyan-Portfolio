@@ -10,7 +10,9 @@ app.use(express.json());
 app.use(cors());
 
 const PORT = process.env.PORT || 3000;
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;  // Store your API key in .env
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+
+
 const projectData = [
     {
         name: "LeNet5Tool",
@@ -42,26 +44,39 @@ const projectData = [
     }
 ];
 
+
+let projectContext = "Project Context:\n";
+projectData.forEach(proj => {
+    projectContext += `Project: ${proj.name} - ${proj.description}\n`;
+});
+
+
+// conversation history
+let conversationHistory = [
+    {
+        role: "system",
+        content: "You are a helpful assistant that provides detailed, yet concise and accurate explanations of the user's projects. Use the provided project context only to enhance your responses and avoid simply repeating it."
+    },
+    {
+        role: "system",
+        content: projectContext
+    }
+];
+
 app.post("/chat", async (req, res) => {
     try {
         const apiUrl = "https://openrouter.ai/api/v1/chat/completions";
-
         const userMessage = req.body.message;
-        let projectContext = "below are all of the projects, do not just spit back this info to the user:\n";
-        projectData.forEach(proj => {
-            projectContext += `Project: ${proj.name} - ${proj.description}\n`;
-        });
+        
+        // message to the conversation history
+        conversationHistory.push({ role: "user", content: userMessage });
 
         const requestBody = {
             model: "meta-llama/llama-3-8b-instruct",
-            messages: [
-                { role: "user", content: "You are a helpful assistant that provides detailed and accurate explanations of the user's projects." },
-                { role: "user", content: projectContext },
-                { role: "user", content: userMessage }
-            ],
-            max_tokens: 200
+            messages: conversationHistory,
+            max_tokens: 100, 
+            temperature: 0.7  //  adjust for response creativity
         };
-
 
         console.log("Sending request to OpenRouter API:", requestBody);
 
@@ -69,7 +84,7 @@ app.post("/chat", async (req, res) => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${OPENROUTER_API_KEY}`  // ✅ API Key required
+                "Authorization": `Bearer ${OPENROUTER_API_KEY}`
             },
             body: JSON.stringify(requestBody)
         });
@@ -84,6 +99,13 @@ app.post("/chat", async (req, res) => {
 
         const data = await response.json();
         console.log("OpenRouter API Response:", data);
+
+        if (data.choices && data.choices.length > 0) {
+            conversationHistory.push({
+                role: "assistant",
+                content: data.choices[0].message.content
+            });
+        }
 
         res.json(data);
     } catch (error) {
