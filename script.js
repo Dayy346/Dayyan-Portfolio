@@ -43,13 +43,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     try {
-        const response = await fetch(`https://api.github.com/users/${username}/repos?sort=updated`);
+        const response = await fetch(`https://api.github.com/users/${username}/repos?sort=updated`, {
+            headers: { "Accept": "application/vnd.github.v3+json" }
+        });
+
         if (!response.ok) {
-            throw new Error(`GitHub API returned ${response.status}`);
+            throw new Error(`GitHub API error: ${response.status}`);
         }
 
         const data = await response.json();
         projectList.innerHTML = "";  // Clear previous content
+
+        if (data.length === 0) {
+            projectList.innerHTML = "<p>No projects found.</p>";
+            return;
+        }
 
         data.forEach(repo => {
             if (!repo.fork && repo.name !== "Dayyan-Portfolio" && repo.name !== "Dayy346") {
@@ -65,11 +73,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         });
 
-        if (projectList.innerHTML === "") {
-            projectList.innerHTML = "<p>No projects found.</p>";
-        }
     } catch (error) {
-        console.error("Error fetching repos:", error);
+        console.error("Error fetching GitHub repos:", error);
         projectList.innerHTML = "<p>Failed to load projects.</p>";
     }
 });
