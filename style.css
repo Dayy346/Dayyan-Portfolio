@@ -354,7 +354,3 @@ button:hover {
     transform: translateY(20px);
     transition: opacity 0.5s ease-out, transform 0.5s ease-out;
 }
-.project-item.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
