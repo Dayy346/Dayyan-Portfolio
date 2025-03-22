@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(data => {
             projectList.innerHTML = "";
             data.forEach(repo => {
-                if (!repo.fork && repo.name !== "Dayyan-Portfolio" && repo.name !== "Dayy346") {
+                if (!repo.fork && repo.name !== "Dayyan-Portfolio" && repo.name !== "Dayy346" && repo.name !== "DailyCodingDashboard") {
                     const project = document.createElement("div");
                     project.classList.add("project-item");
                     project.innerHTML = `
