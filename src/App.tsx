@@ -4,6 +4,8 @@ import { AppId, apps, bootStages } from './data';
 type Repo = { name: string; language: string | null; stargazers_count: number; description: string | null; html_url: string; homepage?: string | null; fork: boolean };
 type WindowState = { isOpen: boolean; minimized: boolean; maximized: boolean; x: number; y: number; z: number };
 
+type ExperiencePanel = 'fcb' | 'collablab' | 'regeneron';
+
 const INITIAL_POSITIONS: Record<AppId, { x: number; y: number }> = {
   about: { x: 90, y: 84 },
   showcase: { x: 140, y: 100 },
@@ -73,7 +75,7 @@ export default function App() {
     if (bootDone) return;
 
     const stage = bootStages[bootStageIndex];
-    const msPerLine = Math.max(260, Math.floor(stage.durationMs / stage.lines.length));
+    const msPerLine = Math.max(200, Math.floor(stage.durationMs / stage.lines.length));
     const timer = setInterval(() => {
       setBootLineIndex((curr) => {
         const nextLine = curr + 1;
@@ -87,7 +89,7 @@ export default function App() {
         window.setTimeout(() => {
           setBootDone(true);
           setBootTransitioning(false);
-        }, 420);
+        }, 320);
         return stage.lines.length;
       });
     }, msPerLine);
@@ -102,7 +104,7 @@ export default function App() {
         const top = items
           .filter((r) => !r.fork && r.name !== 'Dayyan-Portfolio')
           .sort((a, b) => b.stargazers_count - a.stargazers_count)
-          .slice(0, 10);
+          .slice(0, 12);
         setRepos(top);
       })
       .catch(() => setRepos([]));
@@ -147,7 +149,7 @@ export default function App() {
     window.setTimeout(() => {
       setBootDone(true);
       setBootTransitioning(false);
-    }, reducedMotion ? 0 : 300);
+    }, reducedMotion ? 0 : 180);
   }
 
   function focusWindow(appId: AppId) {
@@ -203,7 +205,13 @@ export default function App() {
 
         <main className="desktop" onClick={() => setStartMenuOpen(false)}>
           {apps.map((app) => (
-            <button key={app.id} className="desktop-icon" onDoubleClick={() => openWindow(app.id)} onClick={() => setFocused(app.id)}>
+            <button
+              key={app.id}
+              className="desktop-icon"
+              onDoubleClick={() => openWindow(app.id)}
+              onClick={() => setFocused(app.id)}
+              onKeyDown={(e) => e.key === 'Enter' && openWindow(app.id)}
+            >
               <span>{app.icon}</span>
               <small>{app.label}</small>
             </button>
@@ -253,7 +261,7 @@ export default function App() {
         />
       )}
 
-      {isMobile && !bootDone && <div className="mobile-boot-hint">Tip: skip boot for Mobile Lite summary.</div>}
+      {isMobile && !bootDone && <div className="mobile-boot-hint">Tip: press S, Enter, or Skip to load Mobile Lite.</div>}
     </>
   );
 }
@@ -279,7 +287,7 @@ function BootSequence({
 }) {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() === 's' || e.key === 'Escape' || e.key === 'Enter') onSkip();
+      if (e.key.toLowerCase() === 's' || e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') onSkip();
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
@@ -294,12 +302,12 @@ function BootSequence({
             <span key={i} className={i <= stageIndex ? 'active' : ''} />
           ))}
         </div>
-        <p className="boot-stage-title">Stage {stageIndex + 1} / {stageCount}: {stage.title}</p>
+        <p className="boot-stage-title">Stage {stageIndex + 1} / {stageCount}: {stage.title} <strong>{Math.round(progress * 100)}%</strong></p>
         <p className="boot-subtitle">{stage.subtitle}</p>
         <div className="boot-log">{visibleLines.map((line) => <p key={line}>{line}</p>)}</div>
         <div className="progress-wrap"><div className="progress" style={{ width: `${progress * 100}%` }} /></div>
         <div className="boot-footer">
-          <small>Press <kbd>S</kbd>, <kbd>Esc</kbd>, or <kbd>Enter</kbd> to skip</small>
+          <small>Press <kbd>S</kbd>, <kbd>Esc</kbd>, <kbd>Enter</kbd>, or <kbd>Space</kbd> to skip</small>
           <button onClick={onSkip}>{reducedMotion ? 'Continue' : 'Skip Boot'}</button>
         </div>
       </div>
@@ -354,15 +362,185 @@ function Window({ appId, title, focused, state, onFocus, onClose, onMinimize, on
 }
 
 function WindowContent({ appId, repos }: { appId: AppId; repos: Repo[] }) {
-  if (appId === 'about') return <article className="about-grid"><img src="/assets/headshot.jpg" alt="Dayyan Hamid" className="profile" /><div><h1>Dayyan Hamid</h1><p className="muted">Software Engineer • Data + Frontend Builder • Rutgers CS '25</p><p>I build polished frontend systems with strong backend integration. This shell is designed to feel nostalgic, fast, and intentional.</p><div className="chips"><span>React</span><span>TypeScript</span><span>Nuxt</span><span>Python/FastAPI</span><span>Azure</span></div></div></article>;
-  if (appId === 'showcase') return <article className="cards"><div><h3>Frontend Systems</h3><p>Building reusable components, desktop-grade interactions, and purposeful motion.</p></div><div><h3>Product Mindset</h3><p>Translate business asks into intuitive UI flows that users trust.</p></div><div><h3>Cross-stack Delivery</h3><p>Frontend-first execution backed by practical APIs and cloud deployment.</p></div></article>;
-  if (appId === 'experience') return <article className="timeline"><section><h3>Software Engineer — FCB Health</h3><ul><li>Built Nuxt frontend for production-facing user workflows.</li><li>Implemented Python + FastAPI backend services.</li><li>Integrated Azure AI Search for retrieval-driven functionality.</li><li>Hosted on Azure App Service with stable deployment pipelines.</li></ul></section><section><h3>Part-time Engineering Manager — CollabLab</h3><p><strong>Promoted internally</strong> while continuing to contribute hands-on as an engineer.</p><p>Leading delivery across frontend-focused initiatives, mentoring contributors, and improving execution quality across full-stack features.</p></section><section><h3>Regeneron Roles</h3><p>Delivered QA/document-control workflows and Power Platform solutions for process reliability.</p></section></article>;
-  if (appId === 'skills') return <article className="cards"><div><h3>Frontend</h3><p>React, TypeScript, Nuxt, accessibility, interaction design, CSS systems.</p></div><div><h3>Backend</h3><p>Node.js, Express, Python/FastAPI, API architecture.</p></div><div><h3>Data + Cloud</h3><p>Azure App Service, Azure AI Search, SQL, Power BI.</p></div></article>;
-  if (appId === 'frontend') return <article><h2>Frontend Focus Highlights</h2><ul><li>Reusable patterns: card systems, window primitives, state-driven UI shells.</li><li>Performance-first rendering and measured animation.</li><li>Keyboard + screen-reader support as first-class UX concerns.</li><li>Reduced-motion fallbacks preserve function without visual overload.</li></ul></article>;
-  if (appId === 'power') return <article className="about-grid"><img src="/assets/powerlifting.jpg" className="profile" alt="Powerlifting meet" /><div><h2>Collegiate Powerlifting</h2><p>Placed 6th in Dec 2024 championships. I bring the same consistency and focus into product execution.</p></div></article>;
-  if (appId === 'projects') return <article><h2>Top GitHub Projects</h2><div className="project-grid">{repos.length ? repos.map((repo) => (<section key={repo.name} className="project-card"><h3>{repo.name}</h3><p className="muted">{repo.language || 'Multi'} • ★ {repo.stargazers_count}</p><p>{repo.description || 'Built to solve real-world problems with practical engineering.'}</p><a href={repo.html_url} target="_blank" rel="noreferrer">Open repo ↗</a></section>)) : <p className="muted">GitHub data loading unavailable right now.</p>}</div></article>;
-  if (appId === 'contact') return <article className="cards"><a href="mailto:dh820@scarletmail.rutgers.edu">Email</a><a href="https://www.linkedin.com/in/dayyan-hamid/" target="_blank" rel="noreferrer">LinkedIn</a><a href="https://github.com/dayy346" target="_blank" rel="noreferrer">GitHub</a><a href="https://leetcode.com/dayy345" target="_blank" rel="noreferrer">LeetCode</a></article>;
-  return <article><h2>Keyboard Shortcuts</h2><ul><li><kbd>Alt</kbd> + <kbd>Tab</kbd>: cycle focused window</li><li><kbd>Ctrl</kbd> + <kbd>M</kbd>: minimize focused window</li><li><kbd>Esc</kbd>: close Start menu or skip boot</li><li>Double-click desktop icons to open apps</li></ul></article>;
+  const [showcaseTab, setShowcaseTab] = useState<'systems' | 'motion' | 'delivery'>('systems');
+  const [experiencePanel, setExperiencePanel] = useState<ExperiencePanel>('fcb');
+  const [skillFilter, setSkillFilter] = useState<'all' | 'frontend' | 'backend' | 'cloud'>('all');
+  const [projectQuery, setProjectQuery] = useState('');
+  const [sortMode, setSortMode] = useState<'stars' | 'name'>('stars');
+  const [useLbs, setUseLbs] = useState(false);
+  const [copied, setCopied] = useState<string | null>(null);
+
+  const filteredRepos = useMemo(() => {
+    const base = repos.filter((repo) => repo.name.toLowerCase().includes(projectQuery.toLowerCase()));
+    return base.sort((a, b) => (sortMode === 'stars' ? b.stargazers_count - a.stargazers_count : a.name.localeCompare(b.name)));
+  }, [repos, projectQuery, sortMode]);
+
+  const skills = [
+    { label: 'React + TS Design Systems', value: 93, lane: 'frontend' },
+    { label: 'Nuxt App Architecture', value: 88, lane: 'frontend' },
+    { label: 'Node + FastAPI Services', value: 85, lane: 'backend' },
+    { label: 'Azure App Service + AI Search', value: 84, lane: 'cloud' },
+    { label: 'Accessibility + Keyboard UX', value: 90, lane: 'frontend' }
+  ] as const;
+
+  const shownSkills = skills.filter((item) => skillFilter === 'all' || item.lane === skillFilter);
+
+  async function copyText(label: string, value: string) {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(label);
+      window.setTimeout(() => setCopied(null), 1400);
+    } catch {
+      setCopied(null);
+    }
+  }
+
+  if (appId === 'about') {
+    return (
+      <article className="about-grid">
+        <img src="/assets/headshot.jpg" alt="Dayyan Hamid" className="profile" />
+        <div>
+          <h1>Dayyan Hamid</h1>
+          <p className="muted">Software Engineer • Data + Frontend Builder • Rutgers CS '25</p>
+          <p>I build polished frontend systems with strong backend integration. This shell blends nostalgic interaction models with modern execution quality.</p>
+          <div className="chips"><span>React</span><span>TypeScript</span><span>Nuxt</span><span>Python/FastAPI</span><span>Azure</span></div>
+          <div className="stat-row">
+            <div><strong>Frontend Systems</strong><small>Desktop-grade interactions + reusable primitives</small></div>
+            <div><strong>Cross-stack Delivery</strong><small>UI, APIs, deployment, and reliability</small></div>
+          </div>
+        </div>
+      </article>
+    );
+  }
+
+  if (appId === 'showcase') {
+    const tabs = [
+      { id: 'systems', label: 'UI Systems' },
+      { id: 'motion', label: 'Interaction + Motion' },
+      { id: 'delivery', label: 'Product Delivery' }
+    ] as const;
+
+    return (
+      <article>
+        <div className="tab-strip" role="tablist" aria-label="Showcase tabs">
+          {tabs.map((tab) => (
+            <button key={tab.id} role="tab" aria-selected={showcaseTab === tab.id} className={showcaseTab === tab.id ? 'active' : ''} onClick={() => setShowcaseTab(tab.id)}>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        {showcaseTab === 'systems' && <div className="cards"><div><h3>Window Manager Primitives</h3><p>Movable, minimizable, stack-aware windows with keyboard focus logic.</p></div><div><h3>Design Token Layer</h3><p>Retro contour + modern spacing, contrast, and readable hierarchy.</p></div></div>}
+        {showcaseTab === 'motion' && <div className="cards"><div><h3>Measured Motion</h3><p>Boot sequencing and window transitions tuned for intent over spectacle.</p></div><div><h3>Reduced Motion Compliance</h3><p>Respects user preferences while preserving flow and functionality.</p></div></div>}
+        {showcaseTab === 'delivery' && <div className="cards"><div><h3>Product Thinking</h3><p>Translates requirements into interface affordances users can trust quickly.</p></div><div><h3>Engineering Discipline</h3><p>Builds with accessibility, maintainability, and runtime performance in mind.</p></div></div>}
+      </article>
+    );
+  }
+
+  if (appId === 'experience') {
+    return (
+      <article className="timeline">
+        <section>
+          <h3><button className="exp-toggle" onClick={() => setExperiencePanel('fcb')} aria-expanded={experiencePanel === 'fcb'}>Software Engineer — FCB Health</button></h3>
+          {experiencePanel === 'fcb' && <ul><li>Built Nuxt frontend modules for production-facing healthcare workflows.</li><li>Implemented Python + FastAPI services supporting operational integrations.</li><li>Integrated Azure AI Search for retrieval-driven user assistance and data lookup.</li><li>Deployed and maintained services on Azure App Service with stable release practices.</li></ul>}
+        </section>
+        <section>
+          <h3><button className="exp-toggle" onClick={() => setExperiencePanel('collablab')} aria-expanded={experiencePanel === 'collablab'}>Part-time Engineering Manager — CollabLab</button></h3>
+          {experiencePanel === 'collablab' && <><p><strong>Promoted internally</strong> while continuing hands-on frontend and full-stack engineering contributions.</p><p>Leads execution cadence, mentors contributors, and raises delivery quality across team projects.</p></>}
+        </section>
+        <section>
+          <h3><button className="exp-toggle" onClick={() => setExperiencePanel('regeneron')} aria-expanded={experiencePanel === 'regeneron'}>Regeneron Roles</button></h3>
+          {experiencePanel === 'regeneron' && <p>Delivered QA/document-control workflows and Power Platform tooling for process reliability.</p>}
+        </section>
+      </article>
+    );
+  }
+
+  if (appId === 'skills') {
+    return (
+      <article>
+        <div className="filter-row" role="toolbar" aria-label="Skill filters">
+          {['all', 'frontend', 'backend', 'cloud'].map((key) => (
+            <button key={key} className={skillFilter === key ? 'active' : ''} onClick={() => setSkillFilter(key as typeof skillFilter)}>{key}</button>
+          ))}
+        </div>
+        <div className="meter-stack">
+          {shownSkills.map((skill) => (
+            <div className="meter" key={skill.label}>
+              <p>{skill.label}</p>
+              <div className="track"><span style={{ width: `${skill.value}%` }} /></div>
+            </div>
+          ))}
+        </div>
+      </article>
+    );
+  }
+
+  if (appId === 'frontend') {
+    return <article><h2>Frontend Focus Highlights</h2><ul><li>Reusable patterns: window primitives, tab systems, filters, and state-driven components.</li><li>Performance-first rendering with scoped state and memoized repository transforms.</li><li>Keyboard + screen-reader support as first-class UX concerns.</li><li>Reduced-motion fallbacks preserve function without visual overload.</li></ul></article>;
+  }
+
+  if (appId === 'power') {
+    const stats = [
+      { label: 'Squat', kg: 215 },
+      { label: 'Bench', kg: 145 },
+      { label: 'Deadlift', kg: 250 }
+    ];
+    return (
+      <article>
+        <div className="filter-row">
+          <button className={!useLbs ? 'active' : ''} onClick={() => setUseLbs(false)}>KG</button>
+          <button className={useLbs ? 'active' : ''} onClick={() => setUseLbs(true)}>LB</button>
+        </div>
+        <div className="cards">
+          {stats.map((s) => {
+            const value = useLbs ? Math.round(s.kg * 2.205) : s.kg;
+            return <div key={s.label}><h3>{s.label}</h3><p>{value} {useLbs ? 'lb' : 'kg'}</p></div>;
+          })}
+          <div><h3>Meet Result</h3><p>Placed 6th in Dec 2024 collegiate championships.</p></div>
+        </div>
+      </article>
+    );
+  }
+
+  if (appId === 'projects') {
+    return (
+      <article>
+        <h2>Top GitHub Projects</h2>
+        <div className="project-controls">
+          <input value={projectQuery} onChange={(e) => setProjectQuery(e.target.value)} placeholder="Filter repositories" aria-label="Filter repositories" />
+          <select value={sortMode} onChange={(e) => setSortMode(e.target.value as typeof sortMode)} aria-label="Sort repositories">
+            <option value="stars">Sort: Stars</option>
+            <option value="name">Sort: Name</option>
+          </select>
+        </div>
+        <div className="project-grid">
+          {filteredRepos.length ? filteredRepos.map((repo) => (
+            <section key={repo.name} className="project-card">
+              <h3>{repo.name}</h3>
+              <p className="muted">{repo.language || 'Multi'} • ★ {repo.stargazers_count}</p>
+              <p>{repo.description || 'Built to solve real-world problems with practical engineering.'}</p>
+              <a href={repo.html_url} target="_blank" rel="noreferrer">Open repo ↗</a>
+            </section>
+          )) : <p className="muted">No repositories match this filter right now.</p>}
+        </div>
+      </article>
+    );
+  }
+
+  if (appId === 'contact') {
+    return (
+      <article className="cards">
+        <button onClick={() => copyText('email', 'dh820@scarletmail.rutgers.edu')}>Copy Email</button>
+        <a href="mailto:dh820@scarletmail.rutgers.edu">Email</a>
+        <a href="https://www.linkedin.com/in/dayyan-hamid/" target="_blank" rel="noreferrer">LinkedIn</a>
+        <a href="https://github.com/dayy346" target="_blank" rel="noreferrer">GitHub</a>
+        <a href="https://leetcode.com/dayy345" target="_blank" rel="noreferrer">LeetCode</a>
+        {copied && <p className="muted">Copied {copied} to clipboard.</p>}
+      </article>
+    );
+  }
+
+  return <article><h2>Keyboard Shortcuts</h2><ul><li><kbd>Alt</kbd> + <kbd>Tab</kbd>: cycle focused window</li><li><kbd>Ctrl</kbd> + <kbd>M</kbd>: minimize focused window</li><li><kbd>Esc</kbd>: close Start menu or skip boot</li><li><kbd>S</kbd>, <kbd>Enter</kbd>, <kbd>Space</kbd>: skip boot instantly</li><li>Double-click desktop icons or press <kbd>Enter</kbd> to open apps</li></ul></article>;
 }
 
 function MobileLite({ repos, clock }: { repos: Repo[]; clock: string }) {

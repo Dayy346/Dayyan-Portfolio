@@ -23,7 +23,7 @@ export const bootStages: BootStage[] = [
     id: 'bios',
     title: 'POST + BIOS',
     subtitle: 'Hardware profile checks and low-level startup',
-    accent: '#4f86c6',
+    accent: '#b86f3a',
     durationMs: 2600,
     lines: [
       '[POST] CPU: frontend-core x64 @ 3.60GHz',
@@ -37,7 +37,7 @@ export const bootStages: BootStage[] = [
     id: 'kernel',
     title: 'Kernel + Services',
     subtitle: 'Launching interaction engine and UI runtime',
-    accent: '#5e9b7f',
+    accent: '#5f8f74',
     durationMs: 3000,
     lines: [
       '[OK] Mounting /ui, /assets, /projects',
@@ -51,7 +51,7 @@ export const bootStages: BootStage[] = [
     id: 'desktop',
     title: 'Desktop Composition',
     subtitle: 'Applying shell theme and restoring workspace',
-    accent: '#9670b8',
+    accent: '#8b5e7f',
     durationMs: 2200,
     lines: [
       '[OK] Calibrating nostalgic-modern color profile',
