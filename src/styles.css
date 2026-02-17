@@ -81,7 +81,8 @@ select:focus-visible {
 .boot-stagebar span { height: 8px; flex: 1; border: 1px solid #7a6256; background: #3a2c24; }
 .boot-stagebar span.active { background: color-mix(in srgb, var(--stage-accent, #b86f3a) 65%, #f0d0b6); }
 .boot-stage-title { margin: .25rem 0 0; font-weight: 700; color: #fef3e4; display: flex; justify-content: space-between; }
-.boot-subtitle { margin: .2rem 0 .6rem; color: #dccab5; font-size: .92rem; }
+.boot-subtitle { margin: .2rem 0 .3rem; color: #dccab5; font-size: .92rem; }
+.boot-signature { margin: 0 0 .55rem; font-size: .8rem; color: #bca692; letter-spacing: .02em; }
 .boot-log { min-height: 170px; max-height: 170px; overflow: auto; color: #f5e6d5; border: 1px solid #6a5343; background: #130d09; padding: .45rem .55rem; }
 .boot-log p { margin: 0 0 .25rem; }
 .progress-wrap { height: 12px; border: 1px solid #786357; background: #f3e6d8; margin: .7rem 0 .4rem; }
@@ -189,7 +190,10 @@ select:focus-visible {
   color: #23180f;
   padding: .7rem .85rem;
   box-shadow: 7px 7px 0 rgba(17, 10, 6, 0.28);
+  backdrop-filter: blur(1px);
 }
+.os-shell.mood-night .desktop-story-widget { background: linear-gradient(135deg, rgba(233, 229, 245, 0.9), rgba(202, 192, 229, 0.82)); }
+.os-shell.mood-archive .desktop-story-widget { background: linear-gradient(135deg, rgba(229, 239, 239, 0.92), rgba(199, 216, 218, 0.84)); }
 .desktop-story-widget p { margin: 0; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; color: #6e5036; }
 .desktop-story-widget h2 { margin: .2rem 0 .45rem; font-size: 1.05rem; }
 .desktop-story-widget ul { margin: 0; padding-left: 1rem; font-size: .84rem; color: #493828; display: grid; gap: .2rem; }

@@ -356,6 +356,7 @@ function BootSequence({
         </div>
         <p className="boot-stage-title">Stage {stageIndex + 1} / {stageCount}: {stage.title} <strong>{Math.round(progress * 100)}%</strong></p>
         <p className="boot-subtitle">{stage.subtitle}</p>
+        <p className="boot-signature">A frontend system narrative: nostalgic shell, modern engineering constraints.</p>
         <div className="boot-log">{visibleLines.map((line) => <p key={line}>{line}</p>)}</div>
         <div className="progress-wrap"><div className="progress" style={{ width: `${progress * 100}%` }} /></div>
         <div className="boot-footer">
