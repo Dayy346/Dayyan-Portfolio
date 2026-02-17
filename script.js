@@ -1,85 +1,143 @@
-const projectList = document.getElementById('project-list');
-const clock = document.getElementById('clock');
-const year = document.getElementById('year');
-const startBtn = document.getElementById('start-btn');
-const palette = document.getElementById('palette');
+const bootLines = [
+  '[OK] Initializing dayyan kernel modules...',
+  '[OK] Mounting portfolio filesystem...',
+  '[OK] Loading profile.exe ...',
+  '[OK] Registering projects.dir ...',
+  '[OK] Enabling experience.log services ...',
+  '[OK] Networking online: contact.net',
+  '[OK] DAYYAN.OS boot complete.'
+];
+
+const bootLog = document.getElementById('boot-log');
+const bootProgress = document.getElementById('boot-progress');
+const bootScreen = document.getElementById('boot-screen');
+const enterBtn = document.getElementById('enter-os');
+const os = document.getElementById('os');
+const clockEl = document.getElementById('clock');
+
+function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
+
+async function runBoot() {
+  for (let i = 0; i < bootLines.length; i++) {
+    const p = document.createElement('p');
+    p.textContent = bootLines[i];
+    bootLog.appendChild(p);
+    bootLog.scrollTop = bootLog.scrollHeight;
+    bootProgress.style.width = `${((i + 1) / bootLines.length) * 100}%`;
+    await sleep(450);
+  }
+  enterBtn.classList.remove('hidden');
+}
+
+function startOS() {
+  bootScreen.classList.add('hidden');
+  os.classList.remove('hidden');
+}
+
+enterBtn.addEventListener('click', startOS);
+runBoot();
 
 function updateClock() {
-  const now = new Date();
-  clock.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  clockEl.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+const zBase = { value: 10 };
+
+function openApp(app) {
+  const win = document.getElementById(`app-${app}`);
+  if (!win) return;
+  win.classList.remove('hidden');
+  zBase.value += 1;
+  win.style.zIndex = zBase.value;
 }
 
-function escapeHtml(value = '') {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
+function closeApp(app) {
+  const win = document.getElementById(`app-${app}`);
+  if (win) win.classList.add('hidden');
 }
 
-function projectCard(repo) {
-  const title = repo.name.replace(/-/g, ' ');
-  return `
-    <article class="project-card">
-      <h3>${escapeHtml(title)}</h3>
-      <div class="project-meta">
-        <span>${escapeHtml(repo.language || 'Multi')}</span>
-        <span>★ ${repo.stargazers_count || 0}</span>
-      </div>
-      <p>${escapeHtml(repo.description || 'Project focused on practical engineering and product quality.')}</p>
-      <div class="project-links">
-        <a href="${repo.html_url}" target="_blank" rel="noreferrer">GitHub</a>
-        ${repo.homepage ? `<a href="${repo.homepage}" target="_blank" rel="noreferrer">Live</a>` : ''}
-      </div>
-    </article>
-  `;
-}
-
-async function loadProjects() {
-  try {
-    const username = 'dayy346';
-    const res = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=100`);
-    const repos = await res.json();
-
-    const filtered = repos
-      .filter((repo) => !repo.fork && repo.name !== 'Dayyan-Portfolio')
-      .sort((a, b) => (b.stargazers_count || 0) - (a.stargazers_count || 0))
-      .slice(0, 9);
-
-    projectList.innerHTML = filtered.map(projectCard).join('');
-  } catch {
-    projectList.innerHTML = `
-      <article class="project-card">
-        <h3>Unable to fetch projects right now.</h3>
-        <p>Check GitHub directly: <a href="https://github.com/dayy346" target="_blank" rel="noreferrer">github.com/dayy346</a></p>
-      </article>
-    `;
-  }
-}
-
-startBtn.addEventListener('click', () => {
-  palette.classList.toggle('hidden');
-  palette.setAttribute('aria-hidden', String(palette.classList.contains('hidden')));
+document.querySelectorAll('.app-icon').forEach((btn) => {
+  btn.addEventListener('click', () => openApp(btn.dataset.app));
 });
 
-document.querySelectorAll('[data-target]').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    const target = document.querySelector(btn.dataset.target);
-    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    palette.classList.add('hidden');
+document.querySelectorAll('.close').forEach((btn) => {
+  btn.addEventListener('click', () => closeApp(btn.dataset.close));
+});
+
+// start button opens About by default like a launcher
+const startBtn = document.getElementById('start-btn');
+startBtn.addEventListener('click', () => openApp('about'));
+
+// Window dragging for retro OS feel
+function makeDraggable(windowEl) {
+  const titlebar = windowEl.querySelector('.titlebar');
+  let dragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  titlebar.addEventListener('mousedown', (e) => {
+    dragging = true;
+    zBase.value += 1;
+    windowEl.style.zIndex = zBase.value;
+    const rect = windowEl.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    windowEl.style.left = `${rect.left}px`;
+    windowEl.style.top = `${rect.top}px`;
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const x = Math.max(8, e.clientX - offsetX);
+    const y = Math.max(52, e.clientY - offsetY);
+    windowEl.style.left = `${x}px`;
+    windowEl.style.top = `${y}px`;
+  });
+
+  document.addEventListener('mouseup', () => { dragging = false; });
+}
+
+document.querySelectorAll('.window').forEach((win, idx) => {
+  win.style.top = `${70 + idx * 18}px`;
+  win.style.left = `${90 + idx * 20}px`;
+  makeDraggable(win);
+  win.addEventListener('mousedown', () => {
+    zBase.value += 1;
+    win.style.zIndex = zBase.value;
   });
 });
 
-document.addEventListener('keydown', (e) => {
-  if (e.key.toLowerCase() === 'k' && (e.ctrlKey || e.metaKey)) {
-    e.preventDefault();
-    palette.classList.toggle('hidden');
-  }
-  if (e.key === 'Escape') palette.classList.add('hidden');
-});
+function escapeHtml(value = '') {
+  return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
+}
 
-year.textContent = new Date().getFullYear();
-updateClock();
-setInterval(updateClock, 1000);
+function projectCard(repo) {
+  return `<article class="project-card">
+    <h3>${escapeHtml(repo.name.replace(/-/g, ' '))}</h3>
+    <div class="project-meta">
+      <span>${escapeHtml(repo.language || 'Multi')}</span>
+      <span>★ ${repo.stargazers_count || 0}</span>
+    </div>
+    <p>${escapeHtml(repo.description || 'Built to solve real problems with practical engineering.')}</p>
+    <div class="project-links">
+      <a href="${repo.html_url}" target="_blank" rel="noreferrer">GitHub</a>
+      ${repo.homepage ? `<a href="${repo.homepage}" target="_blank" rel="noreferrer">Live</a>` : ''}
+    </div>
+  </article>`;
+}
+
+async function loadProjects() {
+  const list = document.getElementById('project-list');
+  try {
+    const res = await fetch('https://api.github.com/users/dayy346/repos?sort=updated&per_page=100');
+    const repos = await res.json();
+    const filtered = repos.filter((r) => !r.fork && r.name !== 'Dayyan-Portfolio').sort((a, b) => (b.stargazers_count || 0) - (a.stargazers_count || 0)).slice(0, 12);
+    list.innerHTML = filtered.map(projectCard).join('');
+  } catch {
+    list.innerHTML = '<p class="muted">Could not load repos right now. Visit github.com/dayy346.</p>';
+  }
+}
+
 loadProjects();
