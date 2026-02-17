@@ -4,18 +4,21 @@ import { AppId, apps, bootStages } from './data';
 type Repo = { name: string; language: string | null; stargazers_count: number; description: string | null; html_url: string; homepage?: string | null; fork: boolean };
 type WindowState = { isOpen: boolean; minimized: boolean; maximized: boolean; x: number; y: number; z: number };
 
+type GitHubRepoResponse = Repo[] | { message?: string };
+
 type ExperiencePanel = 'fcb' | 'collablab' | 'regeneron';
+type ShellMood = 'studio' | 'archive' | 'night';
 
 const INITIAL_POSITIONS: Record<AppId, { x: number; y: number }> = {
   about: { x: 90, y: 84 },
-  showcase: { x: 140, y: 100 },
-  projects: { x: 190, y: 116 },
-  experience: { x: 230, y: 96 },
-  skills: { x: 160, y: 130 },
-  frontend: { x: 120, y: 148 },
-  power: { x: 200, y: 140 },
-  contact: { x: 260, y: 118 },
-  help: { x: 280, y: 88 }
+  showcase: { x: 152, y: 104 },
+  projects: { x: 208, y: 122 },
+  experience: { x: 250, y: 96 },
+  skills: { x: 172, y: 138 },
+  frontend: { x: 132, y: 154 },
+  power: { x: 216, y: 146 },
+  contact: { x: 274, y: 124 },
+  help: { x: 298, y: 88 }
 };
 
 const totalBootLines = bootStages.reduce((sum, stage) => sum + stage.lines.length, 0);
@@ -32,6 +35,9 @@ const createInitialWindowMap = () =>
     };
     return acc;
   }, {} as Record<AppId, WindowState>);
+
+const getVisibleOpenApps = (map: Record<AppId, WindowState>) =>
+  apps.filter((a) => map[a.id].isOpen && !map[a.id].minimized);
 
 function useMediaQuery(query: string) {
   const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
@@ -54,6 +60,7 @@ export default function App() {
   const [bootDone, setBootDone] = useState(reducedMotion);
   const [startMenuOpen, setStartMenuOpen] = useState(false);
   const [focused, setFocused] = useState<AppId>('about');
+  const [shellMood, setShellMood] = useState<ShellMood>('studio');
   const zRef = useRef(20);
   const [repos, setRepos] = useState<Repo[]>([]);
   const [windowMap, setWindowMap] = useState<Record<AppId, WindowState>>(createInitialWindowMap);
@@ -98,16 +105,23 @@ export default function App() {
   }, [bootDone, bootStageIndex, reducedMotion]);
 
   useEffect(() => {
-    fetch('https://api.github.com/users/dayy346/repos?sort=updated&per_page=100')
+    const controller = new AbortController();
+    fetch('https://api.github.com/users/dayy346/repos?sort=updated&per_page=100', { signal: controller.signal })
       .then((r) => r.json())
-      .then((items: Repo[]) => {
-        const top = items
+      .then((payload: GitHubRepoResponse) => {
+        if (!Array.isArray(payload)) {
+          setRepos([]);
+          return;
+        }
+        const top = payload
           .filter((r) => !r.fork && r.name !== 'Dayyan-Portfolio')
           .sort((a, b) => b.stargazers_count - a.stargazers_count)
           .slice(0, 12);
         setRepos(top);
       })
       .catch(() => setRepos([]));
+
+    return () => controller.abort();
   }, []);
 
   useEffect(() => {
@@ -116,18 +130,16 @@ export default function App() {
       if (e.key === 'Escape') setStartMenuOpen(false);
       if (e.altKey && e.key.toLowerCase() === 'tab') {
         e.preventDefault();
-        const open = apps.filter((a) => windowMap[a.id].isOpen && !windowMap[a.id].minimized);
+        const open = getVisibleOpenApps(windowMap);
         if (!open.length) return;
         const idx = open.findIndex((w) => w.id === focused);
-        const next = open[(idx + 1) % open.length].id;
+        const next = open[(idx >= 0 ? idx + 1 : 0) % open.length].id;
         focusWindow(next);
       }
       if (e.ctrlKey && e.key.toLowerCase() === 'm') {
         e.preventDefault();
-        setWindowMap((curr) => ({
-          ...curr,
-          [focused]: { ...curr[focused], minimized: true }
-        }));
+        if (!windowMap[focused].isOpen) return;
+        minimizeWindow(focused);
       }
     };
 
@@ -141,6 +153,8 @@ export default function App() {
     const priorStagesLines = bootStages.slice(0, bootStageIndex).reduce((sum, stage) => sum + stage.lines.length, 0);
     return priorStagesLines + bootLineIndex;
   }, [bootStageIndex, bootLineIndex]);
+
+  const activeWindowCount = useMemo(() => apps.filter((a) => windowMap[a.id].isOpen && !windowMap[a.id].minimized).length, [windowMap]);
 
   function skipBoot() {
     setBootStageIndex(bootStages.length - 1);
@@ -164,11 +178,21 @@ export default function App() {
   }
 
   function closeWindow(appId: AppId) {
-    setWindowMap((curr) => ({ ...curr, [appId]: { ...curr[appId], isOpen: false } }));
+    const nextMap = { ...windowMap, [appId]: { ...windowMap[appId], isOpen: false, minimized: false } };
+    if (focused === appId) {
+      const visible = getVisibleOpenApps(nextMap);
+      setFocused((visible[visible.length - 1]?.id as AppId | undefined) ?? 'about');
+    }
+    setWindowMap(nextMap);
   }
 
   function minimizeWindow(appId: AppId) {
-    setWindowMap((curr) => ({ ...curr, [appId]: { ...curr[appId], minimized: true } }));
+    const nextMap = { ...windowMap, [appId]: { ...windowMap[appId], minimized: true } };
+    if (focused === appId) {
+      const visible = getVisibleOpenApps(nextMap);
+      setFocused((visible[visible.length - 1]?.id as AppId | undefined) ?? 'about');
+    }
+    setWindowMap(nextMap);
   }
 
   function maximizeWindow(appId: AppId) {
@@ -186,11 +210,16 @@ export default function App() {
 
   return (
     <>
-      <div className={`os-shell ${bootDone ? 'ready' : 'preboot'}`}>
+      <div className={`os-shell ${bootDone ? 'ready' : 'preboot'} mood-${shellMood}`}>
         <header className="taskbar">
           <button className="start-btn" onClick={() => setStartMenuOpen((v) => !v)} aria-haspopup="menu" aria-expanded={startMenuOpen}>⏻ START</button>
           <p className="taskbar-title">DAYYAN.OS // RETRO FRONTEND SHELL</p>
-          <p className="clock" aria-live="off">{clock}</p>
+          <div className="taskbar-status">
+            <button className="mood-btn" onClick={() => setShellMood((curr) => (curr === 'studio' ? 'archive' : curr === 'archive' ? 'night' : 'studio'))} aria-label="Cycle desktop mood">
+              Theme: {shellMood}
+            </button>
+            <p className="clock" aria-live="off">{clock}</p>
+          </div>
         </header>
 
         {startMenuOpen && bootDone && (
@@ -204,6 +233,16 @@ export default function App() {
         )}
 
         <main className="desktop" onClick={() => setStartMenuOpen(false)}>
+          <section className="desktop-story-widget" aria-label="Session status">
+            <p>Session Active</p>
+            <h2>Designing modern products with vintage UX DNA.</h2>
+            <ul>
+              <li>{activeWindowCount} windows active</li>
+              <li>Alt+Tab enabled</li>
+              <li>Reduced motion aware</li>
+            </ul>
+          </section>
+
           {apps.map((app) => (
             <button
               key={app.id}
@@ -240,11 +279,19 @@ export default function App() {
         </main>
 
         <footer className="window-strip" aria-label="Opened windows">
-          {apps.filter((a) => windowMap[a.id].isOpen).map((app) => (
-            <button key={app.id} className={focused === app.id ? 'active' : ''} onClick={() => openWindow(app.id)}>
-              {app.icon} {app.label}
-            </button>
-          ))}
+          {apps.filter((a) => windowMap[a.id].isOpen).map((app) => {
+            const isFocused = focused === app.id && !windowMap[app.id].minimized;
+            return (
+              <button
+                key={app.id}
+                className={isFocused ? 'active' : ''}
+                onClick={() => (isFocused ? minimizeWindow(app.id) : openWindow(app.id))}
+                aria-pressed={isFocused}
+              >
+                {app.icon} {app.label}
+              </button>
+            );
+          })}
         </footer>
       </div>
 
@@ -326,8 +373,10 @@ function Window({ appId, title, focused, state, onFocus, onClose, onMinimize, on
 
     const move = (ev: MouseEvent) => {
       if (state.maximized) return;
-      const nx = Math.max(8, initX + ev.clientX - startX);
-      const ny = Math.max(52, initY + ev.clientY - startY);
+      const maxX = Math.max(8, window.innerWidth - 240);
+      const maxY = Math.max(52, window.innerHeight - 180);
+      const nx = Math.min(maxX, Math.max(8, initX + ev.clientX - startX));
+      const ny = Math.min(maxY, Math.max(52, initY + ev.clientY - startY));
       onDrag(nx, ny);
     };
 
@@ -348,7 +397,7 @@ function Window({ appId, title, focused, state, onFocus, onClose, onMinimize, on
       role="dialog"
       aria-label={`${title} window`}
     >
-      <header className="window-title" onMouseDown={onMouseDown}>
+      <header className="window-title" onMouseDown={onMouseDown} onDoubleClick={onMaximize}>
         <p>{title}</p>
         <div className="window-actions">
           <button aria-label={`Minimize ${title}`} onClick={onMinimize}>—</button>
@@ -387,7 +436,19 @@ function WindowContent({ appId, repos }: { appId: AppId; repos: Repo[] }) {
 
   async function copyText(label: string, value: string) {
     try {
-      await navigator.clipboard.writeText(value);
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(value);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = value;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'absolute';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
       setCopied(label);
       window.setTimeout(() => setCopied(null), 1400);
     } catch {
@@ -420,11 +481,19 @@ function WindowContent({ appId, repos }: { appId: AppId; repos: Repo[] }) {
       { id: 'delivery', label: 'Product Delivery' }
     ] as const;
 
+    const onTabKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>, currentId: typeof tabs[number]['id']) => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      e.preventDefault();
+      const idx = tabs.findIndex((t) => t.id === currentId);
+      const nextIdx = e.key === 'ArrowRight' ? (idx + 1) % tabs.length : (idx - 1 + tabs.length) % tabs.length;
+      setShowcaseTab(tabs[nextIdx].id);
+    };
+
     return (
       <article>
         <div className="tab-strip" role="tablist" aria-label="Showcase tabs">
           {tabs.map((tab) => (
-            <button key={tab.id} role="tab" aria-selected={showcaseTab === tab.id} className={showcaseTab === tab.id ? 'active' : ''} onClick={() => setShowcaseTab(tab.id)}>
+            <button key={tab.id} role="tab" aria-selected={showcaseTab === tab.id} className={showcaseTab === tab.id ? 'active' : ''} onClick={() => setShowcaseTab(tab.id)} onKeyDown={(e) => onTabKeyDown(e, tab.id)}>
               {tab.label}
             </button>
           ))}
@@ -519,7 +588,10 @@ function WindowContent({ appId, repos }: { appId: AppId; repos: Repo[] }) {
               <h3>{repo.name}</h3>
               <p className="muted">{repo.language || 'Multi'} • ★ {repo.stargazers_count}</p>
               <p>{repo.description || 'Built to solve real-world problems with practical engineering.'}</p>
-              <a href={repo.html_url} target="_blank" rel="noreferrer">Open repo ↗</a>
+              <div className="project-links">
+                <a href={repo.html_url} target="_blank" rel="noreferrer">Open repo ↗</a>
+                {repo.homepage && <a href={repo.homepage} target="_blank" rel="noreferrer">Live site ↗</a>}
+              </div>
             </section>
           )) : <p className="muted">No repositories match this filter right now.</p>}
         </div>

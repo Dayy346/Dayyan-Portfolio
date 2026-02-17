@@ -28,8 +28,8 @@ html, body, #root { margin: 0; min-height: 100%; }
 body {
   font-family: Inter, system-ui, sans-serif;
   background:
-    radial-gradient(circle at 18% -10%, rgba(129, 79, 42, 0.36) 0%, rgba(42, 32, 24, 0.2) 45%, transparent 60%),
-    radial-gradient(circle at 84% 110%, rgba(80, 49, 76, 0.36) 0%, transparent 56%),
+    radial-gradient(circle at 18% -10%, rgba(129, 79, 42, 0.3) 0%, rgba(42, 32, 24, 0.2) 45%, transparent 60%),
+    radial-gradient(circle at 84% 110%, rgba(80, 49, 76, 0.3) 0%, transparent 56%),
     linear-gradient(170deg, #1f1a17 0%, #181412 55%, #131110 100%);
   color: var(--text-inverse);
 }
@@ -100,6 +100,8 @@ select:focus-visible {
     linear-gradient(145deg, #30251f 0%, #251d19 58%, #1f1916 100%);
 }
 .os-shell.preboot { filter: saturate(.7) brightness(.84); }
+.os-shell.mood-archive { background: radial-gradient(circle at 10% 0%, rgba(87, 124, 130, 0.18) 0%, transparent 50%), linear-gradient(145deg, #272929 0%, #1f2225 60%, #16191d 100%); }
+.os-shell.mood-night { background: radial-gradient(circle at 90% 10%, rgba(94, 60, 101, 0.24) 0%, transparent 45%), linear-gradient(145deg, #1f1f2b 0%, #171922 60%, #12141b 100%); }
 
 .taskbar {
   display: flex;
@@ -111,8 +113,9 @@ select:focus-visible {
   border-bottom: 2px solid var(--panel-edge-mid);
   box-shadow: inset 0 1px 0 var(--panel-edge-light);
 }
+.taskbar-status { display: flex; align-items: center; gap: .45rem; }
 
-.start-btn, .window-actions button, .window-strip button, .desktop-icon, .start-menu button, .tab-strip button, .filter-row button, .project-controls select, .project-controls input, .exp-toggle {
+.start-btn, .window-actions button, .window-strip button, .desktop-icon, .start-menu button, .tab-strip button, .filter-row button, .project-controls select, .project-controls input, .exp-toggle, .mood-btn {
   border: 2px solid var(--panel-edge-dark);
   border-top-color: var(--panel-edge-light);
   border-left-color: var(--panel-edge-light);
@@ -122,6 +125,7 @@ select:focus-visible {
 }
 
 .start-btn { font-weight: 700; padding: .18rem .6rem; min-width: 110px; text-align: left; cursor: pointer; }
+.mood-btn { padding: .08rem .4rem; font-size: .78rem; cursor: pointer; text-transform: capitalize; }
 
 .start-btn:active,
 .window-actions button:active,
@@ -129,7 +133,8 @@ select:focus-visible {
 .start-menu button:active,
 .tab-strip button:active,
 .filter-row button:active,
-.exp-toggle:active {
+.exp-toggle:active,
+.mood-btn:active {
   border-top-color: var(--panel-edge-dark);
   border-left-color: var(--panel-edge-dark);
   border-right-color: var(--panel-edge-light);
@@ -168,7 +173,27 @@ select:focus-visible {
 .start-menu p { margin: 0 0 .3rem; color: #3d3027; font-weight: 700; }
 .start-menu button, .start-menu a { text-align: left; padding: .4rem .5rem; color: var(--text-strong); text-decoration: none; display: block; background: var(--surface); cursor: pointer; }
 
-.desktop { position: relative; padding: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 120px)); grid-auto-rows: max-content; gap: .8rem; align-content: start; }
+.desktop {
+  position: relative;
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 120px));
+  grid-auto-rows: max-content;
+  gap: .8rem;
+  align-content: start;
+}
+.desktop-story-widget {
+  grid-column: 1 / span 3;
+  border: 1px solid #ad9986;
+  background: linear-gradient(135deg, rgba(249, 239, 225, 0.95), rgba(232, 220, 201, 0.9));
+  color: #23180f;
+  padding: .7rem .85rem;
+  box-shadow: 7px 7px 0 rgba(17, 10, 6, 0.28);
+}
+.desktop-story-widget p { margin: 0; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; color: #6e5036; }
+.desktop-story-widget h2 { margin: .2rem 0 .45rem; font-size: 1.05rem; }
+.desktop-story-widget ul { margin: 0; padding-left: 1rem; font-size: .84rem; color: #493828; display: grid; gap: .2rem; }
+
 .desktop-icon { display: grid; gap: .35rem; padding: .35rem; background: transparent; color: #f9ece0; border-color: transparent; width: 102px; justify-items: center; cursor: default; }
 .desktop-icon span {
   font-size: 1.6rem;
@@ -247,6 +272,7 @@ select:focus-visible {
 .project-controls input, .project-controls select { padding: .35rem .45rem; }
 .project-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .7rem; }
 .project-card { padding: .7rem; }
+.project-links { display: flex; gap: .6rem; flex-wrap: wrap; }
 .project-card a { color: #6f4220; font-weight: 700; }
 
 .stat-row { margin-top: .7rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .55rem; }
