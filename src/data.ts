@@ -9,14 +9,57 @@ export type AppId =
   | 'contact'
   | 'help';
 
-export const bootLines = [
-  '[OK] Loading Dayyan.OS kernel modules...',
-  '[OK] Mounting frontend workspace...',
-  '[OK] Hydrating portfolio shell in React + TypeScript...',
-  '[OK] Starting desktop window manager...',
-  '[OK] Enabling accessibility and keyboard controls...',
-  '[OK] Preparing showcase and FCB Health highlights...',
-  '[OK] DAYYAN.OS ready.'
+export type BootStage = {
+  id: string;
+  title: string;
+  subtitle: string;
+  accent: string;
+  durationMs: number;
+  lines: string[];
+};
+
+export const bootStages: BootStage[] = [
+  {
+    id: 'bios',
+    title: 'POST + BIOS',
+    subtitle: 'Hardware profile checks and low-level startup',
+    accent: '#4f86c6',
+    durationMs: 2600,
+    lines: [
+      '[POST] CPU: frontend-core x64 @ 3.60GHz',
+      '[POST] Memory test: 16384KB OK',
+      '[POST] Input devices: keyboard + pointer online',
+      '[POST] Video adapter: RetroVGA 32-bit mode',
+      '[OK] Boot device: portfolio-shell.img'
+    ]
+  },
+  {
+    id: 'kernel',
+    title: 'Kernel + Services',
+    subtitle: 'Launching interaction engine and UI runtime',
+    accent: '#5e9b7f',
+    durationMs: 3000,
+    lines: [
+      '[OK] Mounting /ui, /assets, /projects',
+      '[OK] Loading React + TypeScript renderer',
+      '[OK] Starting window manager daemon',
+      '[OK] Registering keyboard shortcuts and a11y hooks',
+      '[OK] Initializing GitHub repository feed'
+    ]
+  },
+  {
+    id: 'desktop',
+    title: 'Desktop Composition',
+    subtitle: 'Applying shell theme and restoring workspace',
+    accent: '#9670b8',
+    durationMs: 2200,
+    lines: [
+      '[OK] Calibrating nostalgic-modern color profile',
+      '[OK] Priming icon cache and taskbar services',
+      '[OK] Syncing engineering showcase modules',
+      '[READY] DAYYAN.OS desktop is now available'
+    ]
+  }
 ];
 
 export const apps = [

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { AppId, apps, bootLines } from './data';
+import { AppId, apps, bootStages } from './data';
 
 type Repo = { name: string; language: string | null; stargazers_count: number; description: string | null; html_url: string; homepage?: string | null; fork: boolean };
 type WindowState = { isOpen: boolean; minimized: boolean; maximized: boolean; x: number; y: number; z: number };
@@ -15,6 +15,8 @@ const INITIAL_POSITIONS: Record<AppId, { x: number; y: number }> = {
   contact: { x: 260, y: 118 },
   help: { x: 280, y: 88 }
 };
+
+const totalBootLines = bootStages.reduce((sum, stage) => sum + stage.lines.length, 0);
 
 const createInitialWindowMap = () =>
   apps.reduce((acc, app, i) => {
@@ -44,7 +46,9 @@ export default function App() {
   const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
   const isMobile = useMediaQuery('(max-width: 920px)');
   const [clock, setClock] = useState('');
-  const [bootIndex, setBootIndex] = useState(reducedMotion ? bootLines.length : 0);
+  const [bootStageIndex, setBootStageIndex] = useState(reducedMotion ? bootStages.length - 1 : 0);
+  const [bootLineIndex, setBootLineIndex] = useState(reducedMotion ? bootStages[bootStages.length - 1].lines.length : 0);
+  const [bootTransitioning, setBootTransitioning] = useState(false);
   const [bootDone, setBootDone] = useState(reducedMotion);
   const [startMenuOpen, setStartMenuOpen] = useState(false);
   const [focused, setFocused] = useState<AppId>('about');
@@ -61,24 +65,35 @@ export default function App() {
 
   useEffect(() => {
     if (reducedMotion) {
-      setBootIndex(bootLines.length);
+      setBootStageIndex(bootStages.length - 1);
+      setBootLineIndex(bootStages[bootStages.length - 1].lines.length);
       setBootDone(true);
       return;
     }
     if (bootDone) return;
-    const id = setInterval(() => {
-      setBootIndex((curr) => {
-        const next = curr + 1;
-        if (next >= bootLines.length) {
-          clearInterval(id);
-          setBootDone(true);
-          return bootLines.length;
+
+    const stage = bootStages[bootStageIndex];
+    const msPerLine = Math.max(260, Math.floor(stage.durationMs / stage.lines.length));
+    const timer = setInterval(() => {
+      setBootLineIndex((curr) => {
+        const nextLine = curr + 1;
+        if (nextLine <= stage.lines.length) return nextLine;
+        clearInterval(timer);
+        if (bootStageIndex < bootStages.length - 1) {
+          setBootStageIndex((s) => s + 1);
+          return 0;
         }
-        return next;
+        setBootTransitioning(true);
+        window.setTimeout(() => {
+          setBootDone(true);
+          setBootTransitioning(false);
+        }, 420);
+        return stage.lines.length;
       });
-    }, 450);
-    return () => clearInterval(id);
-  }, [bootDone, reducedMotion]);
+    }, msPerLine);
+
+    return () => clearInterval(timer);
+  }, [bootDone, bootStageIndex, reducedMotion]);
 
   useEffect(() => {
     fetch('https://api.github.com/users/dayy346/repos?sort=updated&per_page=100')
@@ -118,7 +133,22 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [bootDone, isMobile, focused, windowMap]);
 
-  const visibleBootLines = useMemo(() => bootLines.slice(0, bootIndex), [bootIndex]);
+  const currentStage = bootStages[bootStageIndex];
+  const visibleBootLines = useMemo(() => currentStage.lines.slice(0, bootLineIndex), [currentStage.lines, bootLineIndex]);
+  const completedLines = useMemo(() => {
+    const priorStagesLines = bootStages.slice(0, bootStageIndex).reduce((sum, stage) => sum + stage.lines.length, 0);
+    return priorStagesLines + bootLineIndex;
+  }, [bootStageIndex, bootLineIndex]);
+
+  function skipBoot() {
+    setBootStageIndex(bootStages.length - 1);
+    setBootLineIndex(bootStages[bootStages.length - 1].lines.length);
+    setBootTransitioning(true);
+    window.setTimeout(() => {
+      setBootDone(true);
+      setBootTransitioning(false);
+    }, reducedMotion ? 0 : 300);
+  }
 
   function focusWindow(appId: AppId) {
     zRef.current += 1;
@@ -148,78 +178,131 @@ export default function App() {
     setWindowMap((curr) => ({ ...curr, [appId]: { ...curr[appId], x, y } }));
   }
 
-  if (!bootDone) {
-    return (
-      <div className="boot-screen" role="dialog" aria-live="polite" aria-label="Dayyan OS boot sequence">
-        <div className="boot-terminal">
-          <p className="boot-title">DAYYAN BIOS v3.0 // Frontend Edition</p>
-          <div className="boot-log">{visibleBootLines.map((line) => <p key={line}>{line}</p>)}</div>
-          <div className="progress-wrap"><div className="progress" style={{ width: `${(bootIndex / bootLines.length) * 100}%` }} /></div>
-          <button onClick={() => { setBootDone(true); setBootIndex(bootLines.length); }}>Skip Boot</button>
-        </div>
-      </div>
-    );
-  }
-
-  if (isMobile) {
+  if (isMobile && bootDone) {
     return <MobileLite repos={repos} clock={clock} />;
   }
 
   return (
-    <div className="os-shell">
-      <header className="taskbar">
-        <button className="start-btn" onClick={() => setStartMenuOpen((v) => !v)} aria-haspopup="menu" aria-expanded={startMenuOpen}>⏻ START</button>
-        <p className="taskbar-title">DAYYAN.OS // RETRO FRONTEND SHELL</p>
-        <p className="clock" aria-live="off">{clock}</p>
-      </header>
+    <>
+      <div className={`os-shell ${bootDone ? 'ready' : 'preboot'}`}>
+        <header className="taskbar">
+          <button className="start-btn" onClick={() => setStartMenuOpen((v) => !v)} aria-haspopup="menu" aria-expanded={startMenuOpen}>⏻ START</button>
+          <p className="taskbar-title">DAYYAN.OS // RETRO FRONTEND SHELL</p>
+          <p className="clock" aria-live="off">{clock}</p>
+        </header>
 
-      {startMenuOpen && (
-        <aside className="start-menu" role="menu" aria-label="Start Menu">
-          <p>Launch Programs</p>
+        {startMenuOpen && bootDone && (
+          <aside className="start-menu" role="menu" aria-label="Start Menu">
+            <p>Launch Programs</p>
+            {apps.map((app) => (
+              <button role="menuitem" key={app.id} onClick={() => openWindow(app.id)}>{app.icon} {app.label}</button>
+            ))}
+            <a href="/assets/resume.pdf" download>⬇ Resume.pdf</a>
+          </aside>
+        )}
+
+        <main className="desktop" onClick={() => setStartMenuOpen(false)}>
           {apps.map((app) => (
-            <button role="menuitem" key={app.id} onClick={() => openWindow(app.id)}>{app.icon} {app.label}</button>
+            <button key={app.id} className="desktop-icon" onDoubleClick={() => openWindow(app.id)} onClick={() => setFocused(app.id)}>
+              <span>{app.icon}</span>
+              <small>{app.label}</small>
+            </button>
           ))}
-          <a href="/assets/resume.pdf" download>⬇ Resume.pdf</a>
-        </aside>
+
+          {apps.map((app) => {
+            const state = windowMap[app.id];
+            if (!state.isOpen || state.minimized || !bootDone) return null;
+            return (
+              <Window
+                key={app.id}
+                appId={app.id}
+                title={app.label}
+                focused={focused === app.id}
+                state={state}
+                onFocus={() => focusWindow(app.id)}
+                onClose={() => closeWindow(app.id)}
+                onMinimize={() => minimizeWindow(app.id)}
+                onMaximize={() => maximizeWindow(app.id)}
+                onDrag={(x, y) => dragWindow(app.id, x, y)}
+              >
+                <WindowContent appId={app.id} repos={repos} />
+              </Window>
+            );
+          })}
+        </main>
+
+        <footer className="window-strip" aria-label="Opened windows">
+          {apps.filter((a) => windowMap[a.id].isOpen).map((app) => (
+            <button key={app.id} className={focused === app.id ? 'active' : ''} onClick={() => openWindow(app.id)}>
+              {app.icon} {app.label}
+            </button>
+          ))}
+        </footer>
+      </div>
+
+      {!bootDone && (
+        <BootSequence
+          stage={currentStage}
+          stageIndex={bootStageIndex}
+          stageCount={bootStages.length}
+          visibleLines={visibleBootLines}
+          progress={completedLines / totalBootLines}
+          transitioning={bootTransitioning}
+          onSkip={skipBoot}
+          reducedMotion={reducedMotion}
+        />
       )}
 
-      <main className="desktop" onClick={() => setStartMenuOpen(false)}>
-        {apps.map((app) => (
-          <button key={app.id} className="desktop-icon" onDoubleClick={() => openWindow(app.id)} onClick={() => setFocused(app.id)}>
-            <span>{app.icon}</span>
-            <small>{app.label}</small>
-          </button>
-        ))}
+      {isMobile && !bootDone && <div className="mobile-boot-hint">Tip: skip boot for Mobile Lite summary.</div>}
+    </>
+  );
+}
 
-        {apps.map((app) => {
-          const state = windowMap[app.id];
-          if (!state.isOpen || state.minimized) return null;
-          return (
-            <Window
-              key={app.id}
-              appId={app.id}
-              title={app.label}
-              focused={focused === app.id}
-              state={state}
-              onFocus={() => focusWindow(app.id)}
-              onClose={() => closeWindow(app.id)}
-              onMinimize={() => minimizeWindow(app.id)}
-              onMaximize={() => maximizeWindow(app.id)}
-              onDrag={(x, y) => dragWindow(app.id, x, y)}
-            >
-              <WindowContent appId={app.id} repos={repos} />
-            </Window>
-          );
-        })}
-      </main>
+function BootSequence({
+  stage,
+  stageIndex,
+  stageCount,
+  visibleLines,
+  progress,
+  transitioning,
+  onSkip,
+  reducedMotion
+}: {
+  stage: { id: string; title: string; subtitle: string; accent: string };
+  stageIndex: number;
+  stageCount: number;
+  visibleLines: string[];
+  progress: number;
+  transitioning: boolean;
+  onSkip: () => void;
+  reducedMotion: boolean;
+}) {
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === 's' || e.key === 'Escape' || e.key === 'Enter') onSkip();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [onSkip]);
 
-      <footer className="window-strip" aria-label="Opened windows">
-        {apps.filter((a) => windowMap[a.id].isOpen).map((app) => (
-          <button key={app.id} className={focused === app.id ? 'active' : ''} onClick={() => openWindow(app.id)}>
-            {app.icon} {app.label}
-          </button>
-        ))}
-      </footer>
+  return (
+    <div className={`boot-screen ${transitioning ? 'fade-out' : ''}`} role="dialog" aria-live="polite" aria-label="Dayyan OS boot sequence">
+      <div className="boot-terminal" style={{ '--stage-accent': stage.accent } as React.CSSProperties}>
+        <p className="boot-title">DAYYAN BIOS v3.2 // Frontend Edition</p>
+        <div className="boot-stagebar" aria-label="Boot stage progress">
+          {Array.from({ length: stageCount }).map((_, i) => (
+            <span key={i} className={i <= stageIndex ? 'active' : ''} />
+          ))}
+        </div>
+        <p className="boot-stage-title">Stage {stageIndex + 1} / {stageCount}: {stage.title}</p>
+        <p className="boot-subtitle">{stage.subtitle}</p>
+        <div className="boot-log">{visibleLines.map((line) => <p key={line}>{line}</p>)}</div>
+        <div className="progress-wrap"><div className="progress" style={{ width: `${progress * 100}%` }} /></div>
+        <div className="boot-footer">
+          <small>Press <kbd>S</kbd>, <kbd>Esc</kbd>, or <kbd>Enter</kbd> to skip</small>
+          <button onClick={onSkip}>{reducedMotion ? 'Continue' : 'Skip Boot'}</button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -275,11 +358,11 @@ function WindowContent({ appId, repos }: { appId: AppId; repos: Repo[] }) {
   if (appId === 'showcase') return <article className="cards"><div><h3>Frontend Systems</h3><p>Building reusable components, desktop-grade interactions, and purposeful motion.</p></div><div><h3>Product Mindset</h3><p>Translate business asks into intuitive UI flows that users trust.</p></div><div><h3>Cross-stack Delivery</h3><p>Frontend-first execution backed by practical APIs and cloud deployment.</p></div></article>;
   if (appId === 'experience') return <article className="timeline"><section><h3>Software Engineer — FCB Health</h3><ul><li>Built Nuxt frontend for production-facing user workflows.</li><li>Implemented Python + FastAPI backend services.</li><li>Integrated Azure AI Search for retrieval-driven functionality.</li><li>Hosted on Azure App Service with stable deployment pipelines.</li></ul></section><section><h3>Part-time Engineering Manager — CollabLab</h3><p><strong>Promoted internally</strong> while continuing to contribute hands-on as an engineer.</p><p>Leading delivery across frontend-focused initiatives, mentoring contributors, and improving execution quality across full-stack features.</p></section><section><h3>Regeneron Roles</h3><p>Delivered QA/document-control workflows and Power Platform solutions for process reliability.</p></section></article>;
   if (appId === 'skills') return <article className="cards"><div><h3>Frontend</h3><p>React, TypeScript, Nuxt, accessibility, interaction design, CSS systems.</p></div><div><h3>Backend</h3><p>Node.js, Express, Python/FastAPI, API architecture.</p></div><div><h3>Data + Cloud</h3><p>Azure App Service, Azure AI Search, SQL, Power BI.</p></div></article>;
-  if (appId === 'frontend') return <article><h2>Frontend Focus Highlights</h2><ul><li>Reusable patterns: card systems, window primitives, state-driven UI shells.</li><li>Performance-first rendering and measured animation.</li><li>Keyboard + screen-reader support as first-class UX concerns.</li></ul></article>;
+  if (appId === 'frontend') return <article><h2>Frontend Focus Highlights</h2><ul><li>Reusable patterns: card systems, window primitives, state-driven UI shells.</li><li>Performance-first rendering and measured animation.</li><li>Keyboard + screen-reader support as first-class UX concerns.</li><li>Reduced-motion fallbacks preserve function without visual overload.</li></ul></article>;
   if (appId === 'power') return <article className="about-grid"><img src="/assets/powerlifting.jpg" className="profile" alt="Powerlifting meet" /><div><h2>Collegiate Powerlifting</h2><p>Placed 6th in Dec 2024 championships. I bring the same consistency and focus into product execution.</p></div></article>;
   if (appId === 'projects') return <article><h2>Top GitHub Projects</h2><div className="project-grid">{repos.length ? repos.map((repo) => (<section key={repo.name} className="project-card"><h3>{repo.name}</h3><p className="muted">{repo.language || 'Multi'} • ★ {repo.stargazers_count}</p><p>{repo.description || 'Built to solve real-world problems with practical engineering.'}</p><a href={repo.html_url} target="_blank" rel="noreferrer">Open repo ↗</a></section>)) : <p className="muted">GitHub data loading unavailable right now.</p>}</div></article>;
   if (appId === 'contact') return <article className="cards"><a href="mailto:dh820@scarletmail.rutgers.edu">Email</a><a href="https://www.linkedin.com/in/dayyan-hamid/" target="_blank" rel="noreferrer">LinkedIn</a><a href="https://github.com/dayy346" target="_blank" rel="noreferrer">GitHub</a><a href="https://leetcode.com/dayy345" target="_blank" rel="noreferrer">LeetCode</a></article>;
-  return <article><h2>Keyboard Shortcuts</h2><ul><li><kbd>Alt</kbd> + <kbd>Tab</kbd>: cycle focused window</li><li><kbd>Ctrl</kbd> + <kbd>M</kbd>: minimize focused window</li><li><kbd>Esc</kbd>: close Start menu</li><li>Double-click desktop icons to open apps</li></ul></article>;
+  return <article><h2>Keyboard Shortcuts</h2><ul><li><kbd>Alt</kbd> + <kbd>Tab</kbd>: cycle focused window</li><li><kbd>Ctrl</kbd> + <kbd>M</kbd>: minimize focused window</li><li><kbd>Esc</kbd>: close Start menu or skip boot</li><li>Double-click desktop icons to open apps</li></ul></article>;
 }
 
 function MobileLite({ repos, clock }: { repos: Repo[]; clock: string }) {
