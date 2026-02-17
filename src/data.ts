@@ -22,7 +22,7 @@ export const bootStages: BootStage[] = [
   {
     id: 'bios',
     title: 'POST + BIOS',
-    subtitle: 'Hardware profile checks and low-level startup',
+    subtitle: 'Hardware profile checks and low-level startup routines',
     accent: '#b86f3a',
     durationMs: 2600,
     lines: [
@@ -30,6 +30,7 @@ export const bootStages: BootStage[] = [
       '[POST] Memory test: 16384KB OK',
       '[POST] Input devices: keyboard + pointer online',
       '[POST] Video adapter: RetroVGA 32-bit mode',
+      '[POST] Palette profile: tasteful-neutral / contrast-safe',
       '[OK] Boot device: portfolio-shell.img'
     ]
   },
@@ -44,6 +45,7 @@ export const bootStages: BootStage[] = [
       '[OK] Loading React + TypeScript renderer',
       '[OK] Starting window manager daemon',
       '[OK] Registering keyboard shortcuts and a11y hooks',
+      '[OK] Enabling reduced-motion fallback scheduler',
       '[OK] Initializing GitHub repository feed'
     ]
   },
@@ -57,6 +59,7 @@ export const bootStages: BootStage[] = [
       '[OK] Calibrating nostalgic-modern color profile',
       '[OK] Priming icon cache and taskbar services',
       '[OK] Syncing engineering showcase modules',
+      '[OK] Hydrating narrative windows and desktop telemetry',
       '[READY] DAYYAN.OS desktop is now available'
     ]
   }
