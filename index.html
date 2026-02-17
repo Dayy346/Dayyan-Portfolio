@@ -1,149 +1,17 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dayyan.OS — Portfolio</title>
-  <meta name="description" content="Interactive retro OS themed portfolio for Dayyan Hamid." />
-  <link rel="stylesheet" href="style.css" />
-  <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
-</head>
-<body>
-  <div id="boot-screen" class="boot-screen" aria-live="polite">
-    <div class="boot-terminal">
-      <p class="boot-title">DAYYAN BIOS v2.5.25</p>
-      <div id="boot-log"></div>
-      <div class="progress-wrap">
-        <div id="boot-progress" class="progress"></div>
-      </div>
-      <button id="enter-os" class="hidden">ENTER DAYYAN.OS</button>
-    </div>
-  </div>
-
-  <div id="os" class="os hidden">
-    <header class="taskbar">
-      <button id="start-btn" class="start-btn">⏻ START</button>
-      <p class="taskbar-title">DAYYAN.OS // RETRO MODE</p>
-      <p id="clock" class="clock"></p>
-    </header>
-
-    <main class="desktop">
-      <button class="app-icon" data-app="about">
-        <span>👤</span>
-        <small>About.me</small>
-      </button>
-      <button class="app-icon" data-app="projects">
-        <span>🗂️</span>
-        <small>Projects.dir</small>
-      </button>
-      <button class="app-icon" data-app="experience">
-        <span>🧰</span>
-        <small>Experience.log</small>
-      </button>
-      <button class="app-icon" data-app="skills">
-        <span>⚙️</span>
-        <small>Skills.cfg</small>
-      </button>
-      <button class="app-icon" data-app="frontend">
-        <span>🧠</span>
-        <small>Frontend.lab</small>
-      </button>
-      <button class="app-icon" data-app="power">
-        <span>🏋️</span>
-        <small>Power.stats</small>
-      </button>
-      <button class="app-icon" data-app="contact">
-        <span>📡</span>
-        <small>Contact.net</small>
-      </button>
-    </main>
-
-    <section class="window hidden" id="app-about">
-      <div class="titlebar"><p>about.me</p><button class="close" data-close="about">✕</button></div>
-      <div class="window-content about-grid">
-        <img src="assets/headshot.jpg" alt="Dayyan Hamid" class="profile" />
-        <div>
-          <h1>Dayyan Hamid</h1>
-          <p class="sub">Software Engineer • Data Engineer • Rutgers CS '25</p>
-          <p>I build useful systems across frontend, backend, and data workflows. Strong focus on frontend experience, clean component architecture, and shipping polished products that still feel fast.</p>
-          <div class="chips"><span>React</span><span>Nuxt</span><span>TypeScript</span><span>Node.js</span><span>FastAPI</span><span>Azure</span></div>
-          <div class="actions"><a href="assets/resume.pdf" download>Download Resume</a></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="window hidden" id="app-projects">
-      <div class="titlebar"><p>projects.dir</p><button class="close" data-close="projects">✕</button></div>
-      <div class="window-content">
-        <h2>Featured Projects</h2>
-        <p class="muted">Pulled from GitHub. Click to explore.</p>
-        <div id="project-list" class="project-grid"></div>
-      </div>
-    </section>
-
-    <section class="window hidden" id="app-experience">
-      <div class="titlebar"><p>experience.log</p><button class="close" data-close="experience">✕</button></div>
-      <div class="window-content timeline">
-        <article><h3>Software Engineer — CollabLab</h3><p class="muted">2024 - Present</p><p>Owning full-stack features, improving infra security, and shipping production improvements.</p></article>
-        <article><h3>Software Engineer — FCB Health</h3><p class="muted">Recent Role</p><p>Developed backend using Python and FastAPI, with storage and retrieval implemented in Azure AI Search.</p><p>Developed frontend in Nuxt and hosted on Azure App Service.</p></article>
-        <article><h3>QA Junior Document Control Analyst — Regeneron</h3><p class="muted">Jun 2025 - Present</p><p>Managing GxP docs and streamlining SharePoint workflows for better cross-team collaboration.</p></article>
-        <article><h3>QA IRM Developer Intern — Regeneron</h3><p class="muted">2023 - 2024</p><p>Built tools with Power Platform, SharePoint, and Power BI; earned extension + internal recognition.</p></article>
-      </div>
-    </section>
-
-    <section class="window hidden" id="app-skills">
-      <div class="titlebar"><p>skills.cfg</p><button class="close" data-close="skills">✕</button></div>
-      <div class="window-content skill-grid">
-        <article><h3>Frontend</h3><p>React, JavaScript, TypeScript, HTML, CSS</p></article>
-        <article><h3>Backend</h3><p>Node.js, Express, Python, Java, REST APIs</p></article>
-        <article><h3>Data + Cloud</h3><p>SQL, Power BI, SharePoint, Power Platform</p></article>
-        <article><h3>Tools</h3><p>Git, GitHub, Docker, VS Code, Agile</p></article>
-      </div>
-    </section>
-
-    <section class="window hidden" id="app-frontend">
-      <div class="titlebar"><p>frontend.lab</p><button class="close" data-close="frontend">✕</button></div>
-      <div class="window-content frontend-grid">
-        <article>
-          <h2>Frontend Focus</h2>
-          <p class="muted">Building interfaces that feel intentional, fast, and easy to trust.</p>
-          <ul>
-            <li>Design systems + reusable component patterns</li>
-            <li>Performance-first rendering and clean UX flows</li>
-            <li>Modern app architecture in React and Nuxt ecosystems</li>
-          </ul>
-        </article>
-        <article>
-          <h3>FCB Health Highlight</h3>
-          <p>Developed frontend in <strong>Nuxt</strong> and hosted on <strong>Azure App Service</strong>.</p>
-          <p>Built backend with <strong>Python + FastAPI</strong>, using <strong>Azure AI Search</strong> for storage and retrieval.</p>
-        </article>
-      </div>
-    </section>
-
-    <section class="window hidden" id="app-power">
-      <div class="titlebar"><p>power.stats</p><button class="close" data-close="power">✕</button></div>
-      <div class="window-content power-grid">
-        <img src="assets/powerlifting.jpg" alt="Powerlifting competition" class="power-img" />
-        <div>
-          <h2>Collegiate Powerlifting</h2>
-          <p>Placed <strong>6th</strong> in Dec 2024 championships. Consistency, focus, and pressure management — same mindset I bring to engineering.</p>
-          <a href="https://www.openpowerlifting.org/u/dayyanhamid" target="_blank" rel="noreferrer">View Results</a>
-        </div>
-      </div>
-    </section>
-
-    <section class="window hidden" id="app-contact">
-      <div class="titlebar"><p>contact.net</p><button class="close" data-close="contact">✕</button></div>
-      <div class="window-content contacts">
-        <a href="mailto:dh820@scarletmail.rutgers.edu">Email</a>
-        <a href="https://www.linkedin.com/in/dayyan-hamid/" target="_blank" rel="noreferrer">LinkedIn</a>
-        <a href="https://github.com/dayy346" target="_blank" rel="noreferrer">GitHub</a>
-        <a href="https://leetcode.com/dayy345" target="_blank" rel="noreferrer">LeetCode</a>
-      </div>
-    </section>
-  </div>
-
-  <script src="script.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dayyan.OS — Portfolio</title>
+    <meta
+      name="description"
+      content="High-quality retro OS portfolio experience for Dayyan Hamid."
+    />
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
