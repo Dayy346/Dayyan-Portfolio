@@ -7,6 +7,7 @@ export type AppId =
   | 'frontend'
   | 'power'
   | 'contact'
+  | 'missive'
   | 'help';
 
 export type BootStage = {
@@ -16,51 +17,75 @@ export type BootStage = {
   accent: string;
   durationMs: number;
   lines: string[];
+  narrative: string;
+  pulse: string;
 };
 
 export const bootStages: BootStage[] = [
   {
     id: 'bios',
-    title: 'POST + BIOS',
-    subtitle: 'Hardware profile checks and low-level startup routines',
-    accent: '#b86f3a',
-    durationMs: 2600,
+    title: 'Crystalline POST',
+    subtitle: 'Cinematic sensor choreography aligns hardware with narrative intent.',
+    accent: '#f0a95e',
+    durationMs: 3200,
+    narrative: 'Latest CHI research shows early storytelling cues shrink uncertainty. We warm up the instruments in stillness before revealing the story.',
+    pulse: 'Pulse: measured breath, slow amber pulses, and mechanical shutters easing into motion.',
     lines: [
-      '[POST] CPU: frontend-core x64 @ 3.60GHz',
-      '[POST] Memory test: 16384KB OK',
-      '[POST] Input devices: keyboard + pointer online',
-      '[POST] Video adapter: RetroVGA 32-bit mode',
-      '[POST] Palette profile: tasteful-neutral / contrast-safe',
-      '[OK] Boot device: portfolio-shell.img'
+      '[POST] Crystalline sensors performing 32-bit handshake',
+      '[POST] Haptic keyboard + pointer calibrations verified',
+      '[POST] NVMe memory grid refreshed with redundancy guardrails',
+      '[POST] Ambient light grid warming for premium palettes',
+      '[POST] Story fragments prepped for the cinematic arc',
+      '[OK] BIOS warp drive engaged · hush tuned for stage two'
     ]
   },
   {
     id: 'kernel',
-    title: 'Kernel + Services',
-    subtitle: 'Launching interaction engine and UI runtime',
-    accent: '#5f8f74',
+    title: 'Quantum Kernel Rhythm',
+    subtitle: 'Interaction engine, motion cues, and reliability services get in sync.',
+    accent: '#82c7b3',
     durationMs: 3000,
+    narrative: 'Motion research guided by embodied interaction principles keeps every micro-cue consistent, comfortable, and intentional.',
+    pulse: 'Pulse: ribboned teal glow that swirls with each scheduler beat.',
     lines: [
-      '[OK] Mounting /ui, /assets, /projects',
-      '[OK] Loading React + TypeScript renderer',
-      '[OK] Starting window manager daemon',
-      '[OK] Registering keyboard shortcuts and a11y hooks',
-      '[OK] Enabling reduced-motion fallback scheduler',
-      '[OK] Initializing GitHub repository feed'
+      '[OK] Kernel heartbeat synced with atmospheric motion cadence',
+      '[OK] Scheduler choreographs cinematic + comfort zones',
+      '[OK] Window manager wires tuned for layered inertia',
+      '[OK] Input concierge armed: Alt+Tab, Ctrl+M, Enter',
+      '[OK] Missive board + telemetry streaming curated pulses',
+      '[OK] Reduced-motion fallbacks standing by'
     ]
   },
   {
-    id: 'desktop',
-    title: 'Desktop Composition',
-    subtitle: 'Applying shell theme and restoring workspace',
-    accent: '#8b5e7f',
-    durationMs: 2200,
+    id: 'atmosphere',
+    title: 'Atmospheric Shell',
+    subtitle: 'Gradient fog, halos, and depth cues paint the workspace.',
+    accent: '#c27dcf',
+    durationMs: 2600,
+    narrative: 'Visual comfort studies affirm that layered gradients and subtle haze keep focus while delivering nostalgia.',
+    pulse: 'Pulse: violet halos ripple gently as if breathing through a retro console.',
     lines: [
-      '[OK] Calibrating nostalgic-modern color profile',
-      '[OK] Priming icon cache and taskbar services',
-      '[OK] Syncing engineering showcase modules',
-      '[OK] Hydrating narrative windows and desktop telemetry',
-      '[READY] DAYYAN.OS desktop is now available'
+      '[OK] Palette matrix applying atmospheric gradient overlays',
+      '[OK] Atmosphere conductor warms stage lighting + halos',
+      '[OK] Desktop motif introduces matte, chrome, and warmth',
+      '[OK] Narrative audio hints locked to transition cadence',
+      '[OK] Taskbar + overlays tuned to kinetic bounce rhythms',
+      '[READY] Ambient shell present · retro lightscapes ready'
+    ]
+  },
+  {
+    id: 'story',
+    title: 'Story Sync & Launch',
+    subtitle: 'Every window, repo, and missive narrates the mission.',
+    accent: '#6edb9f',
+    durationMs: 2400,
+    narrative: 'Storytelling research says closing with a friendly narrative hook makes the shell feel alive and trustworthy.',
+    pulse: 'Pulse: emerald streaks cascade toward the horizon, teasing the desktop.',
+    lines: [
+      '[OK] Story watchers align: focus, mood, and highlight cues',
+      '[OK] Repositories, missives, and windows materialized',
+      '[OK] Cinematic boot story synced to live analytics',
+      '[READY] DAYYAN.OS interface fully awake · welcoming you home'
     ]
   }
 ];
@@ -74,5 +99,6 @@ export const apps = [
   { id: 'frontend', icon: '🧠', label: 'Frontend.lab' },
   { id: 'power', icon: '🏋️', label: 'Power.stats' },
   { id: 'contact', icon: '📡', label: 'Contact.net' },
+  { id: 'missive', icon: '✉️', label: 'Missive.msg' },
   { id: 'help', icon: '⌨️', label: 'Help.txt' }
 ] as const;

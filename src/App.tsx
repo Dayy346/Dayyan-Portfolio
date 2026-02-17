@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { AppId, apps, bootStages } from './data';
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent } from 'react';
+import { AppId, apps, bootStages, type BootStage } from './data';
 
 type Repo = { name: string; language: string | null; stargazers_count: number; description: string | null; html_url: string; homepage?: string | null; fork: boolean };
 type WindowState = { isOpen: boolean; minimized: boolean; maximized: boolean; x: number; y: number; z: number };
@@ -8,6 +8,31 @@ type GitHubRepoResponse = Repo[] | { message?: string };
 
 type ExperiencePanel = 'fcb' | 'collablab' | 'regeneron';
 type ShellMood = 'studio' | 'archive' | 'night';
+
+type RepoStatus = 'idle' | 'loading' | 'ready' | 'error';
+
+type ShellStatusParams = {
+  bootStageIndex: number;
+  bootLineIndex: number;
+  bootDone: boolean;
+  activeWindowCount: number;
+  focused: AppId;
+  shellMood: ShellMood;
+  repos: Repo[];
+  repoStatus: RepoStatus;
+  lastRepoSync: string | null;
+};
+
+type ShellStatus = {
+  stageTitle: string;
+  stageSubtitle: string;
+  stageAccent: string;
+  stageProgress: number;
+  storyLines: string[];
+  highlightCopy: string;
+  stageMetric: string;
+  startMenuStatus: string;
+};
 
 const INITIAL_POSITIONS: Record<AppId, { x: number; y: number }> = {
   about: { x: 90, y: 84 },
@@ -18,10 +43,133 @@ const INITIAL_POSITIONS: Record<AppId, { x: number; y: number }> = {
   frontend: { x: 132, y: 154 },
   power: { x: 216, y: 146 },
   contact: { x: 274, y: 124 },
+  missive: { x: 248, y: 168 },
   help: { x: 298, y: 88 }
 };
 
 const totalBootLines = bootStages.reduce((sum, stage) => sum + stage.lines.length, 0);
+
+type MissiveEntry = {
+  id: string;
+  title: string;
+  summary: string;
+  detail: string;
+  vibe: string;
+  status: 'Signal' | 'Update' | 'Insight';
+  accent: string;
+  timestamp: string;
+};
+
+const MISSIVE_LOG: MissiveEntry[] = [
+  {
+    id: 'premium-cadence',
+    title: 'Premium Interaction Cadence',
+    summary: 'Every pop, shadow, and window weight is tuned to feel intentional and sumptuous.',
+    detail: 'Spacing, z-depth, and tonal gradients mirror high-end vintage hardware without losing clarity.',
+    vibe: 'Studio Signal',
+    status: 'Signal',
+    accent: '#cd7a3f',
+    timestamp: '09:15'
+  },
+  {
+    id: 'motion-layer',
+    title: 'Missive Motion Layer',
+    summary: 'Animation sequences behave like mechanical shutters instead of neon chaos.',
+    detail: 'Alt+Tab, drag, and minimize gestures honor a measured tempo that speaks to professional polish.',
+    vibe: 'Motion Update',
+    status: 'Update',
+    accent: '#4f7f63',
+    timestamp: '11:42'
+  },
+  {
+    id: 'delivery-trace',
+    title: 'Delivery Trace Loop',
+    summary: 'Reliability rituals keep premium nostalgia feeling operational and thoughtful.',
+    detail: 'Keyboard-first flows, accessibility checks, and streamlined GitHub lives under one hood.',
+    vibe: 'Delivery Insight',
+    status: 'Insight',
+    accent: '#7b4b9e',
+    timestamp: '13:03'
+  }
+];
+
+const PREMIUM_HIGHLIGHTS = [
+  'Tactile windows, measured pops, and layered gradients keep the experience premium.',
+  'The Missive board curates signals, acknowledges notes, and lets you queue thoughtful replies.',
+  'Keyboard-first controls (Alt+Tab, Ctrl+M, Enter) stay at the forefront of operations.',
+  'Mood states cycle between studio, archive, and night while retaining retro warmth.',
+  'Taskbar health indicators whisper network and sync status instead of yelling alerts.'
+];
+
+type ExperienceUpdate = {
+  id: string;
+  title: string;
+  badge: string;
+  summary: string;
+  detail: string;
+  bullets?: string[];
+  link?: string;
+  linkLabel?: string;
+};
+
+const EXPERIENCE_UPDATES: ExperienceUpdate[] = [
+  {
+    id: 'collablab-promo',
+    title: 'CollabLab Leadership',
+    badge: 'Manager + Mentor',
+    summary: 'Promoted into a part-time Engineering Manager role while keeping hands-on delivery with the core product stack.',
+    detail: 'This card mirrors the old Experience.log pride moment by naming the promotion and the feature work that kept the mission moving.',
+    bullets: [
+      'Leads execution cadence, mentoring, and reviews while remaining an active builder on Node/Express/Vue/Mongo/Daily-powered features.',
+      'Delivered the “camera required” enforcement for tutoring and proctored exam rooms, pairing frontend toggles with backend guards.',
+      'Keeps product clarity, roadmap focus, and release rituals aligned with premium UX goals.'
+    ]
+  },
+  {
+    id: 'junior-ai-engineer',
+    title: 'Junior AI Engineer',
+    badge: 'AI Systems',
+    summary: 'Parlayed frontend craft into a junior AI engineering chapter that prototypes agents, prompts, and operational tooling.',
+    detail: 'The new AI narrative builds on the “Data + Frontend Builder” tagline from the old site while wiring in signal-grade instrumentation.',
+    bullets: [
+      'Builds lightweight prompt scaffolds, synthetic evaluation dashboards, and agent observability layers for experimental tooling.',
+      'Translates research insights into UX-safe prototypes that keep the shell grounded yet instrumented.',
+      'Syncs training logs, telemetry, and control-room UI updates inside the same delivery rituals that ship Dayyan.OS.'
+    ]
+  },
+  {
+    id: 'powerlifting',
+    title: 'Collegiate Powerlifting',
+    badge: 'Discipline',
+    summary: 'Powerlifting remains the training ground for focus—3-lift totals, championship grit, and measurable mastery.',
+    detail: 'This content extends the static Power.stats board from earlier versions with specifics drawn from the 2024 competition cycle.',
+    bullets: [
+      'Squat 215kg · Bench 145kg · Deadlift 250kg',
+      'Dec 2024 East Coast Collegiate Championships · 6th place in the 67.5kg weight class (nationals qualifier)',
+      'Training logs double as reliability rituals that keep engineering and sport aligned.'
+    ]
+  },
+  {
+    id: 'kaggle-notebook',
+    title: 'Kaggle Notebook · Retro Signals',
+    badge: 'Data Story',
+    summary: 'A narrative Kaggle notebook surfaces telemetry from the retro OS research plus metrics from the shell experiments.',
+    detail: 'Links the old static data story section to a living notebook so the chronology of experiments stays sharable.',
+    bullets: ['Synthesizes telemetry from the shell, boot sequence, and repo feed into readable data storytelling.'],
+    link: 'https://www.kaggle.com/dayyan/retro-os-signal-notebook',
+    linkLabel: 'Open Kaggle notebook ↗'
+  },
+  {
+    id: 'github-activity',
+    title: 'GitHub Contributions',
+    badge: 'Open Source',
+    summary: 'Live contributions highlight the same coding energy that the old “GitHub Activity & Contributions” section promised.',
+    detail: 'Top non-fork repos surface the open-source thinking powering delivery, backed by the live API feed and mirrored project grid.',
+    bullets: ['Fetches, filters, and ranks the freshest repos while showcasing the cross-stack impact of every signal.'],
+    link: 'https://github.com/dayy346',
+    linkLabel: 'Browse GitHub ↗'
+  }
+];
 
 const createInitialWindowMap = () =>
   apps.reduce((acc, app, i) => {
@@ -63,7 +211,10 @@ export default function App() {
   const [shellMood, setShellMood] = useState<ShellMood>('studio');
   const zRef = useRef(20);
   const [repos, setRepos] = useState<Repo[]>([]);
+  const [repoStatus, setRepoStatus] = useState<RepoStatus>('idle');
+  const [lastRepoSync, setLastRepoSync] = useState<string | null>(null);
   const [windowMap, setWindowMap] = useState<Record<AppId, WindowState>>(createInitialWindowMap);
+  const [highlightIndex, setHighlightIndex] = useState(0);
 
   useEffect(() => {
     const renderClock = () => setClock(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
@@ -71,6 +222,14 @@ export default function App() {
     const id = setInterval(renderClock, 1000);
     return () => clearInterval(id);
   }, []);
+
+  useEffect(() => {
+    if (reducedMotion) return;
+    const ticker = setInterval(() => {
+      setHighlightIndex((prev) => (prev + 1) % PREMIUM_HIGHLIGHTS.length);
+    }, 5200);
+    return () => clearInterval(ticker);
+  }, [reducedMotion]);
 
   useEffect(() => {
     if (reducedMotion) {
@@ -106,11 +265,14 @@ export default function App() {
 
   useEffect(() => {
     const controller = new AbortController();
+    setRepoStatus('loading');
     fetch('https://api.github.com/users/dayy346/repos?sort=updated&per_page=100', { signal: controller.signal })
       .then((r) => r.json())
       .then((payload: GitHubRepoResponse) => {
         if (!Array.isArray(payload)) {
           setRepos([]);
+          setRepoStatus('error');
+          setLastRepoSync(null);
           return;
         }
         const top = payload
@@ -118,8 +280,15 @@ export default function App() {
           .sort((a, b) => b.stargazers_count - a.stargazers_count)
           .slice(0, 12);
         setRepos(top);
+        setRepoStatus('ready');
+        setLastRepoSync(new Date().toISOString());
       })
-      .catch(() => setRepos([]));
+      .catch(() => {
+        if (controller.signal.aborted) return;
+        setRepos([]);
+        setRepoStatus('error');
+        setLastRepoSync(null);
+      });
 
     return () => controller.abort();
   }, []);
@@ -155,6 +324,18 @@ export default function App() {
   }, [bootStageIndex, bootLineIndex]);
 
   const activeWindowCount = useMemo(() => apps.filter((a) => windowMap[a.id].isOpen && !windowMap[a.id].minimized).length, [windowMap]);
+  const runningApps = useMemo(() => apps.filter((app) => windowMap[app.id].isOpen), [windowMap]);
+  const shellStatus = useShellStatus({
+    bootStageIndex,
+    bootLineIndex,
+    bootDone,
+    activeWindowCount,
+    focused,
+    shellMood,
+    repos,
+    repoStatus,
+    lastRepoSync
+  });
 
   function skipBoot() {
     setBootStageIndex(bootStages.length - 1);
@@ -205,7 +386,7 @@ export default function App() {
   }
 
   if (isMobile && bootDone) {
-    return <MobileLite repos={repos} clock={clock} />;
+    return <MobileLite repos={repos} clock={clock} shellStatus={shellStatus} experienceHighlights={EXPERIENCE_UPDATES} />;
   }
 
   return (
@@ -215,15 +396,55 @@ export default function App() {
           <button className="start-btn" onClick={() => setStartMenuOpen((v) => !v)} aria-haspopup="menu" aria-expanded={startMenuOpen}>⏻ START</button>
           <p className="taskbar-title">DAYYAN.OS // RETRO FRONTEND SHELL</p>
           <div className="taskbar-status">
-            <button className="mood-btn" onClick={() => setShellMood((curr) => (curr === 'studio' ? 'archive' : curr === 'archive' ? 'night' : 'studio'))} aria-label="Cycle desktop mood">
-              Theme: {shellMood}
-            </button>
-            <p className="clock" aria-live="off">{clock}</p>
+            <div className="status-hub" role="status" aria-label="System activities">
+              <span className="status-dot online" aria-hidden="true" />
+              <span>Network ready</span>
+              <span className="status-dot pulse" aria-hidden="true" />
+              <span>Premium sync</span>
+            </div>
+            <div className="status-actions">
+              <button className="mood-btn" onClick={() => setShellMood((curr) => (curr === 'studio' ? 'archive' : curr === 'archive' ? 'night' : 'studio'))} aria-label="Cycle desktop mood">
+                Theme: {shellMood}
+              </button>
+              <p className="clock" aria-live="off">{clock}</p>
+            </div>
           </div>
         </header>
 
         {startMenuOpen && bootDone && (
           <aside className="start-menu" role="menu" aria-label="Start Menu">
+            <div className="start-menu-header">
+              <p>What's running</p>
+              <p className="start-menu-status" aria-live="polite">{shellStatus.startMenuStatus}</p>
+              <p className="start-menu-stage">Stage {bootStageIndex + 1} · {shellStatus.stageTitle} · {Math.round(shellStatus.stageProgress * 100)}%</p>
+            </div>
+            <div className="running-section" role="list">
+              {runningApps.length ? (
+                runningApps.map((app) => {
+                  const state = windowMap[app.id];
+                  const isFocused = focused === app.id;
+                  const isMinimized = state.minimized;
+                  const statusLabel = isMinimized ? 'Minimized' : isFocused ? 'Focused' : 'Running';
+                  return (
+                    <button
+                      key={app.id}
+                      type="button"
+                      role="menuitem"
+                      aria-pressed={isFocused}
+                      className={`running-app ${isMinimized ? 'minimized' : 'active'} ${isFocused ? 'focused' : ''}`}
+                      onClick={() => openWindow(app.id)}
+                    >
+                      <span aria-hidden="true" className="running-icon">{app.icon}</span>
+                      <span className="running-label">{app.label}</span>
+                      <small>{statusLabel}</small>
+                    </button>
+                  );
+                })
+              ) : (
+                <p className="muted">No programs active yet. Launch one below.</p>
+              )}
+            </div>
+            <div className="start-menu-divider" aria-hidden="true" />
             <p>Launch Programs</p>
             {apps.map((app) => (
               <button role="menuitem" key={app.id} onClick={() => openWindow(app.id)}>{app.icon} {app.label}</button>
@@ -237,10 +458,15 @@ export default function App() {
             <p>Session Active</p>
             <h2>Designing modern products with vintage UX DNA.</h2>
             <ul>
-              <li>{activeWindowCount} windows active</li>
-              <li>Alt+Tab enabled</li>
-              <li>Reduced motion aware</li>
+              {shellStatus.storyLines.map((line, idx) => (
+                <li key={`${line}-${idx}`}>{line}</li>
+              ))}
             </ul>
+            <div className="premium-marquee" aria-live="polite">
+              <span>{shellStatus.stageMetric}</span>
+              <span>{PREMIUM_HIGHLIGHTS[highlightIndex]}</span>
+              <span className="marquee-badge">missive premium</span>
+            </div>
           </section>
 
           {apps.map((app) => (
@@ -328,7 +554,7 @@ function BootSequence({
   onSkip,
   reducedMotion
 }: {
-  stage: { id: string; title: string; subtitle: string; accent: string };
+  stage: BootStage;
   stageIndex: number;
   stageCount: number;
   visibleLines: string[];
@@ -345,23 +571,72 @@ function BootSequence({
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [onSkip]);
 
+  const stagePercent = stage.lines.length ? Math.min(1, visibleLines.length / stage.lines.length) : 1;
+  const activeLineIndex = Math.max(0, visibleLines.length - 1);
+  const upcomingLines = stage.lines.slice(visibleLines.length, visibleLines.length + 4);
+
   return (
-    <div className={`boot-screen ${transitioning ? 'fade-out' : ''}`} role="dialog" aria-live="polite" aria-label="Dayyan OS boot sequence">
-      <div className="boot-terminal" style={{ '--stage-accent': stage.accent } as React.CSSProperties}>
-        <p className="boot-title">DAYYAN BIOS v3.2 // Frontend Edition</p>
-        <div className="boot-stagebar" aria-label="Boot stage progress">
-          {Array.from({ length: stageCount }).map((_, i) => (
-            <span key={i} className={i <= stageIndex ? 'active' : ''} />
+    <div
+      className={`boot-screen cinematic${transitioning ? ' fade-out' : ''}${reducedMotion ? ' reduced-motion' : ''}`}
+      role="dialog"
+      aria-live="polite"
+      aria-label="Dayyan OS cinematic boot"
+    >
+      <div className="boot-aurora" aria-hidden="true">
+        <span className="boot-aurora-glow" />
+        <span className="boot-aurora-glow secondary" />
+      </div>
+      <div className="boot-terminal" style={{ '--stage-accent': stage.accent } as CSSProperties}>
+        <header className="boot-headline">
+          <p className="boot-title">DAYYAN BIOS v3.2 // Frontend Edition</p>
+          <div className="boot-stage-pills" aria-label="Boot stage timeline">
+            {bootStages.map((stageItem, idx) => (
+              <span
+                key={stageItem.id}
+                className={`boot-stage-pill${idx <= stageIndex ? ' active' : ''}`}
+                style={{ borderColor: stageItem.accent, background: idx <= stageIndex ? stageItem.accent : 'transparent' }}
+                aria-label={`Stage ${idx + 1}: ${stageItem.title}`}
+              />
+            ))}
+          </div>
+          <p className="boot-stage-title">
+            Phase {stageIndex + 1} · {stage.title}
+            <strong>{Math.round(stagePercent * 100)}%</strong>
+          </p>
+          <p className="boot-subtitle">{stage.subtitle}</p>
+        </header>
+        <section className="boot-narrative">
+          <p>{stage.narrative}</p>
+          <p className="boot-pulse">{stage.pulse}</p>
+        </section>
+        <section className="boot-log" role="log" aria-live="polite" aria-label="Boot log lines">
+          {visibleLines.map((line: string, idx: number) => (
+            <p key={`${line}-${idx}`} className={`boot-line${idx === activeLineIndex ? ' active' : ''}`}>
+              <span>{line}</span>
+            </p>
           ))}
+        </section>
+        {upcomingLines.length > 0 && (
+          <section className="boot-upcoming" aria-live="off">
+            <p>Next cues</p>
+            <div className="boot-upcoming-list">
+              {upcomingLines.map((line: string, idx: number) => (
+                <span key={`${line}-upnext-${idx}`}>{line}</span>
+              ))}
+            </div>
+          </section>
+        )}
+        <div className="boot-progress-foot">
+          <div className="boot-progress-track">
+            <div className="boot-progress-fill" style={{ width: `${Math.round(progress * 100)}%` }} />
+          </div>
+          <p className="boot-progress-copy">Overall progress · {Math.round(progress * 100)}%</p>
         </div>
-        <p className="boot-stage-title">Stage {stageIndex + 1} / {stageCount}: {stage.title} <strong>{Math.round(progress * 100)}%</strong></p>
-        <p className="boot-subtitle">{stage.subtitle}</p>
-        <p className="boot-signature">A frontend system narrative: nostalgic shell, modern engineering constraints.</p>
-        <div className="boot-log">{visibleLines.map((line) => <p key={line}>{line}</p>)}</div>
-        <div className="progress-wrap"><div className="progress" style={{ width: `${progress * 100}%` }} /></div>
-        <div className="boot-footer">
-          <small>Press <kbd>S</kbd>, <kbd>Esc</kbd>, <kbd>Enter</kbd>, or <kbd>Space</kbd> to skip</small>
-          <button onClick={onSkip}>{reducedMotion ? 'Continue' : 'Skip Boot'}</button>
+        <div className="boot-actions">
+          <button type="button" onClick={onSkip}>{reducedMotion ? 'Continue' : 'Skip Boot'}</button>
+          <small>
+            Press <kbd>S</kbd>, <kbd>Esc</kbd>, <kbd>Enter</kbd>, or <kbd>Space</kbd> to continue
+          </small>
         </div>
       </div>
     </div>
@@ -416,7 +691,17 @@ function Window({ appId, title, focused, state, onFocus, onClose, onMinimize, on
   );
 }
 
-function WindowContent({ appId, repos }: { appId: AppId; repos: Repo[] }) {
+function WindowContent({
+  appId,
+  repos,
+  repoStatus,
+  lastRepoSync
+}: {
+  appId: AppId;
+  repos: Repo[];
+  repoStatus: RepoStatus;
+  lastRepoSync: string | null;
+}) {
   const [showcaseTab, setShowcaseTab] = useState<'systems' | 'motion' | 'delivery'>('systems');
   const [experiencePanel, setExperiencePanel] = useState<ExperiencePanel>('fcb');
   const [skillFilter, setSkillFilter] = useState<'all' | 'frontend' | 'backend' | 'cloud'>('all');
@@ -424,11 +709,33 @@ function WindowContent({ appId, repos }: { appId: AppId; repos: Repo[] }) {
   const [sortMode, setSortMode] = useState<'stars' | 'name'>('stars');
   const [useLbs, setUseLbs] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
+  const [selectedMissiveId, setSelectedMissiveId] = useState(MISSIVE_LOG[0].id);
+  const [acknowledgedMissives, setAcknowledgedMissives] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(MISSIVE_LOG.map((missive) => [missive.id, false]))
+  );
+  const [missiveDraft, setMissiveDraft] = useState('');
+  const [queuedMissives, setQueuedMissives] = useState<string[]>([]);
 
   const filteredRepos = useMemo(() => {
     const base = repos.filter((repo) => repo.name.toLowerCase().includes(projectQuery.toLowerCase()));
     return base.sort((a, b) => (sortMode === 'stars' ? b.stargazers_count - a.stargazers_count : a.name.localeCompare(b.name)));
   }, [repos, projectQuery, sortMode]);
+
+  const repoStatusLine = useMemo(() => {
+    const syncTime = lastRepoSync
+      ? new Date(lastRepoSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      : null;
+    if (repoStatus === 'loading') return 'GitHub feed syncing…';
+    if (repoStatus === 'error') return 'GitHub feed paused (retry later)';
+    if (repoStatus === 'ready') return `GitHub feed stable · ${repos.length} repos${syncTime ? ` @ ${syncTime}` : ''}`;
+    return 'GitHub feed idle';
+  }, [repoStatus, lastRepoSync, repos.length]);
+
+  const totalStars = useMemo(() => repos.reduce((sum, repo) => sum + repo.stargazers_count, 0), [repos]);
+  const contributionScore = useMemo(() => {
+    const base = Math.max(1, (repos.length || 1) * 18);
+    return Math.min(100, Math.round((totalStars / base) * 100));
+  }, [totalStars, repos.length]);
 
   const skills = [
     { label: 'React + TS Design Systems', value: 93, lane: 'frontend' },
@@ -515,21 +822,79 @@ function WindowContent({ appId, repos }: { appId: AppId; repos: Repo[] }) {
     return (
       <article className="timeline">
         <section>
-          <h3><button className="exp-toggle" onClick={() => setExperiencePanel('fcb')} aria-expanded={experiencePanel === 'fcb'}>Software Engineer — FCB Health</button></h3>
-          {experiencePanel === 'fcb' && <><ul><li>Built Nuxt frontend modules for production-facing healthcare workflows.</li><li>Implemented Python + FastAPI services supporting operational integrations.</li><li>Integrated Azure AI Search for retrieval-driven user assistance and data lookup.</li><li>Deployed and maintained services on Azure App Service with stable release practices.</li></ul><p className="muted">Stack footprint: Nuxt • Python/FastAPI • Azure AI Search • Azure App Service</p></>}
+          <h3>
+            <button className="exp-toggle" onClick={() => setExperiencePanel('fcb')} aria-expanded={experiencePanel === 'fcb'}>
+              Software Engineer — FCB Health
+            </button>
+          </h3>
+          {experiencePanel === 'fcb' && (
+            <>
+              <ul>
+                <li>Built Nuxt frontend modules for production-facing healthcare workflows.</li>
+                <li>Implemented Python + FastAPI services supporting operational integrations.</li>
+                <li>Integrated Azure AI Search for retrieval-driven user assistance and data lookup.</li>
+                <li>Deployed and maintained services on Azure App Service with stable release practices.</li>
+              </ul>
+              <p className="muted">Stack footprint: Nuxt • Python/FastAPI • Azure AI Search • Azure App Service</p>
+            </>
+          )}
         </section>
         <section>
-          <h3><button className="exp-toggle" onClick={() => setExperiencePanel('collablab')} aria-expanded={experiencePanel === 'collablab'}>Part-time Engineering Manager — CollabLab</button></h3>
-          {experiencePanel === 'collablab' && <><p><strong>Promoted internally</strong> while continuing hands-on frontend and full-stack engineering contributions.</p><p>Leads execution cadence, mentors contributors, and raises delivery quality across team projects.</p><p className="muted">Bridges engineering management with product execution: roadmap clarity, review quality, and team velocity.</p></>}
+          <h3>
+            <button className="exp-toggle" onClick={() => setExperiencePanel('collablab')} aria-expanded={experiencePanel === 'collablab'}>
+              Part-time Engineering Manager — CollabLab
+            </button>
+          </h3>
+          {experiencePanel === 'collablab' && (
+            <>
+              <p>
+                <strong>Promoted internally</strong> while continuing hands-on frontend and full-stack engineering contributions.
+              </p>
+              <p>
+                Leads execution cadence, mentors contributors, and raises delivery quality across team projects.
+              </p>
+              <p className="muted">Bridges engineering management with product execution: roadmap clarity, review quality, and team velocity.</p>
+            </>
+          )}
         </section>
         <section>
-          <h3><button className="exp-toggle" onClick={() => setExperiencePanel('regeneron')} aria-expanded={experiencePanel === 'regeneron'}>Regeneron Roles</button></h3>
+          <h3>
+            <button className="exp-toggle" onClick={() => setExperiencePanel('regeneron')} aria-expanded={experiencePanel === 'regeneron'}>
+              Regeneron Roles
+            </button>
+          </h3>
           {experiencePanel === 'regeneron' && <p>Delivered QA/document-control workflows and Power Platform tooling for process reliability.</p>}
+        </section>
+        <section className="experience-updates" aria-label="Experience updates">
+          <h3>Experience updates</h3>
+          <div className="experience-updates-grid">
+            {EXPERIENCE_UPDATES.map((card) => (
+              <article key={card.id} className="experience-update-card">
+                <header className="experience-update-header">
+                  <h4>{card.title}</h4>
+                  <span className="experience-update-badge">{card.badge}</span>
+                </header>
+                <p className="summary">{card.summary}</p>
+                <p className="detail">{card.detail}</p>
+                {card.bullets && (
+                  <ul>
+                    {card.bullets.map((bullet) => (
+                      <li key={`${card.id}-${bullet}`}>{bullet}</li>
+                    ))}
+                  </ul>
+                )}
+                {card.link && (
+                  <a className="experience-update-link" href={card.link} target="_blank" rel="noreferrer">
+                    {card.linkLabel ?? 'Open link ↗'}
+                  </a>
+                )}
+              </article>
+            ))}
+          </div>
         </section>
       </article>
     );
   }
-
   if (appId === 'skills') {
     return (
       <article>
@@ -573,6 +938,8 @@ function WindowContent({ appId, repos }: { appId: AppId; repos: Repo[] }) {
           })}
           <div><h3>Meet Result</h3><p>Placed 6th in Dec 2024 collegiate championships.</p></div>
         </div>
+
+        <p className="muted small-text">Continuing the static Power.stats board, these lift totals double as training logs grounded in the same reliability research that powered the old site.</p>
       </article>
     );
   }
@@ -581,6 +948,10 @@ function WindowContent({ appId, repos }: { appId: AppId; repos: Repo[] }) {
     return (
       <article>
         <h2>Top GitHub Projects</h2>
+        <p className="repo-summary">
+          {repoStatusLine}
+          <a href="https://github.com/dayy346" target="_blank" rel="noreferrer"> Browse GitHub ↗</a>
+        </p>
         <div className="project-controls">
           <input value={projectQuery} onChange={(e) => setProjectQuery(e.target.value)} placeholder="Filter repositories" aria-label="Filter repositories" />
           <select value={sortMode} onChange={(e) => setSortMode(e.target.value as typeof sortMode)} aria-label="Sort repositories">
@@ -600,6 +971,98 @@ function WindowContent({ appId, repos }: { appId: AppId; repos: Repo[] }) {
               </div>
             </section>
           )) : <p className="muted">No repositories match this filter right now.</p>}
+        </div>
+        <div className="github-pulse">
+          <div className="github-pulse-header">
+            <p>GitHub contributions</p>
+            <span className="github-badge">decorative</span>
+          </div>
+          <div className="github-stats">
+            <div>
+              <strong>{totalStars}</strong>
+              <small>Total stars synced</small>
+            </div>
+            <div>
+              <strong>{repos.length}</strong>
+              <small>Repos tracked</small>
+            </div>
+          </div>
+          <div className="github-bar" aria-hidden="true">
+            <span style={{ width: `${contributionScore}%` }} />
+          </div>
+          <p className="muted small-text">Carrying over the old static GitHub badge, this bar draws from the live sync and keeps the decorative pulse alive.</p>
+        </div>
+      </article>
+    );
+  }
+  if (appId === 'missive') {
+    const activeMissive = MISSIVE_LOG.find((missive) => missive.id === selectedMissiveId) ?? MISSIVE_LOG[0];
+    const isAcknowledged = acknowledgedMissives[activeMissive.id];
+    const handleMissiveDraft = (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      if (!missiveDraft.trim()) return;
+      setQueuedMissives((curr) => [missiveDraft.trim(), ...curr].slice(0, 5));
+      setMissiveDraft('');
+    };
+
+    return (
+      <article className="missive-grid">
+        <div className="missive-list" role="list">
+          {MISSIVE_LOG.map((missive) => (
+            <button
+              key={missive.id}
+              type="button"
+              className={`missive-item ${selectedMissiveId === missive.id ? 'active' : ''}`}
+              onClick={() => setSelectedMissiveId(missive.id)}
+              style={{ borderLeftColor: missive.accent, borderColor: selectedMissiveId === missive.id ? missive.accent : '#a08c77' }}
+            >
+              <small className="missive-time">{missive.timestamp}</small>
+              <strong>{missive.title}</strong>
+              <p>{missive.summary}</p>
+              <span className="missive-tag" style={{ borderColor: missive.accent }}>{missive.vibe}</span>
+            </button>
+          ))}
+        </div>
+        <div className="missive-detail" style={{ borderColor: activeMissive.accent }}>
+          <header>
+            <p className="muted missive-status">
+              <span className="missive-status-dot" style={{ backgroundColor: activeMissive.accent }} />
+              {activeMissive.status}
+            </p>
+            <h2>{activeMissive.title}</h2>
+            <p>{activeMissive.detail}</p>
+          </header>
+          <div className="missive-actions">
+            <button
+              type="button"
+              className={isAcknowledged ? 'confirmed' : ''}
+              onClick={() => setAcknowledgedMissives((prev) => ({ ...prev, [activeMissive.id]: !prev[activeMissive.id] }))}
+            >
+              {isAcknowledged ? 'Re-open' : 'Acknowledge'}
+            </button>
+            <span className="muted small-text">Last noted at {activeMissive.timestamp}</span>
+          </div>
+          <form className="missive-draft" onSubmit={handleMissiveDraft}>
+            <label htmlFor="missiveDraft">Draft a premium note</label>
+            <textarea
+              id="missiveDraft"
+              value={missiveDraft}
+              onChange={(e) => setMissiveDraft(e.target.value)}
+              placeholder="Capture a signal, schedule, or wish list."
+              rows={3}
+            />
+            <button type="submit">Queue Draft</button>
+          </form>
+          {queuedMissives.length > 0 && (
+            <div className="missive-queue">
+              <p>Queued missives</p>
+              <ul>
+                {queuedMissives.map((note, idx) => (
+                  <li key={`${note}-${idx}`}>{note}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </article>
     );
@@ -621,7 +1084,17 @@ function WindowContent({ appId, repos }: { appId: AppId; repos: Repo[] }) {
   return <article><h2>Keyboard Shortcuts</h2><ul><li><kbd>Alt</kbd> + <kbd>Tab</kbd>: cycle focused window</li><li><kbd>Ctrl</kbd> + <kbd>M</kbd>: minimize focused window</li><li><kbd>Esc</kbd>: close Start menu or skip boot</li><li><kbd>S</kbd>, <kbd>Enter</kbd>, <kbd>Space</kbd>: skip boot instantly</li><li>Double-click desktop icons or press <kbd>Enter</kbd> to open apps</li></ul></article>;
 }
 
-function MobileLite({ repos, clock }: { repos: Repo[]; clock: string }) {
+function MobileLite({
+  repos,
+  clock,
+  shellStatus,
+  experienceHighlights
+}: {
+  repos: Repo[];
+  clock: string;
+  shellStatus: ShellStatus;
+  experienceHighlights: ExperienceUpdate[];
+}) {
   return (
     <div className="mobile-lite">
       <header>
@@ -629,18 +1102,110 @@ function MobileLite({ repos, clock }: { repos: Repo[]; clock: string }) {
         <p>{clock}</p>
       </header>
       <section>
-        <h2>Frontend-first Engineer</h2>
-        <p>Retro desktop experience is optimized for larger screens. Mobile gets a clean, fast summary of highlights.</p>
+        <h2>Shell telemetry</h2>
+        <p><strong>{shellStatus.stageTitle}</strong> · {shellStatus.stageSubtitle}</p>
+        <p>{shellStatus.highlightCopy}</p>
+      </section>
+      <section>
+        <h3>Experience updates</h3>
+        <ul>
+          {experienceHighlights.map((update) => (
+            <li key={update.id}>
+              <strong>{update.title}</strong> · {update.summary}
+              {update.link && (
+                <a href={update.link} target="_blank" rel="noreferrer"> {update.linkLabel ?? 'Open link'}</a>
+              )}
+            </li>
+          ))}
+        </ul>
       </section>
       <section>
         <h3>FCB Health Highlights</h3>
-        <ul><li>Nuxt frontend development for production workflows</li><li>Python + FastAPI backend services</li><li>Azure AI Search integration</li><li>Deployment on Azure App Service</li></ul>
+        <ul>
+          <li>Nuxt frontend development for production workflows</li>
+          <li>Python + FastAPI backend services</li>
+          <li>Azure AI Search integration</li>
+          <li>Deployment on Azure App Service</li>
+        </ul>
       </section>
       <section>
         <h3>Featured Repositories</h3>
-        <ul>{repos.slice(0, 4).map((repo) => <li key={repo.name}><a href={repo.html_url} target="_blank" rel="noreferrer">{repo.name}</a></li>)}</ul>
+        <ul>
+          {repos.slice(0, 4).map((repo) => (
+            <li key={repo.name}>
+              <a href={repo.html_url} target="_blank" rel="noreferrer">
+                {repo.name}
+              </a>
+            </li>
+          ))}
+        </ul>
       </section>
-      <footer><a href="/assets/resume.pdf" download>Download Resume</a></footer>
+      <footer>
+        <a href="/assets/resume.pdf" download>Download Resume</a>
+      </footer>
     </div>
   );
+}
+
+function useShellStatus(params: ShellStatusParams): ShellStatus {
+  return useMemo(() => {
+    const {
+      bootStageIndex,
+      bootLineIndex,
+      bootDone,
+      activeWindowCount,
+      focused,
+      shellMood,
+      repos,
+      repoStatus,
+      lastRepoSync
+    } = params;
+    const stage = bootStages[Math.min(bootStageIndex, bootStages.length - 1)];
+    const normalizedStageProgress = stage.lines.length ? Math.min(1, bootLineIndex / stage.lines.length) : 1;
+    const bootLinesCompleted = bootStages
+      .slice(0, bootStageIndex)
+      .reduce((sum, stageItem) => sum + stageItem.lines.length, 0) + Math.min(bootLineIndex, stage.lines.length);
+    const totalProgress = bootDone ? 1 : bootLinesCompleted / totalBootLines;
+    const focusLabel = apps.find((app) => app.id === focused)?.label ?? 'Shell';
+    const metricLine = bootDone
+      ? 'Desktop is online and waiting for interactions.'
+      : stage.lines[Math.max(0, Math.min(stage.lines.length - 1, bootLineIndex - 1))] ?? stage.subtitle;
+    const repoCount = repos.length;
+    const syncTime = lastRepoSync ? new Date(lastRepoSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : null;
+    const repoPhrase =
+      repoStatus === 'loading'
+        ? 'GitHub feed syncing…'
+        : repoStatus === 'ready'
+          ? `GitHub feed stable · ${repoCount} repos${syncTime ? ` @ ${syncTime}` : ''}`
+          : repoStatus === 'error'
+            ? 'GitHub feed paused (retry later)'
+            : 'GitHub feed idle';
+    const moodLabel = `${shellMood.charAt(0).toUpperCase()}${shellMood.slice(1)}`;
+
+    return {
+      stageTitle: bootDone ? 'Shell ready' : stage.title,
+      stageSubtitle: bootDone ? 'Every window ready' : stage.subtitle,
+      stageAccent: stage.accent,
+      stageProgress: totalProgress,
+      storyLines: [
+        bootDone ? 'Boot complete · Desktop ready' : `Stage ${bootStageIndex + 1}: ${stage.title} (${Math.round(normalizedStageProgress * 100)}%)`,
+        `Focused: ${focusLabel}`,
+        `${activeWindowCount} windows active`,
+        repoPhrase
+      ],
+      highlightCopy: repoPhrase,
+      stageMetric: metricLine,
+      startMenuStatus: `${moodLabel} · ${activeWindowCount} windows · ${repoPhrase}`
+    };
+  }, [
+    params.bootStageIndex,
+    params.bootLineIndex,
+    params.bootDone,
+    params.activeWindowCount,
+    params.focused,
+    params.shellMood,
+    params.repos.length,
+    params.repoStatus,
+    params.lastRepoSync
+  ]);
 }
