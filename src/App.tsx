@@ -1,5 +1,15 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent } from 'react';
-import { AppId, apps, bootStages, type BootStage } from './data';
+import {
+  AppId,
+  apps,
+  bootStages,
+  contributionHighlights,
+  leetCodeInsights,
+  leetCodeStats,
+  researchBriefNotes,
+  resumeSections,
+  type BootStage
+} from './data';
 
 type Repo = { name: string; language: string | null; stargazers_count: number; description: string | null; html_url: string; homepage?: string | null; fork: boolean };
 type WindowState = { isOpen: boolean; minimized: boolean; maximized: boolean; x: number; y: number; z: number };
@@ -34,17 +44,22 @@ type ShellStatus = {
   startMenuStatus: string;
 };
 
+type ChatMessage = { sender: 'bot' | 'user'; text: string; time: string };
 const INITIAL_POSITIONS: Record<AppId, { x: number; y: number }> = {
-  about: { x: 90, y: 84 },
-  showcase: { x: 152, y: 104 },
-  projects: { x: 208, y: 122 },
-  experience: { x: 250, y: 96 },
-  skills: { x: 172, y: 138 },
-  frontend: { x: 132, y: 154 },
-  power: { x: 216, y: 146 },
-  contact: { x: 274, y: 124 },
-  missive: { x: 248, y: 168 },
-  help: { x: 298, y: 88 }
+  about: { x: 78, y: 78 },
+  resume: { x: 150, y: 78 },
+  showcase: { x: 222, y: 78 },
+  projects: { x: 294, y: 78 },
+  contributions: { x: 78, y: 148 },
+  experience: { x: 150, y: 148 },
+  skills: { x: 222, y: 148 },
+  frontend: { x: 294, y: 148 },
+  power: { x: 78, y: 218 },
+  leetcode: { x: 150, y: 218 },
+  contact: { x: 222, y: 218 },
+  chatbot: { x: 294, y: 218 },
+  missive: { x: 150, y: 288 },
+  help: { x: 222, y: 288 }
 };
 
 const totalBootLines = bootStages.reduce((sum, stage) => sum + stage.lines.length, 0);
@@ -208,7 +223,7 @@ export default function App() {
   const [bootDone, setBootDone] = useState(reducedMotion);
   const [startMenuOpen, setStartMenuOpen] = useState(false);
   const [focused, setFocused] = useState<AppId>('about');
-  const [shellMood, setShellMood] = useState<ShellMood>('studio');
+  const [shellMood, setShellMood] = useState<ShellMood>('night');
   const zRef = useRef(20);
   const [repos, setRepos] = useState<Repo[]>([]);
   const [repoStatus, setRepoStatus] = useState<RepoStatus>('idle');
@@ -503,7 +518,7 @@ export default function App() {
                 onMaximize={() => maximizeWindow(app.id)}
                 onDrag={(x, y) => dragWindow(app.id, x, y)}
               >
-                <WindowContent appId={app.id} repos={repos} />
+                <WindowContent appId={app.id} repos={repos} repoStatus={repoStatus} lastRepoSync={lastRepoSync} />
               </Window>
             );
           })}
@@ -565,7 +580,7 @@ function BootSequence({
 }) {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() === 's' || e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') onSkip();
+      if (['s', 'Escape', 'Enter', ' '].includes(e.key)) onSkip();
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
@@ -586,59 +601,92 @@ function BootSequence({
         <span className="boot-aurora-glow" />
         <span className="boot-aurora-glow secondary" />
       </div>
-      <div className="boot-terminal" style={{ '--stage-accent': stage.accent } as CSSProperties}>
-        <header className="boot-headline">
-          <p className="boot-title">DAYYAN BIOS v3.2 // Frontend Edition</p>
-          <div className="boot-stage-pills" aria-label="Boot stage timeline">
-            {bootStages.map((stageItem, idx) => (
-              <span
-                key={stageItem.id}
-                className={`boot-stage-pill${idx <= stageIndex ? ' active' : ''}`}
-                style={{ borderColor: stageItem.accent, background: idx <= stageIndex ? stageItem.accent : 'transparent' }}
-                aria-label={`Stage ${idx + 1}: ${stageItem.title}`}
-              />
-            ))}
-          </div>
-          <p className="boot-stage-title">
-            Phase {stageIndex + 1} · {stage.title}
-            <strong>{Math.round(stagePercent * 100)}%</strong>
-          </p>
-          <p className="boot-subtitle">{stage.subtitle}</p>
-        </header>
-        <section className="boot-narrative">
-          <p>{stage.narrative}</p>
-          <p className="boot-pulse">{stage.pulse}</p>
-        </section>
-        <section className="boot-log" role="log" aria-live="polite" aria-label="Boot log lines">
-          {visibleLines.map((line: string, idx: number) => (
-            <p key={`${line}-${idx}`} className={`boot-line${idx === activeLineIndex ? ' active' : ''}`}>
-              <span>{line}</span>
-            </p>
-          ))}
-        </section>
-        {upcomingLines.length > 0 && (
-          <section className="boot-upcoming" aria-live="off">
-            <p>Next cues</p>
-            <div className="boot-upcoming-list">
-              {upcomingLines.map((line: string, idx: number) => (
-                <span key={`${line}-upnext-${idx}`}>{line}</span>
+      <div className="boot-grid">
+        <div className="boot-terminal" style={{ '--stage-accent': stage.accent } as CSSProperties}>
+          <header className="boot-headline">
+            <p className="boot-title">DAYYAN BIOS v3.2 // Frontend Edition</p>
+            <div className="boot-stage-pills" aria-label="Boot stage timeline">
+              {bootStages.map((stageItem, idx) => (
+                <span
+                  key={stageItem.id}
+                  className={`boot-stage-pill${idx <= stageIndex ? ' active' : ''}`}
+                  style={{ borderColor: stageItem.accent, background: idx <= stageIndex ? stageItem.accent : 'transparent' }}
+                  aria-label={`Stage ${idx + 1}: ${stageItem.title}`}
+                />
               ))}
             </div>
+            <p className="boot-stage-title">
+              Phase {stageIndex + 1} · {stage.title}
+              <strong>{Math.round(stagePercent * 100)}%</strong>
+            </p>
+            <p className="boot-subtitle">{stage.subtitle}</p>
+          </header>
+          <section className="boot-narrative">
+            <p>{stage.narrative}</p>
+            <p className="boot-pulse">{stage.pulse}</p>
           </section>
-        )}
-        <div className="boot-progress-foot">
-          <div className="boot-progress-track">
-            <div className="boot-progress-fill" style={{ width: `${Math.round(progress * 100)}%` }} />
+          <section className="boot-log" role="log" aria-live="polite" aria-label="Boot log lines">
+            {visibleLines.map((line, idx) => (
+              <p key={`${line}-${idx}`} className={`boot-line${idx === activeLineIndex ? ' active' : ''}`}>
+                <span>{line}</span>
+              </p>
+            ))}
+          </section>
+          {upcomingLines.length > 0 && (
+            <section className="boot-upcoming" aria-live="off">
+              <p>Next cues</p>
+              <div className="boot-upcoming-list">
+                {upcomingLines.map((line, idx) => (
+                  <span key={`${line}-upnext-${idx}`}>{line}</span>
+                ))}
+              </div>
+            </section>
+          )}
+          <div className="boot-progress-foot">
+            <div className="boot-progress-track">
+              <div className="boot-progress-fill" style={{ width: `${Math.round(progress * 100)}%` }} />
+            </div>
+            <p className="boot-progress-copy">Overall progress · {Math.round(progress * 100)}%</p>
           </div>
-          <p className="boot-progress-copy">Overall progress · {Math.round(progress * 100)}%</p>
+          <div className="boot-actions">
+            <button type="button" onClick={onSkip}>{reducedMotion ? 'Continue' : 'Skip Boot'}</button>
+            <small>
+              Press <kbd>S</kbd>, <kbd>Esc</kbd>, <kbd>Enter</kbd>, or <kbd>Space</kbd> to continue
+            </small>
+          </div>
         </div>
-        <div className="boot-actions">
-          <button type="button" onClick={onSkip}>{reducedMotion ? 'Continue' : 'Skip Boot'}</button>
-          <small>
-            Press <kbd>S</kbd>, <kbd>Esc</kbd>, <kbd>Enter</kbd>, or <kbd>Space</kbd> to continue
-          </small>
-        </div>
+        <aside className="boot-research-panel">
+          <header>
+            <p>Research briefing</p>
+            <h3>Story + science</h3>
+            <p>Each cinematic stage mirrors the research notes below and keeps the arrival grounded.</p>
+          </header>
+          <div className="research-grid">
+            {researchBriefNotes.map((note) => (
+              <article key={note.title}>
+                <p className="research-title">{note.title}</p>
+                <p>{note.detail}</p>
+                <small>{note.source}</small>
+              </article>
+            ))}
+          </div>
+          <div className="boot-arc">
+            <p className="boot-arc-label">Arc progress · Phase {stageIndex + 1} / {stageCount}</p>
+            <div className="boot-arc-track">
+              {bootStages.map((stageItem, idx) => (
+                <span
+                  key={`arc-${stageItem.id}`}
+                  className={`boot-arc-pill${idx === stageIndex ? ' active' : ''}`}
+                  style={{ borderColor: stageItem.accent, background: idx <= stageIndex ? stageItem.accent : 'transparent' }}
+                  aria-label={`Stage ${idx + 1}: ${stageItem.title}`}
+                />
+              ))}
+            </div>
+            <p className="boot-arc-hint">Research notes keep the narrative credible, even if you skip ahead.</p>
+          </div>
+        </aside>
       </div>
+      <div className="boot-footer-note">Cinematic research keeps the sequence grounded in evidence-based storytelling.</div>
     </div>
   );
 }
@@ -716,6 +764,20 @@ function WindowContent({
   const [missiveDraft, setMissiveDraft] = useState('');
   const [queuedMissives, setQueuedMissives] = useState<string[]>([]);
 
+  const botTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>(() => {
+    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return [
+      { sender: 'bot', text: 'Dayyan.AI Assist online. Ask for contributions, LeetCode habits, or resume highlights from the shell.', time: now }
+    ];
+  });
+  const [chatInput, setChatInput] = useState('');
+  useEffect(() => () => {
+    if (botTimerRef.current) {
+      window.clearTimeout(botTimerRef.current);
+    }
+  }, []);
+
   const filteredRepos = useMemo(() => {
     const base = repos.filter((repo) => repo.name.toLowerCase().includes(projectQuery.toLowerCase()));
     return base.sort((a, b) => (sortMode === 'stars' ? b.stargazers_count - a.stargazers_count : a.name.localeCompare(b.name)));
@@ -769,6 +831,44 @@ function WindowContent({
     }
   }
 
+  const formatTime = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  const generateBotResponse = (message: string) => {
+    const normalized = message.toLowerCase();
+    if (normalized.includes('resume') || normalized.includes('education') || normalized.includes('experience')) {
+      return 'The resume window mirrors the latest PDF with education, projects, certifications, and leadership highlights.';
+    }
+    if (normalized.includes('leetcode')) {
+      return 'LeetCode practice is grounded in spaced repetition research and story-driven problem solving—check the LeetCode window for stats.';
+    }
+    if (normalized.includes('contribution') || normalized.includes('repo') || normalized.includes('git')) {
+      return 'Contributions.log highlights camera guardrails, GxP docs, and infra telemetry so you can see the delivery trail.';
+    }
+    if (normalized.includes('boot') || normalized.includes('cinematic') || normalized.includes('research')) {
+      return 'The cinematic boot quotes CHI 2024 story research, embodied motion cues, and visual comfort labs for a grounded arrival.';
+    }
+    if (normalized.includes('chatbot')) {
+      return 'This chatbot captures notes, echoes resume highlights, and feeds the Missive board when the queue grows.';
+    }
+    return 'Dayyan.OS blends retro storytelling with premium delivery. Ask about resume, contributions, or LeetCode stats for guided highlights.';
+  };
+
+  const scheduleBotResponse = (reply: string) => {
+    if (botTimerRef.current) window.clearTimeout(botTimerRef.current);
+    botTimerRef.current = window.setTimeout(() => {
+      setChatHistory((prev) => [...prev, { sender: 'bot', text: reply, time: formatTime() }]);
+    }, 420);
+  };
+
+  const handleChatSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const trimmed = chatInput.trim();
+    if (!trimmed) return;
+    setChatHistory((prev) => [...prev, { sender: 'user', text: trimmed, time: formatTime() }]);
+    setChatInput('');
+    scheduleBotResponse(generateBotResponse(trimmed));
+  };
+
   if (appId === 'about') {
     return (
       <article className="about-grid">
@@ -783,6 +883,27 @@ function WindowContent({
             <div><strong>Cross-stack Delivery</strong><small>UI, APIs, deployment, and reliability</small></div>
           </div>
         </div>
+      </article>
+    );
+  }
+
+  if (appId === 'resume') {
+    return (
+      <article className="resume-layout">
+        {resumeSections.map((section) => (
+          <section key={`resume-${section.title}`}>
+            <header>
+              <h3>{section.title}</h3>
+              {section.summary && <p className="muted">{section.summary}</p>}
+            </header>
+            <ul>
+              {section.bullets.map((bullet) => (
+                <li key={`${section.title}-${bullet}`}>{bullet}</li>
+              ))}
+            </ul>
+            {section.footer && <p className="muted footer-note">{section.footer}</p>}
+          </section>
+        ))}
       </article>
     );
   }
@@ -944,6 +1065,36 @@ function WindowContent({
     );
   }
 
+  if (appId === 'leetcode') {
+    return (
+      <article className="leetcode-panel">
+        <header>
+          <p className="muted">Practice lab</p>
+          <h2>LeetCode.trn</h2>
+          <p>Systems-aligned problem solving backed by spaced repetition and story-driven practice.</p>
+        </header>
+        <div className="leetcode-grid">
+          {leetCodeStats.map((stat) => (
+            <div key={`leetcode-${stat.label}`}>
+              <strong>{stat.value}</strong>
+              <p>{stat.label}</p>
+              <small>{stat.detail}</small>
+            </div>
+          ))}
+        </div>
+        <section className="leetcode-insights">
+          {leetCodeInsights.map((insight) => (
+            <article key={`insight-${insight.title}`}>
+              <h4>{insight.title}</h4>
+              <p>{insight.detail}</p>
+              <small>{insight.source}</small>
+            </article>
+          ))}
+        </section>
+      </article>
+    );
+  }
+
   if (appId === 'projects') {
     return (
       <article>
@@ -995,6 +1146,53 @@ function WindowContent({
       </article>
     );
   }
+  if (appId === 'contributions') {
+    const recentRepos = repos.slice(0, 4);
+    return (
+      <article className="contributions-panel">
+        <header>
+          <p className="muted">Delivery telemetry</p>
+          <h2>Contributions.log</h2>
+          <p>{repoStatusLine}</p>
+        </header>
+        <div className="contribution-metrics">
+          <div>
+            <strong>{repos.length}</strong>
+            <small>Tracked repositories</small>
+          </div>
+          <div>
+            <strong>{totalStars}</strong>
+            <small>Total stars</small>
+          </div>
+          <div>
+            <strong>{contributionScore}%</strong>
+            <small>Signal strength</small>
+          </div>
+        </div>
+        <section className="contribution-highlights">
+          {contributionHighlights.map((highlight) => (
+            <article key={`${highlight.title}-${highlight.detail}`}>
+              <h4>{highlight.title}</h4>
+              <p>{highlight.detail}</p>
+            </article>
+          ))}
+        </section>
+        <section className="contribution-grid">
+          <h3>Fresh repos</h3>
+          <div className="contribution-repos">
+            {recentRepos.length ? recentRepos.map((repo) => (
+              <article key={`contrib-${repo.name}`}>
+                <h4>{repo.name}</h4>
+                <p className="muted">{repo.description || 'GitHub work in motion.'}</p>
+                <small>{repo.language || 'Multi'} • ★ {repo.stargazers_count}</small>
+              </article>
+            )) : <p className="muted">No repositories ready for highlight yet.</p>}
+          </div>
+        </section>
+      </article>
+    );
+  }
+
   if (appId === 'missive') {
     const activeMissive = MISSIVE_LOG.find((missive) => missive.id === selectedMissiveId) ?? MISSIVE_LOG[0];
     const isAcknowledged = acknowledgedMissives[activeMissive.id];
@@ -1077,6 +1275,31 @@ function WindowContent({
         <a href="https://github.com/dayy346" target="_blank" rel="noreferrer">GitHub</a>
         <a href="https://leetcode.com/dayy345" target="_blank" rel="noreferrer">LeetCode</a>
         {copied && <p className="muted">Copied {copied} to clipboard.</p>}
+      </article>
+    );
+  }
+
+  if (appId === 'chatbot') {
+    return (
+      <article className="chatbot-shell">
+        <header>
+          <h2>Assist.chat</h2>
+          <p>Feed the Missive board, contributions, and resume highlights with a quick question.</p>
+        </header>
+        <div className="chat-window">
+          {chatHistory.map((message, idx) => (
+            <div key={`chat-${idx}`} className={`chat-message ${message.sender}`}><p>{message.text}</p><small>{message.time}</small></div>
+          ))}
+        </div>
+        <form className="chatbot-form" onSubmit={handleChatSubmit}>
+          <input
+            value={chatInput}
+            onChange={(e) => setChatInput(e.target.value)}
+            placeholder="Ask about resume, research, contributions, or LeetCode stats."
+            aria-label="Chat input"
+          />
+          <button type="submit">Send ↗</button>
+        </form>
       </article>
     );
   }
