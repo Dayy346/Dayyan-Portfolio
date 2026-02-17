@@ -1,265 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dayyan Hamid - Software Engineer & Data Engineer</title>
-    <meta name="description" content="Dayyan Hamid - Software Engineer, Data Engineer, and Full-Stack Developer. Rutgers University Computer Science graduate with experience at CollabLab and Regeneron.">
-    <meta name="keywords" content="Software Engineer, Data Engineer, Full-Stack Developer, Rutgers University, CollabLab, Regeneron">
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dayyan Hamid | Retro OS Portfolio</title>
+  <meta
+    name="description"
+    content="Dayyan Hamid - Software Engineer and Data Engineer portfolio in a retro OS aesthetic."
+  />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
 </head>
 <body>
-    <!-- Navigation Menu -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <span>Dayyan Hamid</span>
-            </div>
-            <ul class="nav-menu">
-                <li><a href="#skills">Skills</a></li>
-                <li><a href="#projects">Projects</a></li>
-                <li><a href="#experience">Experience</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-            <div class="nav-toggle">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </div>
+  <div class="noise" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="start-btn" id="start-btn" aria-label="Open command palette">◉ START</button>
+      <span class="brand">DAYYAN.OS</span>
+    </div>
+    <nav class="dock" aria-label="Primary">
+      <a href="#about">About</a>
+      <a href="#projects">Projects</a>
+      <a href="#experience">Experience</a>
+      <a href="#contact">Contact</a>
     </nav>
+    <div class="clock" id="clock" aria-live="polite"></div>
+  </header>
 
-    <header>
-        <div class="header-content">
-            <div class="profile-section">
-                <img src="assets/headshot.jpg" alt="Dayyan Hamid - Software Engineer" class="profile-pic">
-                <div class="profile-badges">
-                    <span class="badge">🚀 Software Engineer</span>
-                    <span class="badge">📊 Data Engineer</span>
-                    <span class="badge">🎯 Rutgers CS '25</span>
-                </div>
-            </div>
-            <div class="header-text">
-                <h1 id="animated-text"></h1>
-                <p class="subtitle">Computer Science • Rutgers University • Class of 2025</p>
-                <p class="bio">Hey, I'm Dayyan Hamid, A passionate Software Engineer and recent graduate from Rutgers University (Computer Science May 2025). Currently at CollabLab, I build scalable backend and frontend systems while owning several key features. Previously at Regeneron as a QA IRM Developer Intern, I developed tools using Power Platform, SharePoint, and PowerBI, earning a program extension and internal recognition.</p>
-                <p class="bio">I'm passionate about full stack engineering, building ML tools, and solving real world problems through automation. In my free time, I'm a competitive powerlifter and avid fisherman.</p>
-                <div class="header-actions">
-                    <a href="assets/resume.pdf" download class="resume-btn">📄 Download Resume</a>
-                    <a href="#contact" class="contact-btn">💬 Get In Touch</a>
-                </div>
-            </div>
+  <main class="desktop">
+    <section class="window hero" id="about" aria-label="About">
+      <div class="window-titlebar">
+        <div class="window-controls"><span></span><span></span><span></span></div>
+        <p>profile.exe</p>
+      </div>
+      <div class="window-content hero-layout">
+        <img src="assets/headshot.jpg" alt="Dayyan Hamid" class="profile-pic" />
+        <div>
+          <p class="mono">BOOT SEQUENCE COMPLETE</p>
+          <h1>Dayyan Hamid</h1>
+          <p class="subtitle">Software Engineer • Data Engineer • Rutgers CS '25</p>
+          <p>
+            I build practical, clean systems across frontend, backend, and data workflows.
+            Right now I’m shipping product work at CollabLab and bringing QA/data process rigor from Regeneron.
+          </p>
+          <div class="chips">
+            <span>React</span><span>Node.js</span><span>Python</span><span>Java</span><span>SQL</span><span>Power BI</span>
+          </div>
+          <div class="hero-actions">
+            <a href="assets/resume.pdf" download class="btn primary">Download Resume</a>
+            <a href="#contact" class="btn ghost">Contact Me</a>
+          </div>
         </div>
-    </header>
+      </div>
+    </section>
 
-    <div id="particles-js"></div>
-    
-    <main>
-        <!-- Skills Section -->
-        <section id="skills">
-            <h2>Technical Skills & Expertise</h2>
-            <p class="section-subtitle">A comprehensive overview of my technical capabilities and tools</p>
-            <div class="skills-grid">
-                <div class="skill-category">
-                    <h3>🖥️ Frontend Development</h3>
-                    <div class="skill-tags">
-                        <span class="skill-tag">React</span>
-                        <span class="skill-tag">JavaScript</span>
-                        <span class="skill-tag">HTML5</span>
-                        <span class="skill-tag">CSS3</span>
-                        <span class="skill-tag">TypeScript</span>
-                    </div>
-                </div>
-                <div class="skill-category">
-                    <h3>⚙️ Backend Development</h3>
-                    <div class="skill-tags">
-                        <span class="skill-tag">Node.js</span>
-                        <span class="skill-tag">Express.js</span>
-                        <span class="skill-tag">Python</span>
-                        <span class="skill-tag">Java</span>
-                        <span class="skill-tag">REST APIs</span>
-                    </div>
-                </div>
-                <div class="skill-category">
-                    <h3>🗄️ Data & Cloud</h3>
-                    <div class="skill-tags">
-                        <span class="skill-tag">Power BI</span>
-                        <span class="skill-tag">SharePoint</span>
-                        <span class="skill-tag">Power Platform</span>
-                        <span class="skill-tag">SQL</span>
-                        <span class="skill-tag">Data Analysis</span>
-                    </div>
-                </div>
-                <div class="skill-category">
-                    <h3>🛠️ Tools & Technologies</h3>
-                    <div class="skill-tags">
-                        <span class="skill-tag">Git</span>
-                        <span class="skill-tag">GitHub</span>
-                        <span class="skill-tag">VS Code</span>
-                        <span class="skill-tag">Docker</span>
-                        <span class="skill-tag">Agile</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Projects Section -->
-        <section id="projects">
-            <h2>Featured Projects</h2>
-            <p class="section-subtitle">Showcasing my best work and problem-solving abilities</p>
-            <div id="project-list"></div>
-        </section>
-
-        <!-- Experience Section -->
-        <section id="experience">
-            <h2>Professional Experience</h2>
-            <p class="section-subtitle">My journey in software engineering and data analysis</p>
-            <div class="experience-timeline">
-                <div class="experience-item">
-                    <div class="experience-header">
-                        <h3>🚀 Software Engineer</h3>
-                        <span class="company">CollabLab</span>
-                        <span class="duration">2024 - Present</span>
-                    </div>
-                    <p>Building scalable backend and frontend systems, owning key features, and contributing to full-stack development projects. Working with modern technologies and best practices to deliver high-quality software solutions.</p>
-                    <p>• <strong>Security & Infrastructure:</strong> Recently worked on our secrets management system where I identified and fixed security vulnerabilities. I also rebuilt our EC2 templates with better security practices and got everything running smoothly. It was a good challenge that helped me learn a lot about cloud security and infrastructure.</p>
-                </div>
-                <div class="experience-item">
-                    <div class="experience-header">
-                        <h3>📋 QA Junior Document Control Analyst</h3>
-                        <span class="company">Regeneron</span>
-                        <span class="duration">Jun 2025 - Present</span>
-                    </div>
-                    <p>Managing GxP compliant documentation using OpenText, myQumas, and TrackWise; ensuring accuracy, traceability, and SOP alignment for pharmaceutical records. Improving internal SharePoint site by adding features and streamlining workflows, enhancing usability and cross-team document access.</p>
-                </div>
-                <div class="experience-item">
-                    <div class="experience-header">
-                        <h3>🔬 QA IRM Developer Intern</h3>
-                        <span class="company">Regeneron</span>
-                        <span class="duration">2023 - 2024</span>
-                    </div>
-                    <p>Developed tools using Power Platform, SharePoint, and PowerBI. Earned program extension and internal recognition for contributions. Collaborated with cross-functional teams to improve data processes and reporting.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Powerlifting Section -->
-        <section id="powerlifting" class="powerlifting-section">
-            <div class="powerlifting-content">
-                <img src="assets/powerlifting.jpg" alt="Dayyan Hamid Powerlifting Competition" class="powerlifting-img">
-                <div class="powerlifting-text">
-                    <h2>Collegiate Powerlifting</h2>
-                    <p>In December 2024, I competed at the Collegiate Powerlifting Championships, securing <strong>6th place</strong>. This demonstrates my discipline, dedication, and ability to perform under pressure - skills that translate directly to software engineering.</p>
-                    <a href="https://www.openpowerlifting.org/u/dayyanhamid" target="_blank" class="powerlifting-link">🏆 View Competition Results</a>
-                </div>
-            </div>
-        </section>
-
-        <!-- Chatbot Section -->
-        <section id="chatbot">
-            <h2>Ask About My Projects</h2>
-            <p class="section-subtitle">Use the AI chatbot below to learn more about my work and experience</p>
-            <div class="chat-container">
-                <div id="chat-box"></div>
-                <div class="chat-input-group">
-                    <input type="text" id="chat-input" placeholder="Ask me about my projects, skills, or experience...">
-                    <button onclick="sendMessage()">Send Message</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- LeetCode Section -->
-        <section id="leetcode">
-            <h2>💻 LeetCode Profile & Problem Solving</h2>
-            <p class="section-subtitle">Demonstrating my algorithmic thinking and problem-solving skills</p>
-            <img src="https://leetcode-stats.vercel.app/api?username=dayy345&theme=Dark" alt="LeetCode Statistics" class="leetcode-badge">
-        </section>
-
-        <!-- GitHub Stats Section -->
-        <section id="github-stats">
-            <h2>📈 GitHub Activity & Contributions</h2>
-            <p class="section-subtitle">Showcasing my coding activity and open-source contributions</p>
-            <img src="https://ghchart.rshah.org/dayy346" alt="GitHub Contribution Graph" class="github-chart">
-        </section>
-
-        <!-- Contact Section -->
-        <section id="contact">
-            <h2>📞 Let's Connect</h2>
-            <p class="section-subtitle">I'm always open to discussing new opportunities, collaborations, or just having a great conversation about technology!</p>
-            <div class="contact-grid">
-                <a href="mailto:dh820@scarletmail.rutgers.edu" class="contact-link">📧 Email Me</a>
-                <a href="https://www.linkedin.com/in/dayyan-hamid/" class="contact-link" target="_blank">🔗 LinkedIn</a>
-                <a href="https://github.com/dayy346" class="contact-link" target="_blank">🐙 GitHub</a>
-            </div>
-        </section>
-    </main>
-
-    <footer>
-        <div class="footer-content">
-            <p>© 2025 Dayyan Hamid.</p>
-            <p>Last Updated: <span id="last-updated"></span></p>
+    <section class="window" id="projects" aria-label="Projects">
+      <div class="window-titlebar">
+        <div class="window-controls"><span></span><span></span><span></span></div>
+        <p>projects.dir</p>
+      </div>
+      <div class="window-content">
+        <div class="section-head">
+          <h2>Featured Projects</h2>
+          <p>Auto-loaded from GitHub. Most recent and most starred work first.</p>
         </div>
-    </footer>
+        <div id="project-list" class="project-grid" aria-live="polite"></div>
+      </div>
+    </section>
 
-    <script src="script.js"></script>
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-    <script>
-        // Enhanced particles configuration
-        particlesJS("particles-js", {
-            particles: {
-                number: { value: 100, density: { enable: true, value_area: 800 } },
-                color: { value: ["#4f46e5", "#8b5cf6", "#06b6d4"] },
-                shape: { type: "circle" },
-                opacity: { value: 0.6, random: false },
-                size: { value: 3, random: true },
-                line_linked: { 
-                    enable: true, 
-                    distance: 150, 
-                    color: "#4f46e5", 
-                    opacity: 0.4, 
-                    width: 1 
-                },
-                move: {
-                    enable: true,
-                    speed: 2,
-                    direction: "none",
-                    random: false,
-                    straight: false,
-                    out_mode: "out",
-                    bounce: false
-                }
-            },
-            interactivity: {
-                detect_on: "canvas",
-                events: {
-                    onhover: { enable: true, mode: "repulse" },
-                    onclick: { enable: true, mode: "push" },
-                    resize: true
-                }
-            }
-        });
+    <section class="window" id="experience" aria-label="Experience">
+      <div class="window-titlebar">
+        <div class="window-controls"><span></span><span></span><span></span></div>
+        <p>experience.log</p>
+      </div>
+      <div class="window-content timeline">
+        <article>
+          <h3>Software Engineer — CollabLab</h3>
+          <p class="meta">2024 - Present</p>
+          <p>Building and owning full-stack features, with recent focus on secrets management and hardened EC2 templates.</p>
+        </article>
+        <article>
+          <h3>QA Junior Document Control Analyst — Regeneron</h3>
+          <p class="meta">Jun 2025 - Present</p>
+          <p>Managing GxP-compliant documentation and improving SharePoint workflows for better cross-team access.</p>
+        </article>
+        <article>
+          <h3>QA IRM Developer Intern — Regeneron</h3>
+          <p class="meta">2023 - 2024</p>
+          <p>Built internal tools with Power Platform, SharePoint, and Power BI; received extension and internal recognition.</p>
+        </article>
+      </div>
+    </section>
 
-        // Update last modified date
-        document.getElementById("last-updated").textContent = new Date().toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
+    <section class="window split" aria-label="Highlights">
+      <div class="window-titlebar">
+        <div class="window-controls"><span></span><span></span><span></span></div>
+        <p>highlights.sys</p>
+      </div>
+      <div class="window-content split-content">
+        <div>
+          <h2>Powerlifting</h2>
+          <p>Placed <strong>6th</strong> at Collegiate Powerlifting Championships (Dec 2024). Discipline from lifting translates directly to consistent engineering output.</p>
+          <a href="https://www.openpowerlifting.org/u/dayyanhamid" target="_blank" rel="noreferrer" class="btn ghost">View Results</a>
+        </div>
+        <img src="assets/powerlifting.jpg" alt="Dayyan competing in powerlifting" class="powerlifting-img" />
+      </div>
+    </section>
 
-        // Mobile navigation toggle
-        document.querySelector('.nav-toggle').addEventListener('click', function() {
-            this.classList.toggle('active');
-            document.querySelector('.nav-menu').classList.toggle('active');
-        });
+    <section class="window" id="contact" aria-label="Contact">
+      <div class="window-titlebar">
+        <div class="window-controls"><span></span><span></span><span></span></div>
+        <p>contact.net</p>
+      </div>
+      <div class="window-content">
+        <div class="section-head">
+          <h2>Let’s Connect</h2>
+          <p>Open to opportunities, collabs, and interesting builds.</p>
+        </div>
+        <div class="contact-grid">
+          <a href="mailto:dh820@scarletmail.rutgers.edu">Email</a>
+          <a href="https://www.linkedin.com/in/dayyan-hamid/" target="_blank" rel="noreferrer">LinkedIn</a>
+          <a href="https://github.com/dayy346" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="https://leetcode.com/dayy345" target="_blank" rel="noreferrer">LeetCode</a>
+        </div>
+      </div>
+    </section>
+  </main>
 
-        // Close mobile menu when clicking on a link
-        document.querySelectorAll('.nav-menu a').forEach(link => {
-            link.addEventListener('click', () => {
-                document.querySelector('.nav-toggle').classList.remove('active');
-                document.querySelector('.nav-menu').classList.remove('active');
-            });
-        });
-    </script>
+  <aside class="command-palette hidden" id="palette" aria-hidden="true">
+    <p class="mono">quick-actions.sh</p>
+    <button data-target="#about">Open About</button>
+    <button data-target="#projects">Open Projects</button>
+    <button data-target="#experience">Open Experience</button>
+    <button data-target="#contact">Open Contact</button>
+  </aside>
+
+  <footer>
+    <p>© <span id="year"></span> Dayyan Hamid · Built with retro energy + modern UX</p>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
