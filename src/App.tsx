@@ -249,7 +249,12 @@ export default function App() {
               className="desktop-icon"
               onDoubleClick={() => openWindow(app.id)}
               onClick={() => setFocused(app.id)}
-              onKeyDown={(e) => e.key === 'Enter' && openWindow(app.id)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  openWindow(app.id);
+                }
+              }}
             >
               <span>{app.icon}</span>
               <small>{app.label}</small>
@@ -498,9 +503,9 @@ function WindowContent({ appId, repos }: { appId: AppId; repos: Repo[] }) {
             </button>
           ))}
         </div>
-        {showcaseTab === 'systems' && <div className="cards"><div><h3>Window Manager Primitives</h3><p>Movable, minimizable, stack-aware windows with keyboard focus logic.</p></div><div><h3>Design Token Layer</h3><p>Retro contour + modern spacing, contrast, and readable hierarchy.</p></div></div>}
-        {showcaseTab === 'motion' && <div className="cards"><div><h3>Measured Motion</h3><p>Boot sequencing and window transitions tuned for intent over spectacle.</p></div><div><h3>Reduced Motion Compliance</h3><p>Respects user preferences while preserving flow and functionality.</p></div></div>}
-        {showcaseTab === 'delivery' && <div className="cards"><div><h3>Product Thinking</h3><p>Translates requirements into interface affordances users can trust quickly.</p></div><div><h3>Engineering Discipline</h3><p>Builds with accessibility, maintainability, and runtime performance in mind.</p></div></div>}
+        {showcaseTab === 'systems' && <div className="cards"><div><h3>Window Manager Primitives</h3><p>Movable, minimizable, stack-aware windows with keyboard focus logic.</p><p className="muted">Double-click title bars for maximize, preserve z-order intent, and recover context quickly.</p></div><div><h3>Design Token Layer</h3><p>Retro contour + modern spacing, contrast, and readable hierarchy.</p><p className="muted">Palette intentionally restrained for a premium nostalgic look (not arcade-saturated).</p></div></div>}
+        {showcaseTab === 'motion' && <div className="cards"><div><h3>Measured Motion</h3><p>Boot sequencing and window transitions tuned for intent over spectacle.</p></div><div><h3>Reduced Motion Compliance</h3><p>Respects user preferences while preserving flow and functionality.</p></div><div><h3>Cinematic Boot Language</h3><p>POST→Kernel→Desktop arc mirrors how engineering systems initialize in the real world.</p></div></div>}
+        {showcaseTab === 'delivery' && <div className="cards"><div><h3>Product Thinking</h3><p>Translates requirements into interface affordances users can trust quickly.</p></div><div><h3>Engineering Discipline</h3><p>Builds with accessibility, maintainability, and runtime performance in mind.</p></div><div><h3>Storytelling Cohesion</h3><p>Every app contributes to one narrative: frontend craft, systems depth, and delivery leadership.</p></div></div>}
       </article>
     );
   }
@@ -510,11 +515,11 @@ function WindowContent({ appId, repos }: { appId: AppId; repos: Repo[] }) {
       <article className="timeline">
         <section>
           <h3><button className="exp-toggle" onClick={() => setExperiencePanel('fcb')} aria-expanded={experiencePanel === 'fcb'}>Software Engineer — FCB Health</button></h3>
-          {experiencePanel === 'fcb' && <ul><li>Built Nuxt frontend modules for production-facing healthcare workflows.</li><li>Implemented Python + FastAPI services supporting operational integrations.</li><li>Integrated Azure AI Search for retrieval-driven user assistance and data lookup.</li><li>Deployed and maintained services on Azure App Service with stable release practices.</li></ul>}
+          {experiencePanel === 'fcb' && <><ul><li>Built Nuxt frontend modules for production-facing healthcare workflows.</li><li>Implemented Python + FastAPI services supporting operational integrations.</li><li>Integrated Azure AI Search for retrieval-driven user assistance and data lookup.</li><li>Deployed and maintained services on Azure App Service with stable release practices.</li></ul><p className="muted">Stack footprint: Nuxt • Python/FastAPI • Azure AI Search • Azure App Service</p></>}
         </section>
         <section>
           <h3><button className="exp-toggle" onClick={() => setExperiencePanel('collablab')} aria-expanded={experiencePanel === 'collablab'}>Part-time Engineering Manager — CollabLab</button></h3>
-          {experiencePanel === 'collablab' && <><p><strong>Promoted internally</strong> while continuing hands-on frontend and full-stack engineering contributions.</p><p>Leads execution cadence, mentors contributors, and raises delivery quality across team projects.</p></>}
+          {experiencePanel === 'collablab' && <><p><strong>Promoted internally</strong> while continuing hands-on frontend and full-stack engineering contributions.</p><p>Leads execution cadence, mentors contributors, and raises delivery quality across team projects.</p><p className="muted">Bridges engineering management with product execution: roadmap clarity, review quality, and team velocity.</p></>}
         </section>
         <section>
           <h3><button className="exp-toggle" onClick={() => setExperiencePanel('regeneron')} aria-expanded={experiencePanel === 'regeneron'}>Regeneron Roles</button></h3>
@@ -545,7 +550,7 @@ function WindowContent({ appId, repos }: { appId: AppId; repos: Repo[] }) {
   }
 
   if (appId === 'frontend') {
-    return <article><h2>Frontend Focus Highlights</h2><ul><li>Reusable patterns: window primitives, tab systems, filters, and state-driven components.</li><li>Performance-first rendering with scoped state and memoized repository transforms.</li><li>Keyboard + screen-reader support as first-class UX concerns.</li><li>Reduced-motion fallbacks preserve function without visual overload.</li></ul></article>;
+    return <article><h2>Frontend Focus Highlights</h2><ul><li>Reusable patterns: window primitives, tab systems, filters, and state-driven components.</li><li>Performance-first rendering with scoped state and memoized repository transforms.</li><li>Keyboard + screen-reader support as first-class UX concerns.</li><li>Reduced-motion fallbacks preserve function without visual overload.</li><li>Visual language balances nostalgic affordances with modern interaction credibility.</li></ul></article>;
   }
 
   if (appId === 'power') {
