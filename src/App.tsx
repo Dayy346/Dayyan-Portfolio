@@ -271,7 +271,8 @@ export default function App() {
     if (bootDone) return;
 
     const stage = bootStages[bootStageIndex];
-    const msPerLine = Math.max(200, Math.floor(stage.durationMs / stage.lines.length));
+    const stageDuration = Math.max(1400, Math.floor(stage.durationMs * 0.55));
+    const msPerLine = Math.max(120, Math.floor(stageDuration / stage.lines.length));
     const timer = setInterval(() => {
       setBootLineIndex((curr) => {
         const nextLine = curr + 1;
@@ -285,7 +286,7 @@ export default function App() {
         window.setTimeout(() => {
           setBootDone(true);
           setBootTransitioning(false);
-        }, 320);
+        }, 220);
         return stage.lines.length;
       });
     }, msPerLine);
@@ -395,6 +396,7 @@ export default function App() {
     const base = Math.max(1, (repos.length || 1) * 18);
     return Math.min(100, Math.round((totalStars / base) * 100));
   }, [repos.length, totalStars]);
+  const signalRefresh = Math.max(10, 14 - bootStageIndex);
   const recentRepos = useMemo(() => repos.slice(0, 3), [repos]);
 
   function skipBoot() {
@@ -404,7 +406,7 @@ export default function App() {
     window.setTimeout(() => {
       setBootDone(true);
       setBootTransitioning(false);
-    }, reducedMotion ? 0 : 180);
+    }, reducedMotion ? 0 : 160);
   }
 
   function playWindows95Sound() {
@@ -691,6 +693,8 @@ export default function App() {
           credentials={LOGIN_CREDENTIALS}
           searchUrl={SEARX_URL}
           dataStatus={loginDataStatus}
+          recruiterScore={contributionScore}
+          signalRefresh={signalRefresh}
         />
       )}
 

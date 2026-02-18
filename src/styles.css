@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=VT323&family=Inter:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono&display=swap');
 
 :root {
   --bg: #dbeefc;
@@ -47,7 +48,12 @@
   --spacing-base: 16px;
   --spacing-icon: 12px;
   --transition-flicker: 260ms cubic-bezier(0.24, 1.01, 0.32, 1);
-  --font-display: 'IBM Plex Mono', 'Segoe UI', sans-serif;
+  --win95-font: 'MS Sans Serif', 'IBM Plex Sans', 'Segoe UI', sans-serif;
+  --win95-console: 'IBM Plex Mono', 'VT323', monospace;
+  --font-display: var(--win95-font);
+  --font-console: var(--win95-console);
+  --bevel-light: #ffffff;
+  --bevel-dark: #1a1a1a;
   --shadow-pulse: 0 0 16px rgba(255, 255, 255, 0.45);
 }
 
@@ -293,6 +299,54 @@ select:focus-visible {
   transition: width var(--transition-flicker);
   box-shadow: inset 0 0 14px rgba(255, 255, 255, 0.35);
 }
+.win95-loading-hud {
+  display: grid;
+  gap: 0.4rem;
+}
+.win95-loading-bar {
+  height: 14px;
+  border-radius: 999px;
+  border: 2px solid var(--panel-edge-dark);
+  border-top-color: var(--bevel-light);
+  border-left-color: var(--bevel-light);
+  border-bottom-color: var(--panel-edge-dark);
+  border-right-color: var(--panel-edge-dark);
+  background: #050505;
+  overflow: hidden;
+  position: relative;
+}
+.win95-loading-fill {
+  display: block;
+  height: 100%;
+  background: repeating-linear-gradient(-45deg, #5fb3c3 0 10px, #478d9d 10px 20px);
+  transition: width var(--transition-flicker);
+  box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.4);
+}
+.win95-loading-caption {
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+}
+.win95-loading-note {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 0.18em;
+}
+.win95-toolstrip-hint {
+  display: grid;
+  gap: 0.2rem;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.65);
+}
+.win95-toolstrip-hint span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 .console-metric {
   margin-top: 0.6rem;
   font-size: 0.85rem;
@@ -648,6 +702,196 @@ select:focus-visible {
   from { box-shadow: 0 0 10px rgba(0, 124, 255, 0.45); }
   to { box-shadow: 0 0 24px rgba(0, 124, 255, 0.12); }
 }
+
+.win95-transfer-dialog {
+  border: 4px solid var(--panel-edge-dark);
+  border-top-color: var(--bevel-light);
+  border-left-color: var(--bevel-light);
+  border-bottom-color: var(--panel-edge-dark);
+  border-right-color: var(--panel-edge-dark);
+  border-radius: 0.85rem;
+  padding: 1.05rem;
+  background: #07080d;
+  box-shadow: 0 28px 60px rgba(0, 0, 0, 0.75);
+  color: #f8f7f2;
+  display: grid;
+  gap: 0.75rem;
+  position: relative;
+  font-family: var(--win95-font);
+}
+.win95-transfer-dialog::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.15;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 4px 4px;
+}
+.transfer-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.4rem;
+  align-items: flex-start;
+}
+.transfer-header p {
+  margin: 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.32em;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+}
+.transfer-header strong {
+  display: block;
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+}
+.transfer-status {
+  font-size: 0.75rem;
+  color: var(--accent-2, #9ed8ff);
+}
+.transfer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.65rem;
+}
+.transfer-fields {
+  display: grid;
+  gap: 0.45rem;
+}
+.transfer-fields label {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+.transfer-fields input {
+  background: #05050c;
+  border: 3px solid var(--panel-edge-dark);
+  border-top-color: var(--bevel-light);
+  border-left-color: var(--bevel-light);
+  border-radius: 0.45rem;
+  padding: 0.45rem 0.6rem;
+  font-family: var(--font-console);
+  font-size: 0.9rem;
+  color: #f4f4ed;
+}
+.transfer-fields small {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.68rem;
+}
+.transfer-progress {
+  background: #0b0b11;
+  border-radius: 0.65rem;
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  padding: 0.55rem;
+  display: grid;
+  gap: 0.35rem;
+}
+.transfer-progress p {
+  margin: 0;
+  font-size: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.transfer-progress-fill {
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(120deg, var(--transfer-accent, #82c7b3), rgba(255, 255, 255, 0.65));
+  transition: width var(--transition-flicker);
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.6);
+}
+.transfer-meta {
+  font-size: 0.75rem;
+  display: grid;
+  gap: 0.25rem;
+}
+.transfer-meta .meta-file {
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.transfer-meta .meta-detail {
+  color: rgba(255, 255, 255, 0.65);
+}
+.transfer-files {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.4rem;
+}
+.transfer-row {
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.55rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  background: rgba(255, 255, 255, 0.02);
+  transition: transform var(--transition-flicker), border-color var(--transition-flicker);
+}
+.transfer-row:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+}
+.transfer-row.active {
+  border-color: var(--transfer-accent, #82c7b3);
+  background: rgba(255, 255, 255, 0.05);
+}
+.transfer-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.transfer-actions button {
+  flex: 1;
+  min-width: 130px;
+  border-radius: 0.4rem;
+  border: 2px solid var(--panel-edge-dark);
+  border-top-color: var(--bevel-light);
+  border-left-color: var(--bevel-light);
+  border-bottom-color: var(--panel-edge-dark);
+  border-right-color: var(--panel-edge-dark);
+  background: linear-gradient(180deg, #f0f1e8, #d9d6c5);
+  font-family: var(--win95-font);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 0.55rem 0.85rem;
+  cursor: pointer;
+  transition: transform var(--transition-flicker), box-shadow var(--transition-flicker);
+}
+.transfer-actions button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.35);
+}
+.transfer-log {
+  border-radius: 0.6rem;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  padding: 0.65rem;
+  background: rgba(10, 10, 16, 0.85);
+}
+.transfer-log ul {
+  margin: 0.35rem 0 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.2rem;
+}
+.transfer-log li {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.78);
+}
+.transfer-note {
+  margin: 0;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+
 @media (max-width: 920px) {
   .os-shell { display: none; }
   .about-grid { grid-template-columns: 1fr; }

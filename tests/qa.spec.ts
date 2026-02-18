@@ -138,15 +138,54 @@ test.describe('Dayyan.OS QA experience flows', () => {
     await expect(startMenu).toHaveCount(0);
   });
 
+  test('Win95 file transfer boot dialog surfaces telemetry and controls', async ({ page }) => {
+    await page.goto('/');
+    const bootDialog = page.getByTestId('boot-sequence-dialog');
+    await expect(bootDialog).toBeVisible();
+    const transferDialog = bootDialog.getByTestId('file-transfer-dialog');
+    await expect(transferDialog).toBeVisible();
+    await expect(transferDialog.getByTestId('file-transfer-status')).toContainText(/Transferring|Transfer paused/);
+    const toggle = transferDialog.getByTestId('file-transfer-toggle');
+    await expect(toggle).toHaveText('Pause');
+    await toggle.click();
+    await expect(toggle).toHaveText('Resume');
+    const logToggle = transferDialog.getByTestId('file-transfer-log-toggle');
+    await logToggle.click();
+    await expect(transferDialog.getByTestId('file-transfer-log')).toBeVisible();
+    await expect(transferDialog.getByTestId('file-transfer-log')).toContainText('Preparing');
+    await expect(transferDialog.getByTestId('file-transfer-queue')).toContainText('SignalKernel.sys');
+    await expect(transferDialog.getByTestId('file-transfer-note')).toContainText(/Frame-accurate|Static/);
+  });
+
   test('login overlay surfaces telemetry and search link', async ({ page }) => {
     await skipBootToDesktop(page, { login: false, expectDesktop: false, expectSessionActive: false });
     const overlay = page.getByTestId('login-overlay');
     await expect(overlay).toBeVisible();
-    await expect(overlay.locator('.login-data-status')).toContainText('Secure contributions telemetry');
-    const searchLink = overlay.getByRole('link', { name: /Search with SearX/i });
-    await expect(searchLink).toHaveAttribute('href', 'https://search.searx.org/?q=Dayyan+OS');
+    await expect(overlay.getByTestId('login-data-status')).toContainText('Secure contributions telemetry');
+    await expect(overlay.getByTestId('recruiter-callout')).toBeVisible();
+    await expect(overlay.getByTestId('recruiter-callout-metric')).toContainText('Candidate score');
+    await expect(overlay.getByTestId('view-resume-link')).toHaveAttribute('href', '/assets/resume.pdf');
+    await expect(overlay.getByTestId('login-search-link')).toHaveAttribute('href', 'https://search.searx.org/?q=Dayyan+OS');
+    await expect(overlay.getByTestId('login-icon-grid')).toBeVisible();
     const loginButton = overlay.getByTestId('login-button');
-    await expect(loginButton).toHaveText('Press to log on');
+    await expect(loginButton).toHaveText('Press Enter to log on');
+  });
+
+  test('desktop transitions from boot to login to hero ready state', async ({ page }) => {
+    await page.goto('/');
+    const bootDialog = page.getByTestId('boot-sequence-dialog');
+    await expect(bootDialog).toBeVisible();
+    await page.getByTestId('boot-skip-button').click();
+    await expect(bootDialog).toHaveCount(0);
+    const loginOverlay = page.getByTestId('login-overlay');
+    await expect(loginOverlay).toBeVisible();
+    const loginButton = loginOverlay.getByTestId('login-button');
+    await loginButton.click();
+    await expect(page.getByTestId('login-overlay')).toHaveCount(0);
+    await expect(page.getByTestId('desktop')).toBeVisible();
+    await expect(page.locator('.os-shell')).toHaveClass(/ready/);
+    await expect(page.getByTestId('window-strip')).toBeVisible();
+    await expect(page.getByTestId('desktop-story-widget')).toContainText('Session Active');
   });
 
   test('windows can be minimized, maximized, and closed via controls', async ({ page }) => {

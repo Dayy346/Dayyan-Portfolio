@@ -1,4 +1,4 @@
-import { useEffect, type CSSProperties } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { bootStages, type BootStage, type ResearchNote } from '../../data';
 
 export type BootSequenceProps = {
@@ -64,18 +64,26 @@ export function BootSequence({
         <p>Windows 95 · Dayyan.OS shell</p>
       </div>
       <div className="win95-boot-body">
-        <header className="boot-sequence-header" data-testid="boot-stage-header">
+        <div className="win95-loading-hud" data-testid="boot-stage-header">
           <div className="boot-stage-title" data-testid="boot-stage-title">
             <p>Stage {stageIndex + 1} / {stageCount} · {stage.title}</p>
+            <span className="boot-stage-percent">{Math.round(stagePercent * 100)}%</span>
             <small data-testid="boot-stage-subtitle">{stage.subtitle}</small>
           </div>
-          <div className="boot-stage-progress" aria-live="polite" data-testid="boot-stage-progress">
-            <span className="boot-stage-percent">{Math.round(stagePercent * 100)}%</span>
-            <div className="progress-track" aria-hidden="true">
-              <div className="progress-fill" style={{ width: `${Math.round(stagePercent * 100)}%` }} />
-            </div>
+          <div
+            className="win95-loading-bar"
+            role="progressbar"
+            aria-live="polite"
+            aria-label="Boot progress"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(progress * 100)}
+          >
+            <span className="win95-loading-fill" style={{ width: `${Math.round(progress * 100)}%` }} />
           </div>
-        </header>
+          <p className="win95-loading-caption">{stageMetric}</p>
+          <small className="win95-loading-note">Short, cinematic arc · narrative intact.</small>
+        </div>
         <section className="win95-boot-console" role="log" aria-label="Boot console" data-testid="boot-console">
           {visibleLines.map((line, idx) => (
             <p key={`${line}-${idx}`} className={idx === activeLineIndex ? 'active' : ''} data-testid={`boot-line-${idx}`}>
@@ -108,24 +116,23 @@ export function BootSequence({
             )}
           </div>
         </section>
-        <div className="win95-boot-progress" data-testid="boot-progress">
-          <div className="progress-track" aria-hidden="true">
-            <div className="progress-fill" style={{ width: `${Math.round(progress * 100)}%` }} />
-          </div>
-          <div className="progress-meta">
-            <p>Boot progress</p>
-            <small>{stage.pulse}</small>
-          </div>
-        </div>
         <div className="win95-boot-actions" data-testid="boot-actions">
           <button type="button" onClick={onSkip} data-testid="boot-skip-button" aria-describedby={skipHintId}>
             {reducedMotion ? 'Continue' : 'Skip boot story'}
           </button>
-          <div className="boot-skip-hints" id={skipHintId}>
-            <p>Press S, Esc, Enter, or Space to skip · Last stage: {stage.title}</p>
-            <p>{nextStage ? `Next: ${nextStage.title}` : 'Desktop ready · login will appear soon.'}</p>
+          <div className="win95-toolstrip-hint" id={skipHintId}>
+            <span>Press S · Esc · Enter · Space</span>
+            <span>{nextStage ? `Next: ${nextStage.title}` : 'Desktop ready · login will appear soon.'}</span>
           </div>
         </div>
+        <FileTransferDialog
+          accent={stage.accent}
+          progress={progress}
+          reducedMotion={reducedMotion}
+          stageIndex={stageIndex}
+          stageTitle={stage.title}
+          stageMetric={stageMetric}
+        />
       </div>
       <aside className="win95-boot-sidebar" aria-label="Boot telemetry" data-testid="boot-sidebar">
         <p>Stage telemetry</p>
@@ -171,5 +178,145 @@ export function BootSequence({
         </section>
       </aside>
     </div>
+  );
+}
+
+const transferQueue = [
+  { name: 'SignalKernel.sys', size: '612 KB', type: 'system kernel call', stage: 'bios' },
+  { name: 'HeroSignal.git', size: '1.1 GB', type: 'signal overlay', stage: 'kernel' },
+  { name: 'RecruiterSignal.dat', size: '412 KB', type: 'insights bundle', stage: 'atmosphere' },
+  { name: 'DesktopPalette.bin', size: '2.2 MB', type: 'gradient matrix', stage: 'story' }
+] as const;
+
+const transferFields = [
+  { label: 'Source', value: 'A:\\Dayyan Research\\Payload\\', helper: 'Encrypted research vault' },
+  { label: 'Destination', value: 'C:\\DayyanOS\\Boot\\Payload\\', helper: 'Local cinematic shell' }
+];
+
+type FileTransferDialogProps = {
+  progress: number;
+  accent: string;
+  stageIndex: number;
+  stageTitle: string;
+  reducedMotion: boolean;
+  stageMetric: string;
+};
+
+function FileTransferDialog({
+  progress,
+  accent,
+  stageIndex,
+  stageTitle,
+  reducedMotion,
+  stageMetric
+}: FileTransferDialogProps) {
+  const [isPaused, setIsPaused] = useState(false);
+  const [showLog, setShowLog] = useState(false);
+  const percentage = useMemo(() => Math.min(100, Math.round(progress * 100)), [progress]);
+  const activeFileIndex = useMemo(
+    () => Math.min(transferQueue.length - 1, Math.floor(progress * transferQueue.length)),
+    [progress]
+  );
+  const activeFile = transferQueue[activeFileIndex];
+  const baseSpeed = 160 + stageIndex * 12;
+  const speedValue = isPaused ? '0 KB/s' : `${baseSpeed + (percentage % 36)} KB/s`;
+  const eta = Math.max(1, Math.round((100 - percentage) / (percentage > 0 ? Math.max(1, percentage / 20) : 1)));
+  const statusCopy = isPaused ? 'Transfer paused · awaiting resume command' : `Transferring ${activeFile.name}`;
+  const logLines = useMemo(() => {
+    return [
+      `Preparing ${activeFile.name}`,
+      `${Math.round(progress * 100)}% of ${activeFile.size}`,
+      `${speedValue} · ${stageMetric}`,
+      isPaused ? 'Paused for verification' : 'Stream encrypted · chunk verified'
+    ];
+  }, [activeFile, progress, speedValue, stageMetric, isPaused]);
+
+  const handlePauseToggle = () => setIsPaused((prev) => !prev);
+  const handleCancel = () => {
+    setIsPaused(true);
+    setShowLog(true);
+  };
+
+  return (
+    <section
+      className="win95-transfer-dialog"
+      data-testid="file-transfer-dialog"
+      aria-live="polite"
+      style={{ '--transfer-accent': accent } as CSSProperties}
+    >
+      <header className="transfer-header">
+        <div>
+          <p data-testid="file-transfer-title">File transfer · Stage {stageIndex + 1}</p>
+          <strong>{stageTitle}</strong>
+        </div>
+        <span className="transfer-status" data-testid="file-transfer-status">
+          {statusCopy}
+        </span>
+      </header>
+      <div className="transfer-grid">
+        <div className="transfer-fields">
+          {transferFields.map((field) => (
+            <label key={field.label}>
+              <span>{field.label}</span>
+              <input value={field.value} readOnly data-testid={`file-transfer-${field.label.toLowerCase()}`} spellCheck="false" />
+              <small>{field.helper}</small>
+            </label>
+          ))}
+        </div>
+        <div
+          className="transfer-progress"
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={percentage}
+          data-testid="file-transfer-progress"
+        >
+          <div className="transfer-progress-fill" style={{ width: `${percentage}%` }} />
+          <p>
+            <span>{percentage}%</span>
+            <span>{speedValue}</span>
+          </p>
+        </div>
+        <div className="transfer-meta">
+          <p className="meta-label">Current file</p>
+          <p className="meta-file" data-testid="file-transfer-file">
+            {activeFile.name}
+          </p>
+          <p className="meta-detail">{activeFile.type} · est. {eta}s remaining</p>
+        </div>
+      </div>
+      <div className="transfer-files" aria-label="Transfer queue" data-testid="file-transfer-queue">
+        {transferQueue.map((file, index) => (
+          <article key={file.name} className={`transfer-row ${index === activeFileIndex ? 'active' : ''}`}>
+            <span>{file.name}</span>
+            <small>{file.size}</small>
+          </article>
+        ))}
+      </div>
+      <div className="transfer-actions">
+        <button type="button" onClick={handlePauseToggle} data-testid="file-transfer-toggle">
+          {isPaused ? 'Resume' : 'Pause'}
+        </button>
+        <button type="button" onClick={() => setShowLog((prev) => !prev)} data-testid="file-transfer-log-toggle">
+          {showLog ? 'Hide log' : 'View log'}
+        </button>
+        <button type="button" onClick={handleCancel} data-testid="file-transfer-cancel">
+          Cancel
+        </button>
+      </div>
+      {showLog && (
+        <div className="transfer-log" data-testid="file-transfer-log">
+          <p className="log-caption">Transfer log</p>
+          <ul>
+            {logLines.map((line) => (
+              <li key={`${line}-${activeFile.name}`}>{line}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <p className="transfer-note" data-testid="file-transfer-note">
+        {reducedMotion ? 'Static progress for reduced motion' : 'Frame-accurate progress synchronized with boot telemetry.'}
+      </p>
+    </section>
   );
 }
