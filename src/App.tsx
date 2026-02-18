@@ -229,6 +229,9 @@ export default function App() {
   const [repoStatus, setRepoStatus] = useState<RepoStatus>('idle');
   const [lastRepoSync, setLastRepoSync] = useState<string | null>(null);
   const [windowMap, setWindowMap] = useState<Record<AppId, WindowState>>(createInitialWindowMap);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [loginPhase, setLoginPhase] = useState<'idle' | 'animating'>('idle');
+  const [defaultWindowsApplied, setDefaultWindowsApplied] = useState(false);
   const [highlightIndex, setHighlightIndex] = useState(0);
 
   useEffect(() => {
@@ -331,6 +334,27 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [bootDone, isMobile, focused, windowMap]);
 
+  useEffect(() => {
+    if (!loggedIn || defaultWindowsApplied) return;
+    setWindowMap((curr) => {
+      const next = { ...curr };
+      const defaultApps: AppId[] = ['contributions', 'leetcode', 'chatbot'];
+      defaultApps.forEach((appId) => {
+        zRef.current += 1;
+        next[appId] = {
+          ...next[appId],
+          isOpen: true,
+          minimized: false,
+          maximized: false,
+          z: zRef.current
+        };
+      });
+      return next;
+    });
+    setFocused('contributions');
+    setDefaultWindowsApplied(true);
+  }, [loggedIn, defaultWindowsApplied]);
+
   const currentStage = bootStages[bootStageIndex];
   const visibleBootLines = useMemo(() => currentStage.lines.slice(0, bootLineIndex), [currentStage.lines, bootLineIndex]);
   const completedLines = useMemo(() => {
@@ -352,6 +376,13 @@ export default function App() {
     lastRepoSync
   });
 
+  const totalStars = useMemo(() => repos.reduce((sum, repo) => sum + repo.stargazers_count, 0), [repos]);
+  const contributionScore = useMemo(() => {
+    const base = Math.max(1, (repos.length || 1) * 18);
+    return Math.min(100, Math.round((totalStars / base) * 100));
+  }, [repos.length, totalStars]);
+  const recentRepos = useMemo(() => repos.slice(0, 3), [repos]);
+
   function skipBoot() {
     setBootStageIndex(bootStages.length - 1);
     setBootLineIndex(bootStages[bootStages.length - 1].lines.length);
@@ -360,6 +391,40 @@ export default function App() {
       setBootDone(true);
       setBootTransitioning(false);
     }, reducedMotion ? 0 : 180);
+  }
+
+  function playWindows95Sound() {
+    if (typeof window === 'undefined') return;
+    const AudioCtor = (window.AudioContext || (window as any).webkitAudioContext);
+    if (!AudioCtor) return;
+    const ctx = new AudioCtor();
+    const gain = ctx.createGain();
+    gain.gain.value = 0.22;
+    gain.connect(ctx.destination);
+    const notes = [520, 440, 620];
+    notes.forEach((freq, index) => {
+      const osc = ctx.createOscillator();
+      osc.type = 'triangle';
+      const start = ctx.currentTime + index * 0.18;
+      osc.frequency.setValueAtTime(freq, start);
+      osc.connect(gain);
+      osc.start(start);
+      osc.stop(start + 0.18);
+    });
+    window.setTimeout(() => {
+      ctx.close().catch(() => undefined);
+    }, 1400);
+  }
+
+  function handleLogin() {
+    if (!bootDone || loginPhase !== 'idle') return;
+    setLoginPhase('animating');
+    setStartMenuOpen(false);
+    playWindows95Sound();
+    window.setTimeout(() => {
+      setLoggedIn(true);
+      setLoginPhase('idle');
+    }, 1400);
   }
 
   function focusWindow(appId: AppId) {
@@ -400,7 +465,7 @@ export default function App() {
     setWindowMap((curr) => ({ ...curr, [appId]: { ...curr[appId], x, y } }));
   }
 
-  if (isMobile && bootDone) {
+  if (isMobile && bootDone && loggedIn) {
     return <MobileLite repos={repos} clock={clock} shellStatus={shellStatus} experienceHighlights={EXPERIENCE_UPDATES} />;
   }
 
@@ -484,6 +549,48 @@ export default function App() {
             </div>
           </section>
 
+          <section className="contributions-widget" aria-label="Contributions widget">
+            <header>
+              <p className="muted">Signal view</p>
+              <h2>Contributions.widget</h2>
+              <p className="muted">Live telemetry, repo highlights, and LeetCode stats on the desktop.</p>
+            </header>
+            <div className="contribution-score">
+              <div>
+                <strong>{repos.length}</strong>
+                <small>Tracked repos</small>
+              </div>
+              <div>
+                <strong>{totalStars}</strong>
+                <small>Total stars</small>
+              </div>
+              <div>
+                <strong>{contributionScore}%</strong>
+                <small>Signal strength</small>
+              </div>
+            </div>
+            <div className="contribution-highlights">
+              {contributionHighlights.slice(0, 3).map((highlight) => (
+                <article key={highlight.title}>
+                  <strong>{highlight.title}</strong>
+                  <p>{highlight.detail}</p>
+                </article>
+              ))}
+            </div>
+            <div>
+              <p className="muted">Fresh repos · {recentRepos.length} synced</p>
+              <div className="contribution-recent-list">
+                {recentRepos.length ? recentRepos.map((repo) => (
+                  <article key={`recent-${repo.name}`}>
+                    <strong>{repo.name}</strong>
+                    <p className="muted">{repo.description || 'GitHub work in motion.'}</p>
+                    <small>{repo.language || 'Multi'} · ★ {repo.stargazers_count}</small>
+                  </article>
+                )) : <p className="muted">Waiting for the feed to arrive.</p>}
+              </div>
+            </div>
+          </section>
+
           {apps.map((app) => (
             <button
               key={app.id}
@@ -552,6 +659,38 @@ export default function App() {
           onSkip={skipBoot}
           reducedMotion={reducedMotion}
         />
+      )}
+
+      {bootDone && !loggedIn && (
+        <div className={`login-overlay ${loginPhase === 'animating' ? 'animating' : ''}`} role="dialog" aria-label="Windows 95 login">
+          <div className="login-card">
+            <header>
+              <span className="win-logo">⌂</span>
+              <div>
+                <p className="muted">Windows 95 · Dayyan.OS Edition</p>
+                <h1>Log on</h1>
+              </div>
+            </header>
+            <p className="login-copy">Secure contributions, LeetCode, and chatbot data await below.</p>
+            <div className="login-inputs">
+              <label>
+                Username
+                <input type="text" value="Dayyan" readOnly />
+              </label>
+              <label>
+                Password
+                <input type="password" placeholder="********" readOnly />
+              </label>
+            </div>
+            <button type="button" onClick={handleLogin} disabled={loginPhase === 'animating'}>Press to log on</button>
+            {loginPhase === 'animating' && (
+              <div className="login-progress" aria-hidden="true">
+                <span />
+              </div>
+            )}
+            <p className="login-hint">Press the button or Enter to hear the Windows 95 chime.</p>
+          </div>
+        </div>
       )}
 
       {isMobile && !bootDone && <div className="mobile-boot-hint">Tip: press S, Enter, or Skip to load Mobile Lite.</div>}
