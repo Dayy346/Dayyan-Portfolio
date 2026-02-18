@@ -11,6 +11,10 @@ import {
   type BootStage
 } from './data';
 
+import { Win95Boot } from './components/win95/Win95Boot';
+import { Win95Login } from './components/win95/Win95Login';
+import { type Credential } from './components/win95/win95Types';
+
 type Repo = { name: string; language: string | null; stargazers_count: number; description: string | null; html_url: string; homepage?: string | null; fork: boolean };
 type WindowState = { isOpen: boolean; minimized: boolean; maximized: boolean; x: number; y: number; z: number };
 
@@ -61,6 +65,12 @@ const INITIAL_POSITIONS: Record<AppId, { x: number; y: number }> = {
   missive: { x: 150, y: 288 },
   help: { x: 222, y: 288 }
 };
+
+const LOGIN_CREDENTIALS: Credential[] = [
+  { label: 'Username', value: 'Dayyan', hint: 'Junior AI Engineer' },
+  { label: 'Password', value: '********', hint: 'Retro secure vault' },
+  { label: 'Session', value: 'Premium verified', hint: 'Boot-level token' }
+];
 
 const totalBootLines = bootStages.reduce((sum, stage) => sum + stage.lines.length, 0);
 
@@ -115,6 +125,8 @@ const PREMIUM_HIGHLIGHTS = [
   'Mood states cycle between studio, archive, and night while retaining retro warmth.',
   'Taskbar health indicators whisper network and sync status instead of yelling alerts.'
 ];
+
+const SEARX_URL = 'https://search.searx.org/?q=Dayyan+OS';
 
 type ExperienceUpdate = {
   id: string;
@@ -529,6 +541,9 @@ export default function App() {
             {apps.map((app) => (
               <button role="menuitem" key={app.id} onClick={() => openWindow(app.id)}>{app.icon} {app.label}</button>
             ))}
+            <a className="start-menu-search" href={SEARX_URL} target="_blank" rel="noreferrer" role="menuitem">
+              🔍 Search with SearX
+            </a>
             <a href="/assets/resume.pdf" download>⬇ Resume.pdf</a>
           </aside>
         )}
@@ -595,6 +610,7 @@ export default function App() {
             <button
               key={app.id}
               className="desktop-icon"
+              data-app={app.id}
               onDoubleClick={() => openWindow(app.id)}
               onClick={() => setFocused(app.id)}
               onKeyDown={(e) => {
@@ -649,7 +665,7 @@ export default function App() {
       </div>
 
       {!bootDone && (
-        <BootSequence
+        <Win95Boot
           stage={currentStage}
           stageIndex={bootStageIndex}
           stageCount={bootStages.length}
@@ -662,171 +678,11 @@ export default function App() {
       )}
 
       {bootDone && !loggedIn && (
-        <div className={`login-overlay ${loginPhase === 'animating' ? 'animating' : ''}`} role="dialog" aria-label="Windows 95 login">
-          <div className="login-card">
-            <header>
-              <span className="win-logo">⌂</span>
-              <div>
-                <p className="muted">Windows 95 · Dayyan.OS Edition</p>
-                <h1>Log on</h1>
-              </div>
-            </header>
-            <p className="login-copy">Secure contributions, LeetCode, and chatbot data await below.</p>
-            <div className="login-inputs">
-              <label>
-                Username
-                <input type="text" value="Dayyan" readOnly />
-              </label>
-              <label>
-                Password
-                <input type="password" placeholder="********" readOnly />
-              </label>
-            </div>
-            <button type="button" onClick={handleLogin} disabled={loginPhase === 'animating'}>Press to log on</button>
-            {loginPhase === 'animating' && (
-              <div className="login-progress" aria-hidden="true">
-                <span />
-              </div>
-            )}
-            <p className="login-hint">Press the button or Enter to hear the Windows 95 chime.</p>
-          </div>
-        </div>
+        <Win95Login animating={loginPhase === 'animating'} onLogin={handleLogin} reducedMotion={reducedMotion} credentials={LOGIN_CREDENTIALS} />
       )}
 
       {isMobile && !bootDone && <div className="mobile-boot-hint">Tip: press S, Enter, or Skip to load Mobile Lite.</div>}
     </>
-  );
-}
-
-function BootSequence({
-  stage,
-  stageIndex,
-  stageCount,
-  visibleLines,
-  progress,
-  transitioning,
-  onSkip,
-  reducedMotion
-}: {
-  stage: BootStage;
-  stageIndex: number;
-  stageCount: number;
-  visibleLines: string[];
-  progress: number;
-  transitioning: boolean;
-  onSkip: () => void;
-  reducedMotion: boolean;
-}) {
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (['s', 'Escape', 'Enter', ' '].includes(e.key)) onSkip();
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [onSkip]);
-
-  const stagePercent = stage.lines.length ? Math.min(1, visibleLines.length / stage.lines.length) : 1;
-  const activeLineIndex = Math.max(0, visibleLines.length - 1);
-  const upcomingLines = stage.lines.slice(visibleLines.length, visibleLines.length + 4);
-
-  return (
-    <div
-      className={`boot-screen cinematic${transitioning ? ' fade-out' : ''}${reducedMotion ? ' reduced-motion' : ''}`}
-      role="dialog"
-      aria-live="polite"
-      aria-label="Dayyan OS cinematic boot"
-    >
-      <div className="boot-aurora" aria-hidden="true">
-        <span className="boot-aurora-glow" />
-        <span className="boot-aurora-glow secondary" />
-      </div>
-      <div className="boot-grid">
-        <div className="boot-terminal" style={{ '--stage-accent': stage.accent } as CSSProperties}>
-          <header className="boot-headline">
-            <p className="boot-title">DAYYAN BIOS v3.2 // Frontend Edition</p>
-            <div className="boot-stage-pills" aria-label="Boot stage timeline">
-              {bootStages.map((stageItem, idx) => (
-                <span
-                  key={stageItem.id}
-                  className={`boot-stage-pill${idx <= stageIndex ? ' active' : ''}`}
-                  style={{ borderColor: stageItem.accent, background: idx <= stageIndex ? stageItem.accent : 'transparent' }}
-                  aria-label={`Stage ${idx + 1}: ${stageItem.title}`}
-                />
-              ))}
-            </div>
-            <p className="boot-stage-title">
-              Phase {stageIndex + 1} · {stage.title}
-              <strong>{Math.round(stagePercent * 100)}%</strong>
-            </p>
-            <p className="boot-subtitle">{stage.subtitle}</p>
-          </header>
-          <section className="boot-narrative">
-            <p>{stage.narrative}</p>
-            <p className="boot-pulse">{stage.pulse}</p>
-          </section>
-          <section className="boot-log" role="log" aria-live="polite" aria-label="Boot log lines">
-            {visibleLines.map((line, idx) => (
-              <p key={`${line}-${idx}`} className={`boot-line${idx === activeLineIndex ? ' active' : ''}`}>
-                <span>{line}</span>
-              </p>
-            ))}
-          </section>
-          {upcomingLines.length > 0 && (
-            <section className="boot-upcoming" aria-live="off">
-              <p>Next cues</p>
-              <div className="boot-upcoming-list">
-                {upcomingLines.map((line, idx) => (
-                  <span key={`${line}-upnext-${idx}`}>{line}</span>
-                ))}
-              </div>
-            </section>
-          )}
-          <div className="boot-progress-foot">
-            <div className="boot-progress-track">
-              <div className="boot-progress-fill" style={{ width: `${Math.round(progress * 100)}%` }} />
-            </div>
-            <p className="boot-progress-copy">Overall progress · {Math.round(progress * 100)}%</p>
-          </div>
-          <div className="boot-actions">
-            <button type="button" onClick={onSkip}>{reducedMotion ? 'Continue' : 'Skip Boot'}</button>
-            <small>
-              Press <kbd>S</kbd>, <kbd>Esc</kbd>, <kbd>Enter</kbd>, or <kbd>Space</kbd> to continue
-            </small>
-          </div>
-        </div>
-        <aside className="boot-research-panel">
-          <header>
-            <p>Research briefing</p>
-            <h3>Story + science</h3>
-            <p>Each cinematic stage mirrors the research notes below and keeps the arrival grounded.</p>
-          </header>
-          <div className="research-grid">
-            {researchBriefNotes.map((note) => (
-              <article key={note.title}>
-                <p className="research-title">{note.title}</p>
-                <p>{note.detail}</p>
-                <small>{note.source}</small>
-              </article>
-            ))}
-          </div>
-          <div className="boot-arc">
-            <p className="boot-arc-label">Arc progress · Phase {stageIndex + 1} / {stageCount}</p>
-            <div className="boot-arc-track">
-              {bootStages.map((stageItem, idx) => (
-                <span
-                  key={`arc-${stageItem.id}`}
-                  className={`boot-arc-pill${idx === stageIndex ? ' active' : ''}`}
-                  style={{ borderColor: stageItem.accent, background: idx <= stageIndex ? stageItem.accent : 'transparent' }}
-                  aria-label={`Stage ${idx + 1}: ${stageItem.title}`}
-                />
-              ))}
-            </div>
-            <p className="boot-arc-hint">Research notes keep the narrative credible, even if you skip ahead.</p>
-          </div>
-        </aside>
-      </div>
-      <div className="boot-footer-note">Cinematic research keeps the sequence grounded in evidence-based storytelling.</div>
-    </div>
   );
 }
 
@@ -1205,6 +1061,7 @@ function WindowContent({
   }
 
   if (appId === 'leetcode') {
+    const routineValue = 92;
     return (
       <article className="leetcode-panel">
         <header>
@@ -1220,6 +1077,13 @@ function WindowContent({
               <small>{stat.detail}</small>
             </div>
           ))}
+        </div>
+        <div className="leetcode-practice">
+          <p>Routine stability</p>
+          <div className="practice-bar">
+            <span style={{ width: `${routineValue}%` }} />
+          </div>
+          <small>Story-driven spaced repetition keeps the routine at {routineValue}% steadiness.</small>
         </div>
         <section className="leetcode-insights">
           {leetCodeInsights.map((insight) => (
@@ -1287,6 +1151,7 @@ function WindowContent({
   }
   if (appId === 'contributions') {
     const recentRepos = repos.slice(0, 4);
+    const freshnessPercent = Math.min(100, Math.round((repos.length / 6) * 100));
     return (
       <article className="contributions-panel">
         <header>
@@ -1294,21 +1159,23 @@ function WindowContent({
           <h2>Contributions.log</h2>
           <p>{repoStatusLine}</p>
         </header>
-        <div className="contribution-metrics">
-          <div>
-            <strong>{repos.length}</strong>
-            <small>Tracked repositories</small>
+        <div className="contribution-gauges">
+          <div className="contribution-gauge">
+            <p>Signal strength</p>
+            <div className="gauge-track">
+              <span style={{ width: `${contributionScore}%` }} />
+            </div>
+            <small>{contributionScore}% of the delivery signal goal</small>
           </div>
-          <div>
-            <strong>{totalStars}</strong>
-            <small>Total stars</small>
-          </div>
-          <div>
-            <strong>{contributionScore}%</strong>
-            <small>Signal strength</small>
+          <div className="contribution-gauge">
+            <p>Repo freshness</p>
+            <div className="gauge-track secondary">
+              <span style={{ width: `${freshnessPercent}%` }} />
+            </div>
+            <small>{repos.length} repos live · {freshnessPercent}% of refresh capacity</small>
           </div>
         </div>
-        <section className="contribution-highlights">
+        <section className="contribution-highlights-grid">
           {contributionHighlights.map((highlight) => (
             <article key={`${highlight.title}-${highlight.detail}`}>
               <h4>{highlight.title}</h4>
@@ -1425,6 +1292,11 @@ function WindowContent({
           <h2>Assist.chat</h2>
           <p>Feed the Missive board, contributions, and resume highlights with a quick question.</p>
         </header>
+        <div className="chatbot-launch">
+          <p>Need to search beyond the shell?</p>
+          <a href={SEARX_URL} target="_blank" rel="noreferrer">Launch SearX search</a>
+          <small>Accessible, privacy-preserving search is always on.</small>
+        </div>
         <div className="chat-window">
           {chatHistory.map((message, idx) => (
             <div key={`chat-${idx}`} className={`chat-message ${message.sender}`}><p>{message.text}</p><small>{message.time}</small></div>

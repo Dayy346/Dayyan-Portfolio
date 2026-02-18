@@ -65,11 +65,15 @@ async function stubRepos(page: Page) {
 
 async function skipBootToDesktop(page: Page) {
   await page.goto('/');
-  const bootDialog = page.getByRole('dialog', { name: /Dayyan OS boot sequence/i });
+  const bootDialog = page.getByRole('dialog', { name: /Dayyan OS.*boot/i });
   await expect(bootDialog).toBeVisible();
   await page.getByRole('button', { name: /skip boot|continue/i }).click();
-  await page.locator('main.desktop').waitFor({ state: 'visible' });
-  await expect(page.locator('.boot-screen')).toHaveCount(0);
+  const loginDialog = page.getByRole('dialog', { name: /Windows 95 login/i });
+  await expect(loginDialog).toBeVisible();
+  await page.getByRole('button', { name: /press to log on/i }).click();
+  await expect(loginDialog).toHaveCount(0);
+  await expect(page.locator('main.desktop')).toBeVisible();
+  await expect(page.locator('.login-overlay')).toHaveCount(0);
   await expect(page.getByText('Session Active')).toBeVisible();
 }
 
@@ -148,6 +152,27 @@ test.describe('Dayyan.OS QA experience flows', () => {
     await page.keyboard.press('m');
     await page.keyboard.up('Control');
     await expect(page.locator(windowSelector('About.me'))).toHaveCount(0);
+  });
+
+  test('desktop story widget surfaces the hero signal updates', async ({ page }) => {
+    await skipBootToDesktop(page);
+    const heroWidget = page.locator('section.desktop-story-widget');
+    const heroSignals = [
+      'CollabLab Leadership',
+      'Junior AI Engineer',
+      'Kaggle Notebook · Retro Signals',
+      'GitHub Contributions'
+    ];
+    for (const signal of heroSignals) {
+      await expect(heroWidget).toContainText(signal);
+    }
+  });
+
+  test('window strip badges expose repo status and mood tokens', async ({ page }) => {
+    await skipBootToDesktop(page);
+    const windowStrip = page.locator('footer.window-strip');
+    await expect(windowStrip).toContainText(/GitHub feed/i);
+    await expect(windowStrip).toContainText(/mood/i);
   });
 
   test('mobile view renders the Lite experience after boot', async ({ page }) => {
