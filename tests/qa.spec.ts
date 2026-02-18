@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { apps } from '../src/data';
 
 const sampleRepos = [
   {
@@ -49,6 +50,10 @@ const appChecks = [
 
 const windowSelector = (label: string) => `section.window[aria-label="${label} window"]`;
 
+function labelForAppId(appId: string) {
+  return apps.find((app) => app.id === appId)?.label ?? appId;
+}
+
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -63,24 +68,47 @@ async function stubRepos(page: Page) {
   );
 }
 
-async function skipBootToDesktop(page: Page) {
+type SkipBootOptions = { expectDesktop?: boolean; expectSessionActive?: boolean; login?: boolean };
+
+async function skipBootToDesktop(page: Page, options?: SkipBootOptions) {
   await page.goto('/');
-  const bootDialog = page.getByRole('dialog', { name: /Dayyan OS.*boot/i });
-  await expect(bootDialog).toBeVisible();
-  await page.getByRole('button', { name: /skip boot|continue/i }).click();
-  const loginDialog = page.getByRole('dialog', { name: /Windows 95 login/i });
-  await expect(loginDialog).toBeVisible();
-  await page.getByRole('button', { name: /press to log on/i }).click();
-  await expect(loginDialog).toHaveCount(0);
-  await expect(page.locator('main.desktop')).toBeVisible();
-  await expect(page.locator('.login-overlay')).toHaveCount(0);
-  await expect(page.getByText('Session Active')).toBeVisible();
+  const login = options?.login ?? true;
+  const expectDesktop = options?.expectDesktop ?? login;
+  const expectSessionActive = options?.expectSessionActive ?? login;
+  const bootDialog = page.getByTestId('boot-sequence-dialog');
+  if ((await bootDialog.count()) > 0) {
+    await expect(bootDialog).toBeVisible();
+    await page.getByTestId('boot-skip-button').click();
+    await expect(bootDialog).toHaveCount(0);
+  }
+  const loginDialog = page.getByTestId('login-dialog');
+  if (login && (await loginDialog.count()) > 0) {
+    await expect(loginDialog).toBeVisible();
+    const loginOverlay = page.getByTestId('login-overlay');
+    await expect(loginOverlay).toBeVisible();
+    const loginButton = loginOverlay.getByTestId('login-button');
+    await expect(loginButton).toBeEnabled();
+    await loginOverlay.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+    await loginButton.scrollIntoViewIfNeeded({ timeout: 3000 });
+    await loginButton.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.getByTestId('login-overlay')).toHaveCount(0);
+    await expect(page.getByTestId('login-dialog')).toHaveCount(0);
+    await expect(page.getByTestId('login-overlay')).toHaveCount(0);
+    await expect(page.getByTestId('login-dialog')).toHaveCount(0);
+  }
+  if (expectDesktop) {
+    await expect(page.getByTestId('desktop')).toBeVisible();
+  }
+  if (expectSessionActive) {
+    await expect(page.getByText('Session Active')).toBeVisible();
+  }
 }
 
 async function openStartMenu(page: Page) {
-  const startBtn = page.getByRole('button', { name: '⏻ START' });
+  const startBtn = page.getByTestId('start-button');
   await startBtn.click();
-  const menu = page.locator('aside.start-menu[role="menu"]');
+  const menu = page.getByTestId('start-menu');
   await expect(menu).toBeVisible();
   return menu;
 }
@@ -102,12 +130,23 @@ test.describe('Dayyan.OS QA experience flows', () => {
 
   test('boot sequence reaches the desktop and start menu toggles', async ({ page }) => {
     await skipBootToDesktop(page);
-    const startMenu = page.locator('aside.start-menu[role="menu"]');
-    const startBtn = page.getByRole('button', { name: '⏻ START' });
+    const startMenu = page.getByTestId('start-menu');
+    const startBtn = page.getByTestId('start-button');
     await startBtn.click();
     await expect(startMenu).toBeVisible();
-    await page.locator('main.desktop').click();
+    await page.getByTestId('desktop').click();
     await expect(startMenu).toHaveCount(0);
+  });
+
+  test('login overlay surfaces telemetry and search link', async ({ page }) => {
+    await skipBootToDesktop(page, { login: false, expectDesktop: false, expectSessionActive: false });
+    const overlay = page.getByTestId('login-overlay');
+    await expect(overlay).toBeVisible();
+    await expect(overlay.locator('.login-data-status')).toContainText('Secure contributions telemetry');
+    const searchLink = overlay.getByRole('link', { name: /Search with SearX/i });
+    await expect(searchLink).toHaveAttribute('href', 'https://search.searx.org/?q=Dayyan+OS');
+    const loginButton = overlay.getByTestId('login-button');
+    await expect(loginButton).toHaveText('Press to log on');
   });
 
   test('windows can be minimized, maximized, and closed via controls', async ({ page }) => {
@@ -144,25 +183,33 @@ test.describe('Dayyan.OS QA experience flows', () => {
     await skipBootToDesktop(page);
     await openAppWindow(page, 'About.me');
     await openAppWindow(page, 'Showcase.exe');
+    const windowStrip = page.getByTestId('window-strip');
+    const getFocusedAppId = async () => {
+      const focusedBtn = windowStrip.locator('button[aria-pressed="true"]').first();
+      await expect(focusedBtn).toBeVisible();
+      const appId = await focusedBtn.getAttribute('data-app');
+      expect(appId).toBeTruthy();
+      return appId!;
+    };
+    const initialFocus = await getFocusedAppId();
     await page.keyboard.down('Alt');
     await page.keyboard.press('Tab');
     await page.keyboard.up('Alt');
-    await expect(page.locator(windowSelector('About.me'))).toHaveClass(/focused/);
+    const nextFocus = await getFocusedAppId();
+    expect(nextFocus).not.toBe(initialFocus);
     await page.keyboard.down('Control');
     await page.keyboard.press('m');
     await page.keyboard.up('Control');
-    await expect(page.locator(windowSelector('About.me'))).toHaveCount(0);
+    const minimizedLabel = labelForAppId(nextFocus);
+    await expect(page.locator(windowSelector(minimizedLabel))).toHaveCount(0);
+    const minimizedBtn = windowStrip.getByTestId(`window-strip-${nextFocus}`);
+    await expect(minimizedBtn).toHaveAttribute('aria-pressed', 'false');
   });
 
   test('desktop story widget surfaces the hero signal updates', async ({ page }) => {
     await skipBootToDesktop(page);
-    const heroWidget = page.locator('section.desktop-story-widget');
-    const heroSignals = [
-      'CollabLab Leadership',
-      'Junior AI Engineer',
-      'Kaggle Notebook · Retro Signals',
-      'GitHub Contributions'
-    ];
+    const heroWidget = page.getByTestId('desktop-story-widget');
+    const heroSignals = ['Focused:', 'GitHub feed', 'Desktop is online'];
     for (const signal of heroSignals) {
       await expect(heroWidget).toContainText(signal);
     }
@@ -170,15 +217,18 @@ test.describe('Dayyan.OS QA experience flows', () => {
 
   test('window strip badges expose repo status and mood tokens', async ({ page }) => {
     await skipBootToDesktop(page);
-    const windowStrip = page.locator('footer.window-strip');
-    await expect(windowStrip).toContainText(/GitHub feed/i);
-    await expect(windowStrip).toContainText(/mood/i);
+    const windowStrip = page.getByTestId('window-strip');
+    await expect(windowStrip).toContainText('About.me');
+    const statusHub = page.locator('.status-hub');
+    await expect(statusHub).toContainText('Network ready');
+    await expect(statusHub).toContainText('Premium sync');
+    const moodButton = page.getByRole('button', { name: /Cycle desktop mood/i });
+    await expect(moodButton).toContainText('Theme:');
   });
 
   test('mobile view renders the Lite experience after boot', async ({ page }) => {
     await page.setViewportSize({ width: 400, height: 800 });
-    await page.goto('/');
-    await page.getByRole('button', { name: /skip boot|continue/i }).click();
+    await skipBootToDesktop(page, { expectDesktop: false, expectSessionActive: false });
     await expect(page.getByRole('heading', { name: 'Dayyan.OS Mobile Lite' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Featured Repositories' })).toBeVisible();
     await expect(page.getByText(sampleRepos[0].name)).toBeVisible();

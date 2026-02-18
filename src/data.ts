@@ -20,6 +20,8 @@ export type BootStage = {
   subtitle: string;
   accent: string;
   durationMs: number;
+  metricLabel: string;
+  metricValue: string;
   lines: string[];
   narrative: string;
   pulse: string;
@@ -56,6 +58,8 @@ export const bootStages: BootStage[] = [
     subtitle: 'Cinematic sensor choreography aligns hardware with narrative intent.',
     accent: '#f0a95e',
     durationMs: 3200,
+    metricLabel: 'Sensor coherence',
+    metricValue: 'Crystalline POST at 99.7% readiness',
     narrative: 'Latest CHI research shows early storytelling cues shrink uncertainty. We warm up the instruments in stillness before revealing the story.',
     pulse: 'Pulse: measured breath, slow amber pulses, and mechanical shutters easing into motion.',
     lines: [
@@ -73,6 +77,8 @@ export const bootStages: BootStage[] = [
     subtitle: 'Interaction engine, motion cues, and reliability services get in sync.',
     accent: '#82c7b3',
     durationMs: 3000,
+    metricLabel: 'Kernel cadence',
+    metricValue: 'Scheduler locks 3.2ms beats · input concierge armed',
     narrative: 'Motion research guided by embodied interaction principles keeps every micro-cue consistent, comfortable, and intentional.',
     pulse: 'Pulse: ribboned teal glow that swirls with each scheduler beat.',
     lines: [
@@ -90,6 +96,8 @@ export const bootStages: BootStage[] = [
     subtitle: 'Gradient fog, halos, and depth cues paint the workspace.',
     accent: '#c27dcf',
     durationMs: 2600,
+    metricLabel: 'Atmospheric depth',
+    metricValue: 'Four matte gradients locked · halo intensity steady',
     narrative: 'Visual comfort studies affirm that layered gradients and subtle haze keep focus while delivering nostalgia.',
     pulse: 'Pulse: violet halos ripple gently as if breathing through a retro console.',
     lines: [
@@ -107,6 +115,8 @@ export const bootStages: BootStage[] = [
     subtitle: 'Every window, repo, and missive narrates the mission.',
     accent: '#6edb9f',
     durationMs: 2400,
+    metricLabel: 'Story sync',
+    metricValue: 'Repo + Missive signals streaming · narrative locked',
     narrative: 'Storytelling research says closing with a friendly narrative hook makes the shell feel alive and trustworthy.',
     pulse: 'Pulse: emerald streaks cascade toward the horizon, teasing the desktop.',
     lines: [

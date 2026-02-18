@@ -5,6 +5,8 @@ export type LoginProps = {
   onLogin: () => void;
   reducedMotion: boolean;
   credentials: Credential[];
+  searchUrl: string;
+  dataStatus: string;
 };
 
 const iconTiles = [
@@ -16,15 +18,18 @@ const iconTiles = [
   { label: 'Graphs', emoji: '📊', tone: 'Repo' }
 ];
 
-export function Win95Login({ animating, onLogin, reducedMotion, credentials }: LoginProps) {
+export function Win95Login({ animating, onLogin, reducedMotion, credentials, searchUrl, dataStatus }: LoginProps) {
   return (
-    <div className={`win95-login-overlay${animating ? ' animating' : ''}${reducedMotion ? ' reduced-motion' : ''}`}>
+    <div
+      className={`win95-login-overlay${animating ? ' animating' : ''}${reducedMotion ? ' reduced-motion' : ''}`}
+      data-testid="login-overlay"
+    >
       <div className="win95-login-horizon" aria-hidden="true">
         <span className="win95-hill primary" />
         <span className="win95-hill secondary" />
         <span className="win95-cloud" />
       </div>
-      <div className="win95-login-card" role="dialog" aria-label="Windows 95 log on">
+      <div className="win95-login-card" role="dialog" aria-modal="true" aria-label="Windows 95 log on" data-testid="login-dialog">
         <header>
           <span className="win95-logo">⌂</span>
           <div>
@@ -42,7 +47,14 @@ export function Win95Login({ animating, onLogin, reducedMotion, credentials }: L
           ))}
         </section>
         <IconGrid />
-        <button type="button" onClick={onLogin} disabled={animating}>
+        <div className="win95-login-status" aria-live="polite">
+          <p className="login-data-status">{dataStatus}</p>
+          <p className="login-contrib-note">Secure contributions telemetry is primed—tokens minted for the incoming shell.</p>
+        </div>
+        <a className="win95-login-search" href={searchUrl} target="_blank" rel="noreferrer">
+          🔍 Search with SearX
+        </a>
+        <button type="button" onClick={onLogin} disabled={animating} data-testid="login-button">
           {animating ? 'Logging on…' : 'Press to log on'}
         </button>
         <p className="login-hint">Animated login in motion—watch Dayyan boot into the shell.</p>

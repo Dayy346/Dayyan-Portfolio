@@ -11,7 +11,7 @@ import {
   type BootStage
 } from './data';
 
-import { Win95Boot } from './components/win95/Win95Boot';
+import { BootSequence } from './components/win95/BootSequence';
 import { Win95Login } from './components/win95/Win95Login';
 import { type Credential } from './components/win95/win95Types';
 
@@ -388,6 +388,8 @@ export default function App() {
     lastRepoSync
   });
 
+  const loginDataStatus = `Secure contributions telemetry · ${shellStatus.highlightCopy}`;
+
   const totalStars = useMemo(() => repos.reduce((sum, repo) => sum + repo.stargazers_count, 0), [repos]);
   const contributionScore = useMemo(() => {
     const base = Math.max(1, (repos.length || 1) * 18);
@@ -485,7 +487,7 @@ export default function App() {
     <>
       <div className={`os-shell ${bootDone ? 'ready' : 'preboot'} mood-${shellMood}`}>
         <header className="taskbar">
-          <button className="start-btn" onClick={() => setStartMenuOpen((v) => !v)} aria-haspopup="menu" aria-expanded={startMenuOpen}>⏻ START</button>
+          <button className="start-btn" onClick={() => setStartMenuOpen((v) => !v)} aria-haspopup="menu" aria-expanded={startMenuOpen} data-testid="start-button">⏻ START</button>
           <p className="taskbar-title">DAYYAN.OS // RETRO FRONTEND SHELL</p>
           <div className="taskbar-status">
             <div className="status-hub" role="status" aria-label="System activities">
@@ -504,7 +506,7 @@ export default function App() {
         </header>
 
         {startMenuOpen && bootDone && (
-          <aside className="start-menu" role="menu" aria-label="Start Menu">
+          <aside className="start-menu" role="menu" aria-label="Start Menu" data-testid="start-menu">
             <div className="start-menu-header">
               <p>What's running</p>
               <p className="start-menu-status" aria-live="polite">{shellStatus.startMenuStatus}</p>
@@ -548,8 +550,8 @@ export default function App() {
           </aside>
         )}
 
-        <main className="desktop" onClick={() => setStartMenuOpen(false)}>
-          <section className="desktop-story-widget" aria-label="Session status">
+        <main className="desktop" data-testid="desktop" onClick={() => setStartMenuOpen(false)}>
+          <section className="desktop-story-widget" aria-label="Session status" data-testid="desktop-story-widget">
             <p>Session Active</p>
             <h2>Designing modern products with vintage UX DNA.</h2>
             <ul>
@@ -564,7 +566,7 @@ export default function App() {
             </div>
           </section>
 
-          <section className="contributions-widget" aria-label="Contributions widget">
+          <section className="contributions-widget" aria-label="Contributions widget" data-testid="contributions-widget">
             <header>
               <p className="muted">Signal view</p>
               <h2>Contributions.widget</h2>
@@ -647,13 +649,15 @@ export default function App() {
           })}
         </main>
 
-        <footer className="window-strip" aria-label="Opened windows">
+        <footer className="window-strip" aria-label="Opened windows" data-testid="window-strip">
           {apps.filter((a) => windowMap[a.id].isOpen).map((app) => {
             const isFocused = focused === app.id && !windowMap[app.id].minimized;
             return (
               <button
                 key={app.id}
                 className={isFocused ? 'active' : ''}
+                data-app={app.id}
+                data-testid={`window-strip-${app.id}`}
                 onClick={() => (isFocused ? minimizeWindow(app.id) : openWindow(app.id))}
                 aria-pressed={isFocused}
               >
@@ -665,7 +669,7 @@ export default function App() {
       </div>
 
       {!bootDone && (
-        <Win95Boot
+        <BootSequence
           stage={currentStage}
           stageIndex={bootStageIndex}
           stageCount={bootStages.length}
@@ -674,11 +678,20 @@ export default function App() {
           transitioning={bootTransitioning}
           onSkip={skipBoot}
           reducedMotion={reducedMotion}
+          stageMetric={shellStatus.stageMetric}
+          researchNotes={researchBriefNotes}
         />
       )}
 
       {bootDone && !loggedIn && (
-        <Win95Login animating={loginPhase === 'animating'} onLogin={handleLogin} reducedMotion={reducedMotion} credentials={LOGIN_CREDENTIALS} />
+        <Win95Login
+          animating={loginPhase === 'animating'}
+          onLogin={handleLogin}
+          reducedMotion={reducedMotion}
+          credentials={LOGIN_CREDENTIALS}
+          searchUrl={SEARX_URL}
+          dataStatus={loginDataStatus}
+        />
       )}
 
       {isMobile && !bootDone && <div className="mobile-boot-hint">Tip: press S, Enter, or Skip to load Mobile Lite.</div>}
@@ -1401,9 +1414,6 @@ function useShellStatus(params: ShellStatusParams): ShellStatus {
       .reduce((sum, stageItem) => sum + stageItem.lines.length, 0) + Math.min(bootLineIndex, stage.lines.length);
     const totalProgress = bootDone ? 1 : bootLinesCompleted / totalBootLines;
     const focusLabel = apps.find((app) => app.id === focused)?.label ?? 'Shell';
-    const metricLine = bootDone
-      ? 'Desktop is online and waiting for interactions.'
-      : stage.lines[Math.max(0, Math.min(stage.lines.length - 1, bootLineIndex - 1))] ?? stage.subtitle;
     const repoCount = repos.length;
     const syncTime = lastRepoSync ? new Date(lastRepoSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : null;
     const repoPhrase =
@@ -1415,6 +1425,14 @@ function useShellStatus(params: ShellStatusParams): ShellStatus {
             ? 'GitHub feed paused (retry later)'
             : 'GitHub feed idle';
     const moodLabel = `${shellMood.charAt(0).toUpperCase()}${shellMood.slice(1)}`;
+    const stageLine = bootDone
+      ? 'Boot complete · Desktop ready'
+      : `Stage ${bootStageIndex + 1}: ${stage.title} (${Math.round(normalizedStageProgress * 100)}%)`;
+    const metricBase = bootDone
+      ? 'Desktop is online and waiting for interactions.'
+      : `${stage.metricLabel}: ${stage.metricValue ?? stage.subtitle}`;
+    const metricLine = bootDone ? metricBase : `${metricBase} · ${repoPhrase}`;
+    const focusLine = `Focused: ${focusLabel} · ${activeWindowCount} windows active`;
 
     return {
       stageTitle: bootDone ? 'Shell ready' : stage.title,
@@ -1422,9 +1440,9 @@ function useShellStatus(params: ShellStatusParams): ShellStatus {
       stageAccent: stage.accent,
       stageProgress: totalProgress,
       storyLines: [
-        bootDone ? 'Boot complete · Desktop ready' : `Stage ${bootStageIndex + 1}: ${stage.title} (${Math.round(normalizedStageProgress * 100)}%)`,
-        `Focused: ${focusLabel}`,
-        `${activeWindowCount} windows active`,
+        stageLine,
+        metricLine,
+        focusLine,
         repoPhrase
       ],
       highlightCopy: repoPhrase,
