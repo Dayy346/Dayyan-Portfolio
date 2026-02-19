@@ -1,0 +1,514 @@
+/**
+ * Win9x-style boot dialog: gray chrome, bevels, square corners.
+ * File download/transfer dialog aesthetic (Windows 95/98).
+ * Transitions: 150–250ms; hover/press invert bevel.
+ */
+
+/* ---- Overlay ---- */
+.win9x-boot-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  transition: opacity 200ms ease-out;
+}
+
+.win9x-boot-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.win9x-boot-overlay {
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+.win9x-boot-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  max-width: 100%;
+}
+
+/* ---- Dialog window (classic Win9x file copy: blue title, cream body) ---- */
+.win9x-boot-dialog {
+  --win9x-light: #ffffff;
+  --win9x-dark: #000000;
+  --win9x-mid: #c0c0c0;
+  --win9x-face: #c0c0c0;
+  --win9x-title-bg: #000080;
+  --win9x-title-fg: #ffffff;
+  --win9x-cream: #f5f5dc;
+  --win9x-width: min(420px, 92vw);
+  width: var(--win9x-width);
+  background: var(--win9x-face);
+  border: 1px solid var(--win9x-dark);
+  box-shadow:
+    inset 1px 1px 0 var(--win9x-light),
+    inset -1px -1px 0 var(--win9x-mid);
+  transition: transform 180ms ease-out, box-shadow 180ms ease-out;
+}
+
+/* Title bar */
+.win9x-boot-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 4px 3px 6px;
+  background: var(--win9x-title-bg);
+  color: var(--win9x-title-fg);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.win9x-boot-titlebar .title-text {
+  flex: 1;
+}
+
+.win9x-titlebar-close {
+  width: 20px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid var(--win9x-title-fg);
+  background: transparent;
+  color: var(--win9x-title-fg);
+  font-size: 11px;
+  line-height: 1;
+  cursor: default;
+}
+
+/* ---- Folder-to-folder file transfer animation ---- */
+.win9x-folders-transfer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 56px;
+  padding: 8px 0;
+  background: var(--win9x-cream);
+  margin: 0 -14px 10px;
+  padding: 10px 14px;
+}
+
+.win9x-folder {
+  flex-shrink: 0;
+}
+
+.win9x-folder-svg {
+  width: 40px;
+  height: 36px;
+  display: block;
+}
+
+.win9x-flying-docs {
+  position: relative;
+  flex: 1;
+  min-height: 36px;
+}
+
+.win9x-flying-doc {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 18px;
+  height: 22px;
+  background: #fff;
+  border: 1px solid #000;
+  box-shadow: 0 0 0 1px #c0c0c0;
+  transform: translateY(-50%) rotate(-8deg);
+  animation: win9x-doc-folder-to-folder 2.2s ease-in-out infinite;
+  opacity: 0.95;
+}
+
+.win9x-flying-doc:nth-child(2) { animation-delay: 0.4s; top: 30%; }
+.win9x-flying-doc:nth-child(3) { animation-delay: 0.8s; top: 70%; }
+.win9x-flying-doc:nth-child(4) { animation-delay: 1.2s; top: 50%; }
+
+@keyframes win9x-doc-folder-to-folder {
+  0% {
+    left: 0;
+    opacity: 0;
+    transform: translateY(-50%) translateX(-8px) rotate(-8deg) scale(0.8);
+  }
+  15% { opacity: 0.95; }
+  85% { opacity: 0.95; }
+  100% {
+    left: 100%;
+    opacity: 0;
+    transform: translateY(-50%) translateX(8px) rotate(6deg) scale(0.8);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .win9x-flying-doc {
+    animation: none;
+    left: 50%;
+    transform: translateY(-50%) translateX(-50%) rotate(-5deg);
+    opacity: 0.7;
+  }
+}
+
+.win9x-folders-transfer.reduced-motion .win9x-flying-doc {
+  animation: none;
+  left: 50%;
+  transform: translateY(-50%) translateX(-50%) rotate(-5deg);
+  opacity: 0.7;
+}
+
+/* Progress row: bar + Cancel button to the right */
+.win9x-boot-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.win9x-boot-progress-row .win9x-boot-progress-track {
+  flex: 1;
+  height: 18px;
+  border: 1px solid var(--win9x-dark);
+  background: var(--win9x-mid);
+  box-shadow: inset 1px 1px 0 #808080;
+  overflow: hidden;
+}
+
+.win9x-boot-progress-row .win9x-boot-progress-fill {
+  height: 100%;
+  background: #000080;
+  transition: width 200ms ease-out;
+}
+
+.win9x-cancel-btn {
+  flex-shrink: 0;
+}
+
+/* Body (cream/beige like classic Win9x copy dialog) */
+.win9x-boot-body {
+  padding: 12px 14px 14px;
+  display: grid;
+  gap: 10px;
+  background: var(--win9x-cream);
+}
+
+/* From/To fields */
+.win9x-boot-fields {
+  display: grid;
+  gap: 6px;
+}
+
+.win9x-boot-field {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  align-items: center;
+  gap: 8px;
+}
+
+.win9x-boot-field label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--win9x-dark);
+}
+
+.win9x-boot-field input {
+  padding: 4px 6px;
+  font-size: 11px;
+  font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
+  border: 1px solid var(--win9x-dark);
+  background: #fff;
+  box-shadow: inset 1px 1px 0 var(--win9x-mid);
+  color: #000;
+}
+
+.win9x-boot-field input:focus {
+  outline: 1px dotted var(--win9x-dark);
+  outline-offset: 0;
+}
+
+.win9x-boot-progress-label {
+  font-size: 11px;
+  margin-bottom: 2px;
+  color: var(--win9x-dark);
+}
+
+/* Rate + ETA row */
+.win9x-boot-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--win9x-dark);
+}
+
+.win9x-boot-stats .simulated-note {
+  color: #555;
+  font-style: italic;
+}
+
+/* Checkbox */
+.win9x-boot-checkbox-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+}
+
+.win9x-boot-checkbox {
+  width: 12px;
+  height: 12px;
+  margin: 0;
+  accent-color: #000080;
+  cursor: pointer;
+}
+
+.win9x-boot-checkbox-wrap label {
+  font-size: 11px;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Buttons: beveled Win9x style */
+.win9x-boot-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--win9x-mid);
+}
+
+.win9x-btn {
+  min-width: 75px;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
+  border: 1px solid var(--win9x-dark);
+  background: var(--win9x-face);
+  box-shadow:
+    1px 1px 0 var(--win9x-light),
+    inset 1px 1px 0 var(--win9x-light);
+  cursor: pointer;
+  transition: box-shadow 150ms ease, transform 150ms ease;
+}
+
+.win9x-btn:hover:not(:disabled) {
+  box-shadow:
+    1px 1px 0 var(--win9x-light),
+    inset -1px -1px 0 #808080;
+}
+
+.win9x-btn:active:not(:disabled) {
+  box-shadow: inset 1px 1px 0 #808080;
+  transform: translate(1px, 1px);
+}
+
+.win9x-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.win9x-btn:focus-visible {
+  outline: 1px dotted var(--win9x-dark);
+  outline-offset: 1px;
+}
+
+/* Cancelling state */
+.win9x-boot-dialog.cancelling .win9x-boot-progress-fill {
+  opacity: 0.7;
+}
+
+.win9x-boot-dialog.cancelling .win9x-boot-stats {
+  color: #555;
+}
+
+/* Mini Explorer preview (Open Folder) */
+.win9x-explorer-preview {
+  --win9x-light: #ffffff;
+  --win9x-dark: #000000;
+  --win9x-mid: #c0c0c0;
+  --win9x-face: #c0c0c0;
+  --win9x-title-bg: #000080;
+  --win9x-title-fg: #ffffff;
+  position: fixed;
+  width: min(280px, 85vw);
+  max-height: 240px;
+  z-index: 10000;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--win9x-face);
+  border: 1px solid var(--win9x-dark);
+  box-shadow:
+    inset 1px 1px 0 var(--win9x-light),
+    inset -1px -1px 0 var(--win9x-mid),
+    0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.win9x-explorer-titlebar {
+  padding: 2px 4px 3px 6px;
+  background: var(--win9x-title-bg);
+  color: var(--win9x-title-fg);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.win9x-explorer-body {
+  padding: 8px;
+  font-size: 11px;
+  max-height: 180px;
+  overflow: auto;
+}
+
+.win9x-explorer-body ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.win9x-explorer-body li {
+  padding: 4px 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.win9x-explorer-body li:hover {
+  background: #000080;
+  color: #fff;
+}
+
+.win9x-explorer-body .icon {
+  font-size: 14px;
+}
+
+/* ---- Login (same theme as boot: blue title, cream body) ---- */
+.win9x-login-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.win9x-login-dialog {
+  --win9x-light: #ffffff;
+  --win9x-dark: #000000;
+  --win9x-mid: #c0c0c0;
+  --win9x-face: #c0c0c0;
+  --win9x-title-bg: #000080;
+  --win9x-title-fg: #ffffff;
+  --win9x-cream: #f5f5dc;
+  width: min(340px, 92vw);
+  background: var(--win9x-face);
+  border: 1px solid var(--win9x-dark);
+  box-shadow:
+    inset 1px 1px 0 var(--win9x-light),
+    inset -1px -1px 0 var(--win9x-mid);
+  font-family: 'MS Sans Serif', 'Segoe UI', 'IBM Plex Sans', sans-serif;
+}
+
+.win9x-login-titlebar {
+  padding: 4px 8px 5px 10px;
+  background: var(--win9x-title-bg);
+  color: var(--win9x-title-fg);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.win9x-login-body {
+  padding: 14px 16px 16px;
+  background: var(--win9x-cream);
+  display: grid;
+  gap: 12px;
+}
+
+.win9x-typing-grid {
+  display: grid;
+  gap: 6px;
+}
+
+.win9x-typing-row {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  align-items: center;
+  gap: 8px;
+}
+
+.win9x-typing-row label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--win9x-dark);
+}
+
+.win9x-typing-field {
+  padding: 4px 6px;
+  font-size: 11px;
+  border: 1px solid var(--win9x-dark);
+  background: #fff;
+  box-shadow: inset 1px 1px 0 var(--win9x-mid);
+  color: #000;
+}
+
+.win9x-typing-cursor {
+  display: inline-block;
+  width: 1px;
+  height: 12px;
+  background: #000;
+  animation: win9x-blink 1s step-end infinite;
+}
+
+@keyframes win9x-blink {
+  50% { opacity: 0; }
+}
+
+.win9x-login-status {
+  margin: 0;
+  font-size: 10px;
+  color: #666;
+}
+
+.win9x-login-note {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--win9x-dark);
+}
+
+.win9x-login-links {
+  display: flex;
+  gap: 8px;
+}
+
+.win9x-login-btn-link {
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid var(--win9x-dark);
+  background: var(--win9x-face);
+  box-shadow: 1px 1px 0 var(--win9x-light), inset 1px 1px 0 var(--win9x-light);
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.win9x-login-btn-link:hover {
+  box-shadow: 1px 1px 0 var(--win9x-light), inset -1px -1px 0 #808080;
+}
+
+.win9x-login-actions {
+  margin-top: 4px;
+}
+
+.win9x-login-hint {
+  margin: 0;
+  font-size: 10px;
+  color: #666;
+}
