@@ -11,7 +11,11 @@ Playwright exercises cover the Win95 boot/login ritual, desktop navigation (star
 | --- | --- | --- | --- |
 | 2026-02-19 02:11 | `npm run test:qa` | ✅ Passed | Verified the GitHub and LeetCode widgets plus the windows chrome with the new data-testid coverage. |
 | 2026-02-18 23:34 | `npm run test:qa` | ✅ Passed | Validated the transfer dialog boot, login overlay telemetry, and desktop transitions with the new data-testid coverage. |
+<<<<<<< HEAD
 | 2026-02-18 22:16 | `npm run test:qa` | ✅ Passed | Updated the login expectation to the new “Press Enter to log on” copy, reran the full suite, and confirmed all 8 scenarios pass with the Win95 boot/login refresh. |
+=======
+| 2026-02-19 02:11 | `npm run test:qa` | ✅ Passed | Verified GitHub + LeetCode widgets and taskbar/windows polish with data-testid coverage.|
+>>>>>>> 0d53d37 (P4: add GitHub and LeetCode widgets)
 | 2026-02-18 20:17 | `npm run test:qa` | ❌ Failed | Login button was off-screen; skip helper clicked `Press to log on` until the timeout. Trace saved under `test-results/qa-Dayyan-OS-QA-experience-*/trace.zip`. |
 | 2026-02-18 20:18 | `npm run test:qa` | ❌ Failed | Same failure repeated after the click helper scroll attempts. |
 | 2026-02-18 20:19 | `npm run test:qa` | ✅ Passed | Added keyboard-driven login helper (focus + `Enter`) so Playwright now skips the boot and logs in through the new `BootSequence` + login overlay. All 8 scenarios pass consistently. |

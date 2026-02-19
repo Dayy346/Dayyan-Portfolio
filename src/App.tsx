@@ -5,7 +5,6 @@ import {
   bootStages,
   contributionHighlights,
   leetCodeInsights,
-  leetCodeStats,
   researchBriefNotes,
   resumeSections,
   type BootStage
@@ -14,6 +13,8 @@ import {
 import { BootSequence } from './components/win95/BootSequence';
 import { Win95Login } from './components/win95/Win95Login';
 import { type Credential } from './components/win95/win95Types';
+import { GitHubContributionFeed } from './components/widgets/GitHubContributionFeed';
+import { LeetCodeStatsWidget } from './components/widgets/LeetCodeStatsWidget';
 
 type Repo = { name: string; language: string | null; stargazers_count: number; description: string | null; html_url: string; homepage?: string | null; fork: boolean };
 type WindowState = { isOpen: boolean; minimized: boolean; maximized: boolean; x: number; y: number; z: number };
@@ -125,6 +126,14 @@ const PREMIUM_HIGHLIGHTS = [
   'Mood states cycle between studio, archive, and night while retaining retro warmth.',
   'Taskbar health indicators whisper network and sync status instead of yelling alerts.'
 ];
+
+const KEYBOARD_SHORTCUTS = [
+  { id: 'alt-tab', combo: 'Alt + Tab', detail: 'Cycle focus between open windows while the hero signal glows.' },
+  { id: 'ctrl-m', combo: 'Ctrl + M', detail: 'Minimize the focused window without reaching for the mouse.' },
+  { id: 'enter', combo: 'Enter', detail: 'Launch icons, confirm login, or trigger the start menu action.' },
+  { id: 'space', combo: 'Space', detail: 'Toggle the recruiter signal detail rail or quick peek an icon.' },
+  { id: 'esc', combo: 'Esc', detail: 'Skip boot, close menus, or replay the narrative log.' }
+] as const;
 
 const SEARX_URL = 'https://search.searx.org/?q=Dayyan+OS';
 
@@ -388,6 +397,7 @@ export default function App() {
     repoStatus,
     lastRepoSync
   });
+  const recruiterSignalCount = Math.max(3, Math.min(5, runningApps.length + 2));
 
   const loginDataStatus = `Secure contributions telemetry · ${shellStatus.highlightCopy}`;
 
@@ -488,33 +498,37 @@ export default function App() {
   return (
     <>
       <div className={`os-shell ${bootDone ? 'ready' : 'preboot'} mood-${shellMood}`}>
-        <header className="taskbar">
+        <header className="taskbar" data-testid="taskbar">
           <button className="start-btn" onClick={() => setStartMenuOpen((v) => !v)} aria-haspopup="menu" aria-expanded={startMenuOpen} data-testid="start-button">⏻ START</button>
           <p className="taskbar-title">DAYYAN.OS // RETRO FRONTEND SHELL</p>
-          <div className="taskbar-status">
-            <div className="status-hub" role="status" aria-label="System activities">
-              <span className="status-dot online" aria-hidden="true" />
-              <span>Network ready</span>
-              <span className="status-dot pulse" aria-hidden="true" />
-              <span>Premium sync</span>
+          <div className="taskbar-status" data-testid="taskbar-status">
+            <div className="status-hub" role="status" aria-live="polite" aria-label="System activities" data-testid="status-hub">
+              <span className="status-dot online" aria-hidden="true" data-testid="status-dot-network" />
+              <span data-testid="status-label-network">Network ready</span>
+              <span className="status-dot pulse" aria-hidden="true" data-testid="status-dot-sync" />
+              <span data-testid="status-label-sync">Premium sync</span>
+            </div>
+            <div className="status-badges" data-testid="status-badges">
+              <span className="status-badge live" data-testid="status-badge-signal">Signal live</span>
+              <span className="status-badge sync" data-testid="status-badge-sync">Sync stable</span>
             </div>
             <div className="status-actions">
-              <button className="mood-btn" onClick={() => setShellMood((curr) => (curr === 'studio' ? 'archive' : curr === 'archive' ? 'night' : 'studio'))} aria-label="Cycle desktop mood">
+              <button className="mood-btn" onClick={() => setShellMood((curr) => (curr === 'studio' ? 'archive' : curr === 'archive' ? 'night' : 'studio'))} aria-label="Cycle desktop mood" data-testid="mood-button">
                 Theme: {shellMood}
               </button>
-              <p className="clock" aria-live="off">{clock}</p>
+              <p className="clock" aria-live="off" data-testid="taskbar-clock">{clock}</p>
             </div>
           </div>
         </header>
 
         {startMenuOpen && bootDone && (
           <aside className="start-menu" role="menu" aria-label="Start Menu" data-testid="start-menu">
-            <div className="start-menu-header">
+            <div className="start-menu-header" data-testid="start-menu-header">
               <p>What's running</p>
-              <p className="start-menu-status" aria-live="polite">{shellStatus.startMenuStatus}</p>
-              <p className="start-menu-stage">Stage {bootStageIndex + 1} · {shellStatus.stageTitle} · {Math.round(shellStatus.stageProgress * 100)}%</p>
+              <p className="start-menu-status" aria-live="polite" data-testid="start-menu-status">{shellStatus.startMenuStatus}</p>
+              <p className="start-menu-stage" data-testid="start-menu-stage">Stage {bootStageIndex + 1} · {shellStatus.stageTitle} · {Math.round(shellStatus.stageProgress * 100)}%</p>
             </div>
-            <div className="running-section" role="list">
+            <div className="running-section" role="list" data-testid="running-section">
               {runningApps.length ? (
                 runningApps.map((app) => {
                   const state = windowMap[app.id];
@@ -529,6 +543,7 @@ export default function App() {
                       aria-pressed={isFocused}
                       className={`running-app ${isMinimized ? 'minimized' : 'active'} ${isFocused ? 'focused' : ''}`}
                       onClick={() => openWindow(app.id)}
+                      data-testid={`running-app-${app.id}`}
                     >
                       <span aria-hidden="true" className="running-icon">{app.icon}</span>
                       <span className="running-label">{app.label}</span>
@@ -543,91 +558,141 @@ export default function App() {
             <div className="start-menu-divider" aria-hidden="true" />
             <p>Launch Programs</p>
             {apps.map((app) => (
-              <button role="menuitem" key={app.id} onClick={() => openWindow(app.id)}>{app.icon} {app.label}</button>
+              <button role="menuitem" key={app.id} onClick={() => openWindow(app.id)} data-testid={`start-menu-app-${app.id}`}>{app.icon} {app.label}</button>
             ))}
-            <a className="start-menu-search" href={SEARX_URL} target="_blank" rel="noreferrer" role="menuitem">
+            <div className="start-menu-shortcuts" data-testid="start-menu-shortcuts">
+              <p>Keyboard shortcuts</p>
+              <ul>
+                {KEYBOARD_SHORTCUTS.map((shortcut) => (
+                  <li key={shortcut.id} data-testid={`shortcut-${shortcut.id}`}>
+                    <kbd>{shortcut.combo}</kbd>
+                    <span>{shortcut.detail}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <a className="start-menu-search" href={SEARX_URL} target="_blank" rel="noreferrer" role="menuitem" data-testid="start-menu-searx-link">
               🔍 Search with SearX
             </a>
-            <a href="/assets/resume.pdf" download>⬇ Resume.pdf</a>
+            <a href="/assets/resume.pdf" download data-testid="start-menu-resume-link">⬇ Resume.pdf</a>
           </aside>
         )}
 
         <main className="desktop" data-testid="desktop" onClick={() => setStartMenuOpen(false)}>
-          <section className="desktop-story-widget" aria-label="Session status" data-testid="desktop-story-widget">
-            <p>Session Active</p>
-            <h2>Designing modern products with vintage UX DNA.</h2>
-            <ul>
-              {shellStatus.storyLines.map((line, idx) => (
-                <li key={`${line}-${idx}`}>{line}</li>
-              ))}
-            </ul>
-            <div className="premium-marquee" aria-live="polite">
-              <span>{shellStatus.stageMetric}</span>
-              <span>{PREMIUM_HIGHLIGHTS[highlightIndex]}</span>
-              <span className="marquee-badge">missive premium</span>
-            </div>
-          </section>
+          <div className="desktop-hero-lane" data-testid="desktop-hero-lane">
+            <section className="desktop-story-widget" aria-label="Session status" data-testid="desktop-story-widget">
+              <p>Session Active</p>
+              <h2>Designing modern products with vintage UX DNA.</h2>
+              <ul>
+                {shellStatus.storyLines.map((line, idx) => (
+                  <li key={`${line}-${idx}`}>{line}</li>
+                ))}
+              </ul>
+              <div className="premium-marquee" aria-live="polite">
+                <span>{shellStatus.stageMetric}</span>
+                <span>{PREMIUM_HIGHLIGHTS[highlightIndex]}</span>
+                <span className="marquee-badge">missive premium</span>
+              </div>
+            </section>
 
-          <section className="contributions-widget" aria-label="Contributions widget" data-testid="contributions-widget">
-            <header>
-              <p className="muted">Signal view</p>
-              <h2>Contributions.widget</h2>
-              <p className="muted">Live telemetry, repo highlights, and LeetCode stats on the desktop.</p>
-            </header>
-            <div className="contribution-score">
-              <div>
-                <strong>{repos.length}</strong>
-                <small>Tracked repos</small>
+            <section className="recruiter-rail" aria-label="Recruiter hero signal" data-testid="recruiter-rail">
+              <p className="recruiter-hero-label">Recruiters: {recruiterSignalCount} top signals waiting</p>
+              <h3>Dayyan.OS · Recruiter Signal Online</h3>
+              <p className="recruiter-hero-copy" aria-live="polite">{shellStatus.highlightCopy}</p>
+              <p className="recruiter-hero-detail">{shellStatus.stageSubtitle}</p>
+              <div className="recruiter-hero-metrics">
+                <span data-testid="recruiter-hero-metric">{shellStatus.stageMetric}</span>
+                <span data-testid="recruiter-hero-refresh">Signal refresh in {signalRefresh}s</span>
               </div>
-              <div>
-                <strong>{totalStars}</strong>
-                <small>Total stars</small>
+              <div className="recruiter-hero-strength" aria-label="Signal stage progress">
+                <span style={{ width: `${Math.round(shellStatus.stageProgress * 100)}%` }} />
               </div>
-              <div>
-                <strong>{contributionScore}%</strong>
-                <small>Signal strength</small>
+              <a
+                className="recruiter-hero-action"
+                href="/assets/resume.pdf"
+                target="_blank"
+                rel="noreferrer"
+                data-testid="recruiter-view-profiles"
+              >
+                View Profiles
+              </a>
+            </section>
+          </div>
+
+          <div className="desktop-main-grid" data-testid="desktop-main-grid">
+            <section className="contributions-widget" aria-label="Contributions widget" data-testid="contributions-widget">
+              <header>
+                <p className="muted">Signal view</p>
+                <h2>Contributions.widget</h2>
+                <p className="muted">Live telemetry, repo highlights, and LeetCode stats on the desktop.</p>
+              </header>
+              <div className="contribution-score">
+                <div>
+                  <strong>{repos.length}</strong>
+                  <small>Tracked repos</small>
+                </div>
+                <div>
+                  <strong>{totalStars}</strong>
+                  <small>Total stars</small>
+                </div>
+                <div>
+                  <strong>{contributionScore}%</strong>
+                  <small>Signal strength</small>
+                </div>
               </div>
-            </div>
-            <div className="contribution-highlights">
-              {contributionHighlights.slice(0, 3).map((highlight) => (
-                <article key={highlight.title}>
-                  <strong>{highlight.title}</strong>
-                  <p>{highlight.detail}</p>
-                </article>
-              ))}
-            </div>
-            <div>
-              <p className="muted">Fresh repos · {recentRepos.length} synced</p>
-              <div className="contribution-recent-list">
-                {recentRepos.length ? recentRepos.map((repo) => (
-                  <article key={`recent-${repo.name}`}>
-                    <strong>{repo.name}</strong>
-                    <p className="muted">{repo.description || 'GitHub work in motion.'}</p>
-                    <small>{repo.language || 'Multi'} · ★ {repo.stargazers_count}</small>
+              <div className="contribution-highlights">
+                {contributionHighlights.slice(0, 3).map((highlight) => (
+                  <article key={highlight.title}>
+                    <strong>{highlight.title}</strong>
+                    <p>{highlight.detail}</p>
                   </article>
-                )) : <p className="muted">Waiting for the feed to arrive.</p>}
+                ))}
               </div>
-            </div>
-          </section>
+              <div>
+                <p className="muted">Fresh repos · {recentRepos.length} synced</p>
+                <div className="contribution-recent-list">
+                  {recentRepos.length ? recentRepos.map((repo) => (
+                    <article key={`recent-${repo.name}`}>
+                      <strong>{repo.name}</strong>
+                      <p className="muted">{repo.description || 'GitHub work in motion.'}</p>
+                      <small>{repo.language || 'Multi'} · ★ {repo.stargazers_count}</small>
+                    </article>
+                  )) : <p className="muted">Waiting for the feed to arrive.</p>}
+                </div>
+              </div>
+              <div className="contribution-feed-slot" data-testid="contribution-feed-slot">
+                <GitHubContributionFeed recruiterSignal={recruiterSignalCount} highlight={shellStatus.highlightCopy} />
+              </div>
+            </section>
 
-          {apps.map((app) => (
-            <button
-              key={app.id}
-              className="desktop-icon"
-              data-app={app.id}
-              onDoubleClick={() => openWindow(app.id)}
-              onClick={() => setFocused(app.id)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  openWindow(app.id);
-                }
-              }}
-            >
-              <span>{app.icon}</span>
-              <small>{app.label}</small>
-            </button>
-          ))}
+            <section className="desktop-icon-grid" role="grid" aria-label="Desktop icons" data-testid="desktop-icon-grid">
+              {apps.map((app, idx) => {
+                const row = Math.floor(idx / 4) + 1;
+                const col = (idx % 4) + 1;
+                return (
+                  <button
+                    key={app.id}
+                    className="desktop-icon"
+                    data-app={app.id}
+                    data-grid-pos={`${row}-${col}`}
+                    data-testid={`desktop-icon-${app.id}`}
+                    aria-label={`Icon: ${app.label}`}
+                    onDoubleClick={() => openWindow(app.id)}
+                    onClick={() => setFocused(app.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openWindow(app.id);
+                      }
+                    }}
+                  >
+                    <span>{app.icon}</span>
+                    <small>{app.label}</small>
+                  </button>
+                );
+              })}
+            </section>
+          </div>
 
           {apps.map((app) => {
             const state = windowMap[app.id];
@@ -645,11 +710,17 @@ export default function App() {
                 onMaximize={() => maximizeWindow(app.id)}
                 onDrag={(x, y) => dragWindow(app.id, x, y)}
               >
-                <WindowContent appId={app.id} repos={repos} repoStatus={repoStatus} lastRepoSync={lastRepoSync} />
+                <WindowContent appId={app.id} repos={repos} repoStatus={repoStatus} lastRepoSync={lastRepoSync} recruiterSignalCount={recruiterSignalCount} recruiterHighlight={shellStatus.highlightCopy} />
               </Window>
             );
           })}
         </main>
+
+        <HeroSignalRail
+          shellStatus={shellStatus}
+          recruiterSignalCount={recruiterSignalCount}
+          signalRefresh={signalRefresh}
+        />
 
         <footer className="window-strip" aria-label="Opened windows" data-testid="window-strip">
           {apps.filter((a) => windowMap[a.id].isOpen).map((app) => {
@@ -737,13 +808,14 @@ function Window({ appId, title, focused, state, onFocus, onClose, onMinimize, on
       onMouseDown={onFocus}
       role="dialog"
       aria-label={`${title} window`}
+      data-testid={`window-${appId}`}
     >
       <header className="window-title" onMouseDown={onMouseDown} onDoubleClick={onMaximize}>
         <p>{title}</p>
         <div className="window-actions">
-          <button aria-label={`Minimize ${title}`} onClick={onMinimize}>—</button>
-          <button aria-label={`Maximize ${title}`} onClick={onMaximize}>{state.maximized ? '🗗' : '🗖'}</button>
-          <button aria-label={`Close ${title}`} onClick={onClose}>✕</button>
+          <button aria-label={`Minimize ${title}`} onClick={onMinimize} data-testid={`window-minimize-${appId}`}>—</button>
+          <button aria-label={`Maximize ${title}`} onClick={onMaximize} data-testid={`window-maximize-${appId}`}>{state.maximized ? '🗗' : '🗖'}</button>
+          <button aria-label={`Close ${title}`} onClick={onClose} data-testid={`window-close-${appId}`}>✕</button>
         </div>
       </header>
       <div className="window-content" data-app={appId}>{children}</div>
@@ -755,12 +827,16 @@ function WindowContent({
   appId,
   repos,
   repoStatus,
-  lastRepoSync
+  lastRepoSync,
+  recruiterSignalCount,
+  recruiterHighlight
 }: {
   appId: AppId;
   repos: Repo[];
   repoStatus: RepoStatus;
   lastRepoSync: string | null;
+  recruiterSignalCount: number;
+  recruiterHighlight: string;
 }) {
   const [showcaseTab, setShowcaseTab] = useState<'systems' | 'motion' | 'delivery'>('systems');
   const [experiencePanel, setExperiencePanel] = useState<ExperiencePanel>('fcb');
@@ -1081,20 +1157,7 @@ function WindowContent({
     const routineValue = 92;
     return (
       <article className="leetcode-panel">
-        <header>
-          <p className="muted">Practice lab</p>
-          <h2>LeetCode.trn</h2>
-          <p>Systems-aligned problem solving backed by spaced repetition and story-driven practice.</p>
-        </header>
-        <div className="leetcode-grid">
-          {leetCodeStats.map((stat) => (
-            <div key={`leetcode-${stat.label}`}>
-              <strong>{stat.value}</strong>
-              <p>{stat.label}</p>
-              <small>{stat.detail}</small>
-            </div>
-          ))}
-        </div>
+        <LeetCodeStatsWidget recruiterSignalCount={recruiterSignalCount} highlight={recruiterHighlight} />
         <div className="leetcode-practice">
           <p>Routine stability</p>
           <div className="practice-bar">
@@ -1211,6 +1274,9 @@ function WindowContent({
               </article>
             )) : <p className="muted">No repositories ready for highlight yet.</p>}
           </div>
+        </section>
+        <section className="contribution-feed-wrapper" data-testid="contribution-window-feed">
+          <GitHubContributionFeed recruiterSignal={recruiterSignalCount} highlight={recruiterHighlight} />
         </section>
       </article>
     );
@@ -1333,6 +1399,71 @@ function WindowContent({
   }
 
   return <article><h2>Keyboard Shortcuts</h2><ul><li><kbd>Alt</kbd> + <kbd>Tab</kbd>: cycle focused window</li><li><kbd>Ctrl</kbd> + <kbd>M</kbd>: minimize focused window</li><li><kbd>Esc</kbd>: close Start menu or skip boot</li><li><kbd>S</kbd>, <kbd>Enter</kbd>, <kbd>Space</kbd>: skip boot instantly</li><li>Double-click desktop icons or press <kbd>Enter</kbd> to open apps</li></ul></article>;
+}
+
+type HeroSignalRailProps = {
+  shellStatus: ShellStatus;
+  recruiterSignalCount: number;
+  signalRefresh: number;
+};
+
+function HeroSignalRail({ shellStatus, recruiterSignalCount, signalRefresh }: HeroSignalRailProps) {
+  const progressValue = Math.round(shellStatus.stageProgress * 100);
+  return (
+    <section className="hero-signal-rail" data-testid="hero-signal-rail" aria-label="Hero signal rail">
+      <article className="rail-card rail-card-signal" data-testid="rail-stage-card">
+        <p className="rail-label">Hero signal</p>
+        <h3>{shellStatus.stageTitle}</h3>
+        <p className="rail-subtitle">{shellStatus.stageSubtitle}</p>
+        <div
+          className="rail-progress"
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={progressValue}
+        >
+          <span style={{ width: `${progressValue}%` }} />
+        </div>
+        <div className="rail-story" data-testid="rail-story-lines">
+          {shellStatus.storyLines.slice(0, 3).map((line, idx) => (
+            <p key={`${line}-${idx}`}>{line}</p>
+          ))}
+        </div>
+      </article>
+      <article className="rail-card rail-card-recruiter" data-testid="rail-recruiter-card">
+        <p className="rail-label">Recruiter signal rail</p>
+        <h4>Recruiters: {recruiterSignalCount} live signals</h4>
+        <p className="rail-highlight">{shellStatus.highlightCopy}</p>
+        <div className="rail-recruiter-metrics">
+          <span data-testid="rail-recruiter-progress">Signal progress {progressValue}%</span>
+          <span data-testid="rail-recruiter-refresh">Refresh in {signalRefresh}s</span>
+        </div>
+        <div className="rail-callout-actions">
+          <a
+            className="hero-rail-link"
+            href="/assets/resume.pdf"
+            target="_blank"
+            rel="noreferrer"
+            data-testid="hero-rail-view-resume"
+          >
+            View Profiles
+          </a>
+          <span className="rail-callout-badge">Premium recruiter ready</span>
+        </div>
+      </article>
+      <article className="rail-card rail-card-shortcuts" data-testid="rail-shortcuts-card">
+        <p className="rail-label">Keyboard shortcuts</p>
+        <ul>
+          {KEYBOARD_SHORTCUTS.map((shortcut) => (
+            <li key={shortcut.id} data-testid={`rail-shortcut-${shortcut.id}`}>
+              <kbd>{shortcut.combo}</kbd>
+              <span>{shortcut.detail}</span>
+            </li>
+          ))}
+        </ul>
+      </article>
+    </section>
+  );
 }
 
 function MobileLite({
