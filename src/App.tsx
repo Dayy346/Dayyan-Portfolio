@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type ComponentType, type CSSProperties, type FormEvent } from 'react';
 import {
   AppId,
   apps,
@@ -10,11 +10,92 @@ import {
   type BootStage
 } from './data';
 
-import { BootSequence } from './components/win95/BootSequence';
+import { Win9xBootDialog } from './components/Win9xBoot/Win9xBootDialog';
 import { Win95Login } from './components/win95/Win95Login';
 import { type Credential } from './components/win95/win95Types';
 import { GitHubContributionFeed } from './components/widgets/GitHubContributionFeed';
 import { LeetCodeStatsWidget } from './components/widgets/LeetCodeStatsWidget';
+import { DesktopGitHubWidget } from './components/widgets/DesktopGitHubWidget';
+import { DesktopLeetCodeWidget } from './components/widgets/DesktopLeetCodeWidget';
+import {
+  User,
+  FileText,
+  FolderOpen,
+  Briefcase,
+  Settings,
+  Dumbbell,
+  Mail,
+  MessageCircle,
+  HelpCircle,
+  BarChart3,
+  Puzzle,
+  type LucideIcon
+} from 'lucide-react';
+import {
+  UserIcon,
+  DocumentTextIcon,
+  FolderOpenIcon,
+  ChartBarIcon,
+  BriefcaseIcon,
+  Cog6ToothIcon,
+  FireIcon,
+  PuzzlePieceIcon,
+  EnvelopeIcon,
+  ChatBubbleLeftRightIcon,
+  QuestionMarkCircleIcon,
+} from '@heroicons/react/24/solid';
+
+const APP_ICONS: Record<AppId, LucideIcon> = {
+  about: User,
+  resume: FileText,
+  projects: FolderOpen,
+  contributions: BarChart3,
+  experience: Briefcase,
+  skills: Settings,
+  power: Dumbbell,
+  leetcode: Puzzle,
+  contact: Mail,
+  chatbot: MessageCircle,
+  help: HelpCircle
+};
+
+const APP_ICONS_SOLID: Record<AppId, ComponentType<{ className?: string; style?: CSSProperties }>> = {
+  about: UserIcon,
+  resume: DocumentTextIcon,
+  projects: FolderOpenIcon,
+  contributions: ChartBarIcon,
+  experience: BriefcaseIcon,
+  skills: Cog6ToothIcon,
+  power: FireIcon,
+  leetcode: PuzzlePieceIcon,
+  contact: EnvelopeIcon,
+  chatbot: ChatBubbleLeftRightIcon,
+  help: QuestionMarkCircleIcon
+};
+
+const APP_ICON_COLORS: Record<AppId, string> = {
+  about: '#1e40af',
+  resume: '#b45309',
+  projects: '#15803d',
+  contributions: '#0ea5e9',
+  experience: '#0369a1',
+  skills: '#4b5563',
+  power: '#dc2626',
+  leetcode: '#ca8a04',
+  contact: '#2563eb',
+  chatbot: '#0891b2',
+  help: '#6b7280'
+};
+
+function AppIcon({ appId, size = 28, className = '', colored = false }: { appId: AppId; size?: number; className?: string; colored?: boolean }) {
+  if (colored) {
+    const SolidIcon = APP_ICONS_SOLID[appId];
+    const color = APP_ICON_COLORS[appId];
+    return SolidIcon ? <SolidIcon className={className} style={{ width: size, height: size, color }} aria-hidden /> : null;
+  }
+  const Icon = APP_ICONS[appId];
+  return Icon ? <Icon size={size} className={className} strokeWidth={2} aria-hidden /> : null;
+}
 
 type Repo = { name: string; language: string | null; stargazers_count: number; description: string | null; html_url: string; homepage?: string | null; fork: boolean };
 type WindowState = { isOpen: boolean; minimized: boolean; maximized: boolean; x: number; y: number; z: number };
@@ -50,20 +131,29 @@ type ShellStatus = {
 };
 
 type ChatMessage = { sender: 'bot' | 'user'; text: string; time: string };
+
+/** Same project list as server.js /chat so fallback matches live site */
+const ASSIST_PROJECT_DATA: { name: string; description: string }[] = [
+  { name: 'LeNet5Tool', description: 'A personal project using a modified version of the LeNet-5 structure to develop machine learning models for any labeled datasets.' },
+  { name: 'AI_final', description: 'Comparison between Perceptron and Naïve Bayes algorithms, analyzing their performance on classification tasks.' },
+  { name: 'Price Tracker Extension', description: 'A Chrome extension that tracks product prices and notifies users when a price drop occurs. Uses React for the frontend, Puppeteer for web scraping, and Node.js for the backend.' },
+  { name: 'NFC Attendance System', description: 'An NFC tag reader connected via USB to track attendance. When an NFC tag is scanned, the system records attendance and stores the data in a spreadsheet. Built in Java.' },
+  { name: 'EmailSpamChecker', description: 'A machine learning-based email spam checker that classifies emails as \'spam\' or \'ham\' (legitimate). Provides an automated solution for spam detection.' },
+  { name: 'DiscordMusicBot', description: 'A simple Discord bot that joins voice channels, plays audio from YouTube URLs, and controls playback. Uses `discord.py` and `yt-dlp` for streaming.' },
+  { name: 'Portfolio Website', description: 'A personal portfolio showcasing projects, GitHub activity, and problem-solving skills. Features an interactive chatbot, GitHub contributions, LeetCode statistics, and a powerlifting section.' }
+];
+
 const INITIAL_POSITIONS: Record<AppId, { x: number; y: number }> = {
   about: { x: 78, y: 78 },
   resume: { x: 150, y: 78 },
-  showcase: { x: 222, y: 78 },
   projects: { x: 294, y: 78 },
   contributions: { x: 78, y: 148 },
   experience: { x: 150, y: 148 },
   skills: { x: 222, y: 148 },
-  frontend: { x: 294, y: 148 },
   power: { x: 78, y: 218 },
   leetcode: { x: 150, y: 218 },
   contact: { x: 222, y: 218 },
   chatbot: { x: 294, y: 218 },
-  missive: { x: 150, y: 288 },
   help: { x: 222, y: 288 }
 };
 
@@ -74,50 +164,6 @@ const LOGIN_CREDENTIALS: Credential[] = [
 ];
 
 const totalBootLines = bootStages.reduce((sum, stage) => sum + stage.lines.length, 0);
-
-type MissiveEntry = {
-  id: string;
-  title: string;
-  summary: string;
-  detail: string;
-  vibe: string;
-  status: 'Signal' | 'Update' | 'Insight';
-  accent: string;
-  timestamp: string;
-};
-
-const MISSIVE_LOG: MissiveEntry[] = [
-  {
-    id: 'premium-cadence',
-    title: 'Premium Interaction Cadence',
-    summary: 'Every pop, shadow, and window weight is tuned to feel intentional and sumptuous.',
-    detail: 'Spacing, z-depth, and tonal gradients mirror high-end vintage hardware without losing clarity.',
-    vibe: 'Studio Signal',
-    status: 'Signal',
-    accent: '#cd7a3f',
-    timestamp: '09:15'
-  },
-  {
-    id: 'motion-layer',
-    title: 'Missive Motion Layer',
-    summary: 'Animation sequences behave like mechanical shutters instead of neon chaos.',
-    detail: 'Alt+Tab, drag, and minimize gestures honor a measured tempo that speaks to professional polish.',
-    vibe: 'Motion Update',
-    status: 'Update',
-    accent: '#4f7f63',
-    timestamp: '11:42'
-  },
-  {
-    id: 'delivery-trace',
-    title: 'Delivery Trace Loop',
-    summary: 'Reliability rituals keep premium nostalgia feeling operational and thoughtful.',
-    detail: 'Keyboard-first flows, accessibility checks, and streamlined GitHub lives under one hood.',
-    vibe: 'Delivery Insight',
-    status: 'Insight',
-    accent: '#7b4b9e',
-    timestamp: '13:03'
-  }
-];
 
 const PREMIUM_HIGHLIGHTS = [
   'Tactile windows, measured pops, and layered gradients keep the experience premium.',
@@ -135,7 +181,8 @@ const KEYBOARD_SHORTCUTS = [
   { id: 'esc', combo: 'Esc', detail: 'Skip boot, close menus, or replay the narrative log.' }
 ] as const;
 
-const SEARX_URL = 'https://search.searx.org/?q=Dayyan+OS';
+/** Desktop icons exclude GitHub and LeetCode; those live as top-right widgets. */
+const DESKTOP_ICON_APPS = apps.filter((a) => a.id !== 'leetcode' && a.id !== 'contributions');
 
 type ExperienceUpdate = {
   id: string;
@@ -358,22 +405,7 @@ export default function App() {
 
   useEffect(() => {
     if (!loggedIn || defaultWindowsApplied) return;
-    setWindowMap((curr) => {
-      const next = { ...curr };
-      const defaultApps: AppId[] = ['contributions', 'leetcode', 'chatbot'];
-      defaultApps.forEach((appId) => {
-        zRef.current += 1;
-        next[appId] = {
-          ...next[appId],
-          isOpen: true,
-          minimized: false,
-          maximized: false,
-          z: zRef.current
-        };
-      });
-      return next;
-    });
-    setFocused('contributions');
+    setFocused('about');
     setDefaultWindowsApplied(true);
   }, [loggedIn, defaultWindowsApplied]);
 
@@ -498,175 +530,14 @@ export default function App() {
   return (
     <>
       <div className={`os-shell ${bootDone ? 'ready' : 'preboot'} mood-${shellMood}`}>
-        <header className="taskbar" data-testid="taskbar">
-          <button className="start-btn" onClick={() => setStartMenuOpen((v) => !v)} aria-haspopup="menu" aria-expanded={startMenuOpen} data-testid="start-button">⏻ START</button>
-          <p className="taskbar-title">DAYYAN.OS // RETRO FRONTEND SHELL</p>
-          <div className="taskbar-status" data-testid="taskbar-status">
-            <div className="status-hub" role="status" aria-live="polite" aria-label="System activities" data-testid="status-hub">
-              <span className="status-dot online" aria-hidden="true" data-testid="status-dot-network" />
-              <span data-testid="status-label-network">Network ready</span>
-              <span className="status-dot pulse" aria-hidden="true" data-testid="status-dot-sync" />
-              <span data-testid="status-label-sync">Premium sync</span>
-            </div>
-            <div className="status-badges" data-testid="status-badges">
-              <span className="status-badge live" data-testid="status-badge-signal">Signal live</span>
-              <span className="status-badge sync" data-testid="status-badge-sync">Sync stable</span>
-            </div>
-            <div className="status-actions">
-              <button className="mood-btn" onClick={() => setShellMood((curr) => (curr === 'studio' ? 'archive' : curr === 'archive' ? 'night' : 'studio'))} aria-label="Cycle desktop mood" data-testid="mood-button">
-                Theme: {shellMood}
-              </button>
-              <p className="clock" aria-live="off" data-testid="taskbar-clock">{clock}</p>
-            </div>
-          </div>
-        </header>
-
-        {startMenuOpen && bootDone && (
-          <aside className="start-menu" role="menu" aria-label="Start Menu" data-testid="start-menu">
-            <div className="start-menu-header" data-testid="start-menu-header">
-              <p>What's running</p>
-              <p className="start-menu-status" aria-live="polite" data-testid="start-menu-status">{shellStatus.startMenuStatus}</p>
-              <p className="start-menu-stage" data-testid="start-menu-stage">Stage {bootStageIndex + 1} · {shellStatus.stageTitle} · {Math.round(shellStatus.stageProgress * 100)}%</p>
-            </div>
-            <div className="running-section" role="list" data-testid="running-section">
-              {runningApps.length ? (
-                runningApps.map((app) => {
-                  const state = windowMap[app.id];
-                  const isFocused = focused === app.id;
-                  const isMinimized = state.minimized;
-                  const statusLabel = isMinimized ? 'Minimized' : isFocused ? 'Focused' : 'Running';
-                  return (
-                    <button
-                      key={app.id}
-                      type="button"
-                      role="menuitem"
-                      aria-pressed={isFocused}
-                      className={`running-app ${isMinimized ? 'minimized' : 'active'} ${isFocused ? 'focused' : ''}`}
-                      onClick={() => openWindow(app.id)}
-                      data-testid={`running-app-${app.id}`}
-                    >
-                      <span aria-hidden="true" className="running-icon">{app.icon}</span>
-                      <span className="running-label">{app.label}</span>
-                      <small>{statusLabel}</small>
-                    </button>
-                  );
-                })
-              ) : (
-                <p className="muted">No programs active yet. Launch one below.</p>
-              )}
-            </div>
-            <div className="start-menu-divider" aria-hidden="true" />
-            <p>Launch Programs</p>
-            {apps.map((app) => (
-              <button role="menuitem" key={app.id} onClick={() => openWindow(app.id)} data-testid={`start-menu-app-${app.id}`}>{app.icon} {app.label}</button>
-            ))}
-            <div className="start-menu-shortcuts" data-testid="start-menu-shortcuts">
-              <p>Keyboard shortcuts</p>
-              <ul>
-                {KEYBOARD_SHORTCUTS.map((shortcut) => (
-                  <li key={shortcut.id} data-testid={`shortcut-${shortcut.id}`}>
-                    <kbd>{shortcut.combo}</kbd>
-                    <span>{shortcut.detail}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <a className="start-menu-search" href={SEARX_URL} target="_blank" rel="noreferrer" role="menuitem" data-testid="start-menu-searx-link">
-              🔍 Search with SearX
-            </a>
-            <a href="/assets/resume.pdf" download data-testid="start-menu-resume-link">⬇ Resume.pdf</a>
-          </aside>
-        )}
-
         <main className="desktop" data-testid="desktop" onClick={() => setStartMenuOpen(false)}>
-          <div className="desktop-hero-lane" data-testid="desktop-hero-lane">
-            <section className="desktop-story-widget" aria-label="Session status" data-testid="desktop-story-widget">
-              <p>Session Active</p>
-              <h2>Designing modern products with vintage UX DNA.</h2>
-              <ul>
-                {shellStatus.storyLines.map((line, idx) => (
-                  <li key={`${line}-${idx}`}>{line}</li>
-                ))}
-              </ul>
-              <div className="premium-marquee" aria-live="polite">
-                <span>{shellStatus.stageMetric}</span>
-                <span>{PREMIUM_HIGHLIGHTS[highlightIndex]}</span>
-                <span className="marquee-badge">missive premium</span>
-              </div>
-            </section>
-
-            <section className="recruiter-rail" aria-label="Recruiter hero signal" data-testid="recruiter-rail">
-              <p className="recruiter-hero-label">Recruiters: {recruiterSignalCount} top signals waiting</p>
-              <h3>Dayyan.OS · Recruiter Signal Online</h3>
-              <p className="recruiter-hero-copy" aria-live="polite">{shellStatus.highlightCopy}</p>
-              <p className="recruiter-hero-detail">{shellStatus.stageSubtitle}</p>
-              <div className="recruiter-hero-metrics">
-                <span data-testid="recruiter-hero-metric">{shellStatus.stageMetric}</span>
-                <span data-testid="recruiter-hero-refresh">Signal refresh in {signalRefresh}s</span>
-              </div>
-              <div className="recruiter-hero-strength" aria-label="Signal stage progress">
-                <span style={{ width: `${Math.round(shellStatus.stageProgress * 100)}%` }} />
-              </div>
-              <a
-                className="recruiter-hero-action"
-                href="/assets/resume.pdf"
-                target="_blank"
-                rel="noreferrer"
-                data-testid="recruiter-view-profiles"
-              >
-                View Profiles
-              </a>
-            </section>
+          <div className="desktop-widgets" aria-label="GitHub and LeetCode widgets">
+            <DesktopGitHubWidget />
+            <DesktopLeetCodeWidget />
           </div>
-
-          <div className="desktop-main-grid" data-testid="desktop-main-grid">
-            <section className="contributions-widget" aria-label="Contributions widget" data-testid="contributions-widget">
-              <header>
-                <p className="muted">Signal view</p>
-                <h2>Contributions.widget</h2>
-                <p className="muted">Live telemetry, repo highlights, and LeetCode stats on the desktop.</p>
-              </header>
-              <div className="contribution-score">
-                <div>
-                  <strong>{repos.length}</strong>
-                  <small>Tracked repos</small>
-                </div>
-                <div>
-                  <strong>{totalStars}</strong>
-                  <small>Total stars</small>
-                </div>
-                <div>
-                  <strong>{contributionScore}%</strong>
-                  <small>Signal strength</small>
-                </div>
-              </div>
-              <div className="contribution-highlights">
-                {contributionHighlights.slice(0, 3).map((highlight) => (
-                  <article key={highlight.title}>
-                    <strong>{highlight.title}</strong>
-                    <p>{highlight.detail}</p>
-                  </article>
-                ))}
-              </div>
-              <div>
-                <p className="muted">Fresh repos · {recentRepos.length} synced</p>
-                <div className="contribution-recent-list">
-                  {recentRepos.length ? recentRepos.map((repo) => (
-                    <article key={`recent-${repo.name}`}>
-                      <strong>{repo.name}</strong>
-                      <p className="muted">{repo.description || 'GitHub work in motion.'}</p>
-                      <small>{repo.language || 'Multi'} · ★ {repo.stargazers_count}</small>
-                    </article>
-                  )) : <p className="muted">Waiting for the feed to arrive.</p>}
-                </div>
-              </div>
-              <div className="contribution-feed-slot" data-testid="contribution-feed-slot">
-                <GitHubContributionFeed recruiterSignal={recruiterSignalCount} highlight={shellStatus.highlightCopy} />
-              </div>
-            </section>
-
-            <section className="desktop-icon-grid" role="grid" aria-label="Desktop icons" data-testid="desktop-icon-grid">
-              {apps.map((app, idx) => {
+          <p className="desktop-hint" data-testid="desktop-hint">Double-click <strong>About Me</strong> to find out about me.</p>
+          <section className="desktop-icon-grid" role="grid" aria-label="Desktop icons" data-testid="desktop-icon-grid">
+              {DESKTOP_ICON_APPS.map((app, idx) => {
                 const row = Math.floor(idx / 4) + 1;
                 const col = (idx % 4) + 1;
                 return (
@@ -677,6 +548,7 @@ export default function App() {
                     data-grid-pos={`${row}-${col}`}
                     data-testid={`desktop-icon-${app.id}`}
                     aria-label={`Icon: ${app.label}`}
+                    title={app.label}
                     onDoubleClick={() => openWindow(app.id)}
                     onClick={() => setFocused(app.id)}
                     onKeyDown={(e) => {
@@ -686,13 +558,14 @@ export default function App() {
                       }
                     }}
                   >
-                    <span>{app.icon}</span>
+                    <span className="desktop-icon-svg">
+                      <AppIcon appId={app.id} size={44} colored />
+                    </span>
                     <small>{app.label}</small>
                   </button>
                 );
               })}
-            </section>
-          </div>
+          </section>
 
           {apps.map((app) => {
             const state = windowMap[app.id];
@@ -716,43 +589,96 @@ export default function App() {
           })}
         </main>
 
-        <HeroSignalRail
-          shellStatus={shellStatus}
-          recruiterSignalCount={recruiterSignalCount}
-          signalRefresh={signalRefresh}
-        />
+        {startMenuOpen && bootDone && (
+          <aside className="start-menu" role="menu" aria-label="Start Menu" data-testid="start-menu">
+            <div className="start-menu-header" data-testid="start-menu-header">
+              <p className="start-menu-status" aria-live="polite" data-testid="start-menu-status">{shellStatus.startMenuStatus}</p>
+            </div>
+            <div className="running-section" role="list" data-testid="running-section">
+              {runningApps.length ? (
+                runningApps.map((app) => {
+                  const state = windowMap[app.id];
+                  const isFocused = focused === app.id;
+                  const isMinimized = state.minimized;
+                  const statusLabel = isMinimized ? 'Minimized' : isFocused ? 'Focused' : 'Running';
+                  return (
+                    <button
+                      key={app.id}
+                      type="button"
+                      role="menuitem"
+                      aria-pressed={isFocused}
+                      className={`running-app ${isMinimized ? 'minimized' : 'active'} ${isFocused ? 'focused' : ''}`}
+                      onClick={() => openWindow(app.id)}
+                      data-testid={`running-app-${app.id}`}
+                    >
+                      <span aria-hidden="true" className="running-icon"><AppIcon appId={app.id} size={16} /></span>
+                      <span className="running-label">{app.label}</span>
+                      <small>{statusLabel}</small>
+                    </button>
+                  );
+                })
+              ) : (
+                <p className="muted">No programs active yet. Launch one below.</p>
+              )}
+            </div>
+            <div className="start-menu-divider" aria-hidden="true" />
+            <p>Launch Programs</p>
+            {apps.map((app) => (
+              <button role="menuitem" key={app.id} onClick={() => openWindow(app.id)} data-testid={`start-menu-app-${app.id}`}><span className="start-menu-app-icon"><AppIcon appId={app.id} size={18} /></span> {app.label}</button>
+            ))}
+            <div className="start-menu-shortcuts" data-testid="start-menu-shortcuts">
+              <p>Keyboard shortcuts</p>
+              <ul>
+                {KEYBOARD_SHORTCUTS.map((shortcut) => (
+                  <li key={shortcut.id} data-testid={`shortcut-${shortcut.id}`}>
+                    <kbd>{shortcut.combo}</kbd>
+                    <span>{shortcut.detail}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <a href="/assets/resume.pdf" download data-testid="start-menu-resume-link">⬇ Resume.pdf</a>
+          </aside>
+        )}
 
-        <footer className="window-strip" aria-label="Opened windows" data-testid="window-strip">
-          {apps.filter((a) => windowMap[a.id].isOpen).map((app) => {
-            const isFocused = focused === app.id && !windowMap[app.id].minimized;
-            return (
-              <button
-                key={app.id}
-                className={isFocused ? 'active' : ''}
-                data-app={app.id}
-                data-testid={`window-strip-${app.id}`}
-                onClick={() => (isFocused ? minimizeWindow(app.id) : openWindow(app.id))}
-                aria-pressed={isFocused}
-              >
-                {app.icon} {app.label}
-              </button>
-            );
-          })}
-        </footer>
+        <header className="taskbar" data-testid="taskbar">
+          <button className="start-btn" onClick={() => setStartMenuOpen((v) => !v)} aria-haspopup="menu" aria-expanded={startMenuOpen} data-testid="start-button">Start</button>
+          <div className="taskbar-windows" aria-label="Open windows">
+            {apps.filter((a) => windowMap[a.id].isOpen).map((app) => {
+              const isFocused = focused === app.id && !windowMap[app.id].minimized;
+              return (
+                <button
+                  key={app.id}
+                  type="button"
+                  className={`taskbar-window-btn ${isFocused ? 'active' : ''}`}
+                  data-app={app.id}
+                  data-testid={`window-strip-${app.id}`}
+                  onClick={() => (isFocused ? minimizeWindow(app.id) : openWindow(app.id))}
+                  aria-pressed={isFocused}
+                >
+                  <span className="taskbar-window-btn-icon"><AppIcon appId={app.id} size={14} /></span>
+                  {app.label}
+                </button>
+              );
+            })}
+          </div>
+          <div className="taskbar-tray" aria-hidden="true">
+            <span className="taskbar-tray-icon taskbar-tray-wifi" title="Network" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 12a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm0-2a.5.5 0 1 0 0 1 .5.5 0 0 0 0-1zm0-6c-2.5 0-4.5 1.5-5.5 3.5l1 1c.8-1.5 2.3-2.5 4-2.5s3.2 1 4 2.5l1-1C12.5 5.5 10.5 4 8 4zm0 3c-1.7 0-3 1-3.5 2.2l1 .8c.4-.8 1.2-1.3 2.5-1.3s2.1.5 2.5 1.3l1-.8C11 8 9.7 7 8 7z"/></svg>
+            </span>
+            <span className="taskbar-tray-icon" title="Volume">🔊</span>
+          </div>
+          <p className="clock" aria-live="off" data-testid="taskbar-clock">{clock}</p>
+        </header>
+
       </div>
 
       {!bootDone && (
-        <BootSequence
-          stage={currentStage}
-          stageIndex={bootStageIndex}
-          stageCount={bootStages.length}
-          visibleLines={visibleBootLines}
-          progress={completedLines / totalBootLines}
-          transitioning={bootTransitioning}
-          onSkip={skipBoot}
+        <Win9xBootDialog
+          onComplete={() => setBootDone(true)}
           reducedMotion={reducedMotion}
-          stageMetric={shellStatus.stageMetric}
-          researchNotes={researchBriefNotes}
+          durationMs={5000}
+          onBootStart={playWindows95Sound}
         />
       )}
 
@@ -762,7 +688,6 @@ export default function App() {
           onLogin={handleLogin}
           reducedMotion={reducedMotion}
           credentials={LOGIN_CREDENTIALS}
-          searchUrl={SEARX_URL}
           dataStatus={loginDataStatus}
           recruiterScore={contributionScore}
           signalRefresh={signalRefresh}
@@ -774,7 +699,12 @@ export default function App() {
   );
 }
 
+const TASKBAR_HEIGHT = 30;
+
 function Window({ appId, title, focused, state, onFocus, onClose, onMinimize, onMaximize, onDrag, children }: { appId: AppId; title: string; focused: boolean; state: WindowState; onFocus: () => void; onClose: () => void; onMinimize: () => void; onMaximize: () => void; onDrag: (x: number, y: number) => void; children: JSX.Element }) {
+  const winRef = useRef<HTMLElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
   function onMouseDown(e: React.MouseEvent<HTMLElement>) {
     if ((e.target as HTMLElement).closest('.window-actions')) return;
     onFocus();
@@ -782,17 +712,22 @@ function Window({ appId, title, focused, state, onFocus, onClose, onMinimize, on
     const startY = e.clientY;
     const initX = state.x;
     const initY = state.y;
+    const el = winRef.current;
+    const w = el ? el.getBoundingClientRect().width : 280;
+    const h = el ? el.getBoundingClientRect().height : 200;
+    setIsDragging(true);
 
     const move = (ev: MouseEvent) => {
       if (state.maximized) return;
-      const maxX = Math.max(8, window.innerWidth - 240);
-      const maxY = Math.max(52, window.innerHeight - 180);
-      const nx = Math.min(maxX, Math.max(8, initX + ev.clientX - startX));
-      const ny = Math.min(maxY, Math.max(52, initY + ev.clientY - startY));
+      const maxX = Math.max(0, window.innerWidth - w);
+      const maxY = Math.max(0, window.innerHeight - TASKBAR_HEIGHT - h);
+      const nx = Math.min(maxX, Math.max(0, initX + ev.clientX - startX));
+      const ny = Math.min(maxY, Math.max(0, initY + ev.clientY - startY));
       onDrag(nx, ny);
     };
 
     const up = () => {
+      setIsDragging(false);
       window.removeEventListener('mousemove', move);
       window.removeEventListener('mouseup', up);
     };
@@ -803,7 +738,8 @@ function Window({ appId, title, focused, state, onFocus, onClose, onMinimize, on
 
   return (
     <section
-      className={`window ${focused ? 'focused' : ''} ${state.maximized ? 'maxed' : ''}`}
+      ref={winRef}
+      className={`window ${focused ? 'focused' : ''} ${state.maximized ? 'maxed' : ''} ${isDragging ? 'window-dragging' : ''}`}
       style={{ left: state.x, top: state.y, zIndex: state.z }}
       onMouseDown={onFocus}
       role="dialog"
@@ -818,7 +754,7 @@ function Window({ appId, title, focused, state, onFocus, onClose, onMinimize, on
           <button aria-label={`Close ${title}`} onClick={onClose} data-testid={`window-close-${appId}`}>✕</button>
         </div>
       </header>
-      <div className="window-content" data-app={appId}>{children}</div>
+      <div className={`window-content app-${appId}`} data-app={appId}>{children}</div>
     </section>
   );
 }
@@ -838,25 +774,18 @@ function WindowContent({
   recruiterSignalCount: number;
   recruiterHighlight: string;
 }) {
-  const [showcaseTab, setShowcaseTab] = useState<'systems' | 'motion' | 'delivery'>('systems');
   const [experiencePanel, setExperiencePanel] = useState<ExperiencePanel>('fcb');
   const [skillFilter, setSkillFilter] = useState<'all' | 'frontend' | 'backend' | 'cloud'>('all');
   const [projectQuery, setProjectQuery] = useState('');
   const [sortMode, setSortMode] = useState<'stars' | 'name'>('stars');
   const [useLbs, setUseLbs] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
-  const [selectedMissiveId, setSelectedMissiveId] = useState(MISSIVE_LOG[0].id);
-  const [acknowledgedMissives, setAcknowledgedMissives] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(MISSIVE_LOG.map((missive) => [missive.id, false]))
-  );
-  const [missiveDraft, setMissiveDraft] = useState('');
-  const [queuedMissives, setQueuedMissives] = useState<string[]>([]);
 
   const botTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>(() => {
     const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     return [
-      { sender: 'bot', text: 'Dayyan.AI Assist online. Ask for contributions, LeetCode habits, or resume highlights from the shell.', time: now }
+      { sender: 'bot', text: 'Hello! I can tell you about my projects. Try asking about a specific project or say \'list projects\' to see all of them.', time: now }
     ];
   });
   const [chatInput, setChatInput] = useState('');
@@ -921,24 +850,21 @@ function WindowContent({
 
   const formatTime = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-  const generateBotResponse = (message: string) => {
-    const normalized = message.toLowerCase();
-    if (normalized.includes('resume') || normalized.includes('education') || normalized.includes('experience')) {
-      return 'The resume window mirrors the latest PDF with education, projects, certifications, and leadership highlights.';
+  /** Same logic as server.js generateResponse so fallback matches live site */
+  const generateLocalResponse = (userMessage: string): string => {
+    const message = userMessage.toLowerCase();
+    if (message.includes('list') && message.includes('project')) {
+      return 'Here are my projects:\n' + ASSIST_PROJECT_DATA.map((p) => `- ${p.name}`).join('\n');
     }
-    if (normalized.includes('leetcode')) {
-      return 'LeetCode practice is grounded in spaced repetition research and story-driven problem solving—check the LeetCode window for stats.';
+    const searchTerms = message.replace(/explain|describe|tell me about|what is/gi, '').trim();
+    const project = ASSIST_PROJECT_DATA.find(
+      (p) => p.name.toLowerCase().includes(searchTerms) || p.description.toLowerCase().includes(searchTerms)
+    );
+    if (project) return `${project.name}: ${project.description}`;
+    if (message.includes('hello') || message.includes('hi ')) {
+      return 'Hello! I can tell you about my projects. Try asking about a specific project or say \'list projects\' to see all of them.';
     }
-    if (normalized.includes('contribution') || normalized.includes('repo') || normalized.includes('git')) {
-      return 'Contributions.log highlights camera guardrails, GxP docs, and infra telemetry so you can see the delivery trail.';
-    }
-    if (normalized.includes('boot') || normalized.includes('cinematic') || normalized.includes('research')) {
-      return 'The cinematic boot quotes CHI 2024 story research, embodied motion cues, and visual comfort labs for a grounded arrival.';
-    }
-    if (normalized.includes('chatbot')) {
-      return 'This chatbot captures notes, echoes resume highlights, and feeds the Missive board when the queue grows.';
-    }
-    return 'Dayyan.OS blends retro storytelling with premium delivery. Ask about resume, contributions, or LeetCode stats for guided highlights.';
+    return 'I can help you learn about my projects. Try asking about a specific project or say \'list projects\' to see what I\'ve worked on.';
   };
 
   const scheduleBotResponse = (reply: string) => {
@@ -954,23 +880,63 @@ function WindowContent({
     if (!trimmed) return;
     setChatHistory((prev) => [...prev, { sender: 'user', text: trimmed, time: formatTime() }]);
     setChatInput('');
-    scheduleBotResponse(generateBotResponse(trimmed));
+    (async () => {
+      try {
+        const res = await fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: trimmed })
+        });
+        const content = res.ok
+          ? (await res.json())?.choices?.[0]?.message?.content
+          : null;
+        scheduleBotResponse(typeof content === 'string' ? content : generateLocalResponse(trimmed));
+      } catch {
+        scheduleBotResponse(generateLocalResponse(trimmed));
+      }
+    })();
   };
 
   if (appId === 'about') {
     return (
-      <article className="about-grid">
-        <img src="/assets/headshot.jpg" alt="Dayyan Hamid" className="profile" />
-        <div>
-          <h1>Dayyan Hamid</h1>
-          <p className="muted">Software Engineer • Data + Frontend Builder • Rutgers CS '25</p>
-          <p>I build polished frontend systems with strong backend integration. This shell blends nostalgic interaction models with modern execution quality.</p>
-          <div className="chips"><span>React</span><span>TypeScript</span><span>Nuxt</span><span>Python/FastAPI</span><span>Azure</span></div>
-          <div className="stat-row">
-            <div><strong>Frontend Systems</strong><small>Desktop-grade interactions + reusable primitives</small></div>
-            <div><strong>Cross-stack Delivery</strong><small>UI, APIs, deployment, and reliability</small></div>
+      <article className="about-revamp">
+        <header className="about-hero">
+          <div className="about-hero-avatar">
+            <img src="/assets/headshot.jpg" alt="Dayyan Hamid" />
           </div>
-        </div>
+          <div className="about-hero-text">
+            <h1>Dayyan Hamid</h1>
+            <p className="about-tagline">Software Engineer · Rutgers CS ’25</p>
+            <p className="about-lead">
+              I build frontend systems and full-stack products with a focus on polish, performance, and clear UX.
+              This portfolio is a retro Windows–style shell to show how I think about interaction and delivery.
+            </p>
+          </div>
+        </header>
+        <section className="about-section">
+          <h2>What I do</h2>
+          <ul className="about-list">
+            <li><strong>Frontend systems</strong> — React, Vue, TypeScript; reusable components, state, and motion</li>
+            <li><strong>Backend & APIs</strong> — Node, Python/FastAPI; services and integrations</li>
+            <li><strong>Delivery & tooling</strong> — Azure, CI/CD, and keeping things reliable</li>
+          </ul>
+        </section>
+        <section className="about-section">
+          <h2>Tech</h2>
+          <div className="about-chips">
+            <span>React</span><span>TypeScript</span><span>Vue</span><span>Node</span><span>Python</span><span>FastAPI</span><span>Azure</span>
+          </div>
+        </section>
+        <section className="about-section about-links">
+          <h2>Connect</h2>
+          <p>
+            <a href="https://github.com/dayy346" target="_blank" rel="noreferrer">GitHub</a>
+            {' · '}
+            <a href="https://www.linkedin.com/in/dayyanhamid" target="_blank" rel="noreferrer">LinkedIn</a>
+            {' · '}
+            <a href="/assets/resume.pdf" target="_blank" rel="noreferrer">Resume (PDF)</a>
+          </p>
+        </section>
       </article>
     );
   }
@@ -992,37 +958,6 @@ function WindowContent({
             {section.footer && <p className="muted footer-note">{section.footer}</p>}
           </section>
         ))}
-      </article>
-    );
-  }
-
-  if (appId === 'showcase') {
-    const tabs = [
-      { id: 'systems', label: 'UI Systems' },
-      { id: 'motion', label: 'Interaction + Motion' },
-      { id: 'delivery', label: 'Product Delivery' }
-    ] as const;
-
-    const onTabKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>, currentId: typeof tabs[number]['id']) => {
-      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
-      e.preventDefault();
-      const idx = tabs.findIndex((t) => t.id === currentId);
-      const nextIdx = e.key === 'ArrowRight' ? (idx + 1) % tabs.length : (idx - 1 + tabs.length) % tabs.length;
-      setShowcaseTab(tabs[nextIdx].id);
-    };
-
-    return (
-      <article>
-        <div className="tab-strip" role="tablist" aria-label="Showcase tabs">
-          {tabs.map((tab) => (
-            <button key={tab.id} role="tab" aria-selected={showcaseTab === tab.id} className={showcaseTab === tab.id ? 'active' : ''} onClick={() => setShowcaseTab(tab.id)} onKeyDown={(e) => onTabKeyDown(e, tab.id)}>
-              {tab.label}
-            </button>
-          ))}
-        </div>
-        {showcaseTab === 'systems' && <div className="cards"><div><h3>Window Manager Primitives</h3><p>Movable, minimizable, stack-aware windows with keyboard focus logic.</p><p className="muted">Double-click title bars for maximize, preserve z-order intent, and recover context quickly.</p></div><div><h3>Design Token Layer</h3><p>Retro contour + modern spacing, contrast, and readable hierarchy.</p><p className="muted">Palette intentionally restrained for a premium nostalgic look (not arcade-saturated).</p></div></div>}
-        {showcaseTab === 'motion' && <div className="cards"><div><h3>Measured Motion</h3><p>Boot sequencing and window transitions tuned for intent over spectacle.</p></div><div><h3>Reduced Motion Compliance</h3><p>Respects user preferences while preserving flow and functionality.</p></div><div><h3>Cinematic Boot Language</h3><p>POST→Kernel→Desktop arc mirrors how engineering systems initialize in the real world.</p></div></div>}
-        {showcaseTab === 'delivery' && <div className="cards"><div><h3>Product Thinking</h3><p>Translates requirements into interface affordances users can trust quickly.</p></div><div><h3>Engineering Discipline</h3><p>Builds with accessibility, maintainability, and runtime performance in mind.</p></div><div><h3>Storytelling Cohesion</h3><p>Every app contributes to one narrative: frontend craft, systems depth, and delivery leadership.</p></div></div>}
       </article>
     );
   }
@@ -1124,10 +1059,6 @@ function WindowContent({
     );
   }
 
-  if (appId === 'frontend') {
-    return <article><h2>Frontend Focus Highlights</h2><ul><li>Reusable patterns: window primitives, tab systems, filters, and state-driven components.</li><li>Performance-first rendering with scoped state and memoized repository transforms.</li><li>Keyboard + screen-reader support as first-class UX concerns.</li><li>Reduced-motion fallbacks preserve function without visual overload.</li><li>Visual language balances nostalgic affordances with modern interaction credibility.</li></ul></article>;
-  }
-
   if (appId === 'power') {
     const stats = [
       { label: 'Squat', kg: 215 },
@@ -1135,20 +1066,42 @@ function WindowContent({
       { label: 'Deadlift', kg: 250 }
     ];
     return (
-      <article>
-        <div className="filter-row">
-          <button className={!useLbs ? 'active' : ''} onClick={() => setUseLbs(false)}>KG</button>
-          <button className={useLbs ? 'active' : ''} onClick={() => setUseLbs(true)}>LB</button>
-        </div>
-        <div className="cards">
-          {stats.map((s) => {
-            const value = useLbs ? Math.round(s.kg * 2.205) : s.kg;
-            return <div key={s.label}><h3>{s.label}</h3><p>{value} {useLbs ? 'lb' : 'kg'}</p></div>;
-          })}
-          <div><h3>Meet Result</h3><p>Placed 6th in Dec 2024 collegiate championships.</p></div>
-        </div>
+      <article className="extracurricular-panel">
+        <h2>Extracurricular Activities</h2>
+        <p className="muted">Leadership, competition, and work experience from my resume.</p>
 
-        <p className="muted small-text">Continuing the static Power.stats board, these lift totals double as training logs grounded in the same reliability research that powered the old site.</p>
+        <section className="extracurricular-section">
+          <h3>Collegiate Powerlifting · Rutgers University</h3>
+          <div className="extracurricular-powerlifting">
+            <div className="extracurricular-photo">
+              <img src="/assets/powerlifting.jpg" alt="Powerlifting" />
+            </div>
+            <div className="extracurricular-stats">
+              <div className="filter-row">
+                <button className={!useLbs ? 'active' : ''} onClick={() => setUseLbs(false)}>KG</button>
+                <button className={useLbs ? 'active' : ''} onClick={() => setUseLbs(true)}>LB</button>
+              </div>
+              <div className="extracurricular-lifts">
+                {stats.map((s) => {
+                  const value = useLbs ? Math.round(s.kg * 2.205) : s.kg;
+                  return <div key={s.label}><strong>{s.label}</strong><span>{value} {useLbs ? 'lb' : 'kg'}</span></div>;
+                })}
+              </div>
+              <p><a href="https://www.openpowerlifting.org/u/dayyanhamid" target="_blank" rel="noreferrer">View Competition Results ↗</a></p>
+              <p className="muted small-text">Placed 6th at Dec 2024 East Coast Collegiate Championships; qualified for nationals. Organize meets and train with the team (Sept 2023 — Present).</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="extracurricular-section">
+          <h3>Secretary — Pakistani Student Association</h3>
+          <p>Event coordination, communications, and NFC-based attendance system (Sep 2022 — May 2025).</p>
+        </section>
+
+        <section className="extracurricular-section">
+          <h3>PJ’s Pancake House</h3>
+          <p>Key employee & server. Operational oversight, cash handling, rapid promotion from busser to server (Jun 2020 — Aug 2022).</p>
+        </section>
       </article>
     );
   }
@@ -1282,79 +1235,6 @@ function WindowContent({
     );
   }
 
-  if (appId === 'missive') {
-    const activeMissive = MISSIVE_LOG.find((missive) => missive.id === selectedMissiveId) ?? MISSIVE_LOG[0];
-    const isAcknowledged = acknowledgedMissives[activeMissive.id];
-    const handleMissiveDraft = (event: FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      if (!missiveDraft.trim()) return;
-      setQueuedMissives((curr) => [missiveDraft.trim(), ...curr].slice(0, 5));
-      setMissiveDraft('');
-    };
-
-    return (
-      <article className="missive-grid">
-        <div className="missive-list" role="list">
-          {MISSIVE_LOG.map((missive) => (
-            <button
-              key={missive.id}
-              type="button"
-              className={`missive-item ${selectedMissiveId === missive.id ? 'active' : ''}`}
-              onClick={() => setSelectedMissiveId(missive.id)}
-              style={{ borderLeftColor: missive.accent, borderColor: selectedMissiveId === missive.id ? missive.accent : '#a08c77' }}
-            >
-              <small className="missive-time">{missive.timestamp}</small>
-              <strong>{missive.title}</strong>
-              <p>{missive.summary}</p>
-              <span className="missive-tag" style={{ borderColor: missive.accent }}>{missive.vibe}</span>
-            </button>
-          ))}
-        </div>
-        <div className="missive-detail" style={{ borderColor: activeMissive.accent }}>
-          <header>
-            <p className="muted missive-status">
-              <span className="missive-status-dot" style={{ backgroundColor: activeMissive.accent }} />
-              {activeMissive.status}
-            </p>
-            <h2>{activeMissive.title}</h2>
-            <p>{activeMissive.detail}</p>
-          </header>
-          <div className="missive-actions">
-            <button
-              type="button"
-              className={isAcknowledged ? 'confirmed' : ''}
-              onClick={() => setAcknowledgedMissives((prev) => ({ ...prev, [activeMissive.id]: !prev[activeMissive.id] }))}
-            >
-              {isAcknowledged ? 'Re-open' : 'Acknowledge'}
-            </button>
-            <span className="muted small-text">Last noted at {activeMissive.timestamp}</span>
-          </div>
-          <form className="missive-draft" onSubmit={handleMissiveDraft}>
-            <label htmlFor="missiveDraft">Draft a premium note</label>
-            <textarea
-              id="missiveDraft"
-              value={missiveDraft}
-              onChange={(e) => setMissiveDraft(e.target.value)}
-              placeholder="Capture a signal, schedule, or wish list."
-              rows={3}
-            />
-            <button type="submit">Queue Draft</button>
-          </form>
-          {queuedMissives.length > 0 && (
-            <div className="missive-queue">
-              <p>Queued missives</p>
-              <ul>
-                {queuedMissives.map((note, idx) => (
-                  <li key={`${note}-${idx}`}>{note}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      </article>
-    );
-  }
-
   if (appId === 'contact') {
     return (
       <article className="cards">
@@ -1371,28 +1251,26 @@ function WindowContent({
   if (appId === 'chatbot') {
     return (
       <article className="chatbot-shell">
-        <header>
+        <header className="chatbot-header">
           <h2>Assist.chat</h2>
-          <p>Feed the Missive board, contributions, and resume highlights with a quick question.</p>
+          <p>Ask about my projects—e.g. &quot;list projects&quot; or &quot;tell me about Price Tracker&quot;.</p>
         </header>
-        <div className="chatbot-launch">
-          <p>Need to search beyond the shell?</p>
-          <a href={SEARX_URL} target="_blank" rel="noreferrer">Launch SearX search</a>
-          <small>Accessible, privacy-preserving search is always on.</small>
-        </div>
         <div className="chat-window">
           {chatHistory.map((message, idx) => (
-            <div key={`chat-${idx}`} className={`chat-message ${message.sender}`}><p>{message.text}</p><small>{message.time}</small></div>
+            <div key={`chat-${idx}`} className={`chat-message ${message.sender}`}>
+              <p className="chat-message-text">{message.text.split('\n').map((line, i, arr) => <span key={i}>{line}{i < arr.length - 1 ? <br /> : null}</span>)}</p>
+              <small>{message.time}</small>
+            </div>
           ))}
         </div>
         <form className="chatbot-form" onSubmit={handleChatSubmit}>
           <input
             value={chatInput}
             onChange={(e) => setChatInput(e.target.value)}
-            placeholder="Ask about resume, research, contributions, or LeetCode stats."
+            placeholder="Ask about a project or say 'list projects'"
             aria-label="Chat input"
           />
-          <button type="submit">Send ↗</button>
+          <button type="submit">Send</button>
         </form>
       </article>
     );

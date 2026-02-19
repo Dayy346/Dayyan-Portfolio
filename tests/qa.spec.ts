@@ -162,13 +162,9 @@ test.describe('Dayyan.OS QA experience flows', () => {
     const overlay = page.getByTestId('login-overlay');
     await expect(overlay).toBeVisible();
     await expect(overlay.getByTestId('login-data-status')).toContainText('Secure contributions telemetry');
-    await expect(overlay.getByTestId('recruiter-callout')).toBeVisible();
-    await expect(overlay.getByTestId('recruiter-callout-metric')).toContainText('Candidate score');
     await expect(overlay.getByTestId('view-resume-link')).toHaveAttribute('href', '/assets/resume.pdf');
-    await expect(overlay.getByTestId('login-search-link')).toHaveAttribute('href', 'https://search.searx.org/?q=Dayyan+OS');
-    await expect(overlay.getByTestId('login-icon-grid')).toBeVisible();
     const loginButton = overlay.getByTestId('login-button');
-    await expect(loginButton).toHaveText('Press Enter to log on');
+    await expect(loginButton).toHaveText('OK');
   });
 
   test('desktop transitions from boot to login to hero ready state', async ({ page }) => {

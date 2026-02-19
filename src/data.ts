@@ -1,17 +1,14 @@
 export type AppId =
   | 'about'
   | 'resume'
-  | 'showcase'
   | 'projects'
   | 'contributions'
   | 'experience'
   | 'skills'
-  | 'frontend'
   | 'power'
   | 'leetcode'
   | 'contact'
   | 'chatbot'
-  | 'missive'
   | 'help';
 
 export type BootStage = {
@@ -57,7 +54,7 @@ export const bootStages: BootStage[] = [
     title: 'Crystalline POST',
     subtitle: 'Cinematic sensor choreography aligns hardware with narrative intent.',
     accent: '#f0a95e',
-    durationMs: 3200,
+    durationMs: 2000,
     metricLabel: 'Sensor coherence',
     metricValue: 'Crystalline POST at 99.7% readiness',
     narrative: 'Latest CHI research shows early storytelling cues shrink uncertainty. We warm up the instruments in stillness before revealing the story.',
@@ -76,7 +73,7 @@ export const bootStages: BootStage[] = [
     title: 'Quantum Kernel Rhythm',
     subtitle: 'Interaction engine, motion cues, and reliability services get in sync.',
     accent: '#82c7b3',
-    durationMs: 3000,
+    durationMs: 1800,
     metricLabel: 'Kernel cadence',
     metricValue: 'Scheduler locks 3.2ms beats · input concierge armed',
     narrative: 'Motion research guided by embodied interaction principles keeps every micro-cue consistent, comfortable, and intentional.',
@@ -95,7 +92,7 @@ export const bootStages: BootStage[] = [
     title: 'Atmospheric Shell',
     subtitle: 'Gradient fog, halos, and depth cues paint the workspace.',
     accent: '#c27dcf',
-    durationMs: 2600,
+    durationMs: 1500,
     metricLabel: 'Atmospheric depth',
     metricValue: 'Four matte gradients locked · halo intensity steady',
     narrative: 'Visual comfort studies affirm that layered gradients and subtle haze keep focus while delivering nostalgia.',
@@ -114,7 +111,7 @@ export const bootStages: BootStage[] = [
     title: 'Story Sync & Launch',
     subtitle: 'Every window, repo, and missive narrates the mission.',
     accent: '#6edb9f',
-    durationMs: 2400,
+    durationMs: 1400,
     metricLabel: 'Story sync',
     metricValue: 'Repo + Missive signals streaming · narrative locked',
     narrative: 'Storytelling research says closing with a friendly narrative hook makes the shell feel alive and trustworthy.',
@@ -131,17 +128,14 @@ export const bootStages: BootStage[] = [
 export const apps = [
   { id: 'about', icon: '👤', label: 'About.me' },
   { id: 'resume', icon: '📄', label: 'Resume.pdf' },
-  { id: 'showcase', icon: '✨', label: 'Showcase.exe' },
   { id: 'projects', icon: '🗂️', label: 'Projects.dir' },
   { id: 'contributions', icon: '📈', label: 'Contributions.log' },
   { id: 'experience', icon: '🧰', label: 'Experience.log' },
   { id: 'skills', icon: '⚙️', label: 'Skills.cfg' },
-  { id: 'frontend', icon: '🧠', label: 'Frontend.lab' },
-  { id: 'power', icon: '🏋️', label: 'Power.stats' },
+  { id: 'power', icon: '🏋️', label: 'Extracurricular.log' },
   { id: 'leetcode', icon: '🧩', label: 'LeetCode.trn' },
   { id: 'contact', icon: '📡', label: 'Contact.net' },
   { id: 'chatbot', icon: '🤖', label: 'Assist.chat' },
-  { id: 'missive', icon: '✉️', label: 'Missive.msg' },
   { id: 'help', icon: '⌨️', label: 'Help.txt' }
 ] as const;
 
