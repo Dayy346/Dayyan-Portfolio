@@ -599,10 +599,12 @@ export default function App() {
 
         {startMenuOpen && bootDone && (
           <aside className="start-menu" role="menu" aria-label="Start Menu" data-testid="start-menu">
-            <div className="start-menu-header" data-testid="start-menu-header">
+            <div className="start-menu-panel start-menu-status-panel" data-testid="start-menu-header">
               <p className="start-menu-status" aria-live="polite" data-testid="start-menu-status">{shellStatus.startMenuStatus}</p>
+              <p className="start-menu-subtitle">Stories · Running · Ready</p>
             </div>
-            <div className="running-section" role="list" data-testid="running-section">
+            <div className="start-menu-panel start-menu-running-panel" role="list" data-testid="running-section">
+              <div className="start-panel-heading">Running programs</div>
               {runningApps.length ? (
                 runningApps.map((app) => {
                   const state = windowMap[app.id];
@@ -629,13 +631,25 @@ export default function App() {
                 <p className="muted">No programs active yet. Launch one below.</p>
               )}
             </div>
-            <div className="start-menu-divider" aria-hidden="true" />
-            <p>Launch Programs</p>
-            {apps.map((app) => (
-              <button role="menuitem" key={app.id} onClick={() => openWindow(app.id)} data-testid={`start-menu-app-${app.id}`}><span className="start-menu-app-icon"><AppIcon appId={app.id} size={18} /></span> {app.label}</button>
-            ))}
-            <div className="start-menu-shortcuts" data-testid="start-menu-shortcuts">
-              <p>Keyboard shortcuts</p>
+            <div className="start-menu-panel start-menu-launch-panel">
+              <div className="start-panel-heading">Launch programs</div>
+              <div className="launch-grid">
+                {apps.map((app) => (
+                  <button
+                    key={app.id}
+                    role="menuitem"
+                    className="launch-btn"
+                    onClick={() => openWindow(app.id)}
+                    data-testid={`start-menu-app-${app.id}`}
+                  >
+                    <span className="start-menu-app-icon"><AppIcon appId={app.id} size={18} /></span>
+                    <span>{app.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="start-menu-panel start-menu-shortcuts-panel" data-testid="start-menu-shortcuts">
+              <div className="start-panel-heading">Keyboard shortcuts</div>
               <ul>
                 {KEYBOARD_SHORTCUTS.map((shortcut) => (
                   <li key={shortcut.id} data-testid={`shortcut-${shortcut.id}`}>
@@ -644,8 +658,8 @@ export default function App() {
                   </li>
                 ))}
               </ul>
+              <a className="resume-link" href={`${BASE}assets/resume.pdf`} download data-testid="start-menu-resume-link">⬇ Resume.pdf</a>
             </div>
-            <a href={`${BASE}assets/resume.pdf`} download data-testid="start-menu-resume-link">⬇ Resume.pdf</a>
           </aside>
         )}
 

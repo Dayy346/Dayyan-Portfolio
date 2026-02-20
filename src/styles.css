@@ -2,20 +2,20 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono&display=swap');
 
 :root {
-  --bg: #dbeefc;
-  --surface: #f5f5f5;
-  --surface-2: #efefef;
-  --surface-3: #d7d7d7;
+  --bg: #cad4e7;
+  --surface: #fbfbf9;
+  --surface-2: #f2f2f0;
+  --surface-3: #d2d2ce;
   --panel-edge-dark: #6d6d6d;
   --panel-edge-mid: #b5b5b5;
   --panel-edge-light: #ffffff;
-  --text: #1a1a1a;
-  --text-strong: #030303;
+  --text: #050609;
+  --text-strong: #010203;
   --text-inverse: #ffffff;
   --muted: #555555;
-  --accent: #00007a;
-  --accent-soft: #182b93;
-  --accent-focus: #7a7a7a;
+  --accent: #0f428d;
+  --accent-soft: #1e4da2;
+  --accent-focus: #1a294d;
   --accent-2: #1b5f9f;
   --accent-3: #4b4b4b;
   --ok: #227a1b;
@@ -27,6 +27,12 @@
   --danger: #b71515;
   --desktop-shadow: rgba(0, 0, 0, 0.25);
   --window-shadow: rgba(38, 38, 38, 0.45);
+  --icon-bg: rgba(255, 255, 255, 0.92);
+  --icon-border: #c7c7c7;
+  --icon-hover: #ffffff;
+  --start-panel-bg: #d4d0ce;
+  --start-panel-border: #8b8b8b;
+  --start-panel-shadow: 0 0 14px rgba(0, 0, 0, 0.35);
   --hill-green: #3c9b2a;
   --hill-deep: #226115;
   --hill-light: #9ce564;
@@ -72,6 +78,31 @@ body {
   position: relative;
   min-height: 100vh;
   overflow-x: hidden;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  margin: 0;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+h1 { font-size: clamp(1.8rem, 2.1vw, 2.4rem); }
+
+h2 { font-size: clamp(1.4rem, 1.8vw, 1.9rem); }
+
+h3 { font-size: clamp(1.1rem, 1.4vw, 1.35rem); }
+
+p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+  margin: 0 0 0.6rem;
+}
+
+small {
+  font-size: 0.82rem;
+  color: var(--muted);
 }
 
 .os-shell {
@@ -428,6 +459,96 @@ body {
   text-transform: uppercase;
   font-size: 0.65rem;
 }
+.start-menu-shortcuts kbd {
+  border-radius: 0.4rem;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.08);
+  text-transform: uppercase;
+  font-size: 0.65rem;
+}
+
+.start-menu-panel {
+  background: var(--start-panel-bg);
+  border: 2px solid var(--start-panel-border);
+  border-top-color: var(--bevel-light);
+  border-left-color: var(--bevel-light);
+  border-radius: 6px;
+  padding: 0.75rem 0.9rem;
+  box-shadow: var(--start-panel-shadow);
+}
+
+.start-panel-heading {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-bottom: 0.35rem;
+  color: var(--accent-3);
+}
+
+.start-menu-subtitle {
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  margin: 0;
+}
+
+.launch-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(110px, 1fr));
+  gap: 0.35rem;
+}
+
+.launch-btn {
+  border: 2px solid var(--panel-edge-dark);
+  border-top-color: var(--bevel-light);
+  border-left-color: var(--bevel-light);
+  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(223, 223, 223, 0.9));
+  padding: 0.35rem 0.5rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  transition: transform var(--transition-flicker), background var(--transition-ui);
+}
+
+.launch-btn:hover,
+.launch-btn:focus-visible {
+  transform: translateY(-2px);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(210, 210, 210, 1));
+}
+
+.start-menu-shortcuts-panel ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.start-menu-shortcuts-panel li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+}
+
+.resume-link {
+  margin-top: 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
 
 /* Desktop: no extra background — body Bliss image shows through. Icons sit directly on it. */
 .desktop {
@@ -444,7 +565,7 @@ body {
   top: 0.75rem;
   margin: 0;
   font-size: 0.85rem;
-  color: #1a3d1a;
+  color: var(--text-strong);
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
   z-index: 1;
 }
@@ -818,13 +939,11 @@ body {
 
 .desktop-icon-grid {
   display: grid;
-  grid-template-columns: repeat(4, 96px);
-  gap: 0.5rem 0.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 0.75rem;
   align-content: start;
   padding: 2.5rem 0 0 0.5rem;
   background: transparent;
-  border: none;
-  box-shadow: none;
 }
 
 .desktop-icon {
@@ -832,34 +951,40 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  width: 96px;
-  min-height: 84px;
-  padding: 10px 6px;
-  border: none;
-  background: transparent;
+  padding: 0.8rem 0.6rem;
+  border: 2px solid var(--icon-border);
+  border-top-color: var(--bevel-light);
+  border-left-color: var(--bevel-light);
+  border-bottom-color: var(--panel-edge-dark);
+  border-right-color: var(--panel-edge-dark);
+  background: var(--icon-bg);
   font-family: var(--win95-font);
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  color: #0a200a;
+  color: var(--text-strong);
   text-align: center;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease;
-  text-shadow: 0 1px 3px rgba(255, 255, 255, 1), 0 0 1px rgba(0, 0, 0, 0.3);
-  border-radius: 2px;
+  border-radius: 4px;
+  min-height: 104px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 6px 14px rgba(15, 20, 50, 0.25);
+  transition: transform 0.24s ease, box-shadow 0.24s ease, background 0.24s ease;
 }
 
 .desktop-icon:focus-visible,
 .desktop-icon:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: scale(1.03);
+  background: var(--icon-hover);
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
+
 .desktop-icon:active {
-  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(0);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 .desktop-icon span.desktop-icon-svg {
-  width: 52px;
-  height: 52px;
+  width: 56px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -868,8 +993,8 @@ body {
 }
 
 .desktop-icon .desktop-icon-svg svg {
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   flex-shrink: 0;
 }
 
@@ -888,17 +1013,16 @@ body {
 }
 
 .desktop-icon small {
-  font-size: 0.88rem;
-  line-height: 1.25;
+  font-size: 0.82rem;
+  line-height: 1.4;
   font-weight: 600;
-  word-break: break-word;
-  max-width: 90px;
+  letter-spacing: 0.02em;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  letter-spacing: 0.02em;
 }
 
 .window-strip {
@@ -1034,12 +1158,57 @@ body {
 }
 
 .window-content {
-  padding: 0.75rem 1rem;
-  background: #f5f5dc;
-  border-top: 1px solid #808080;
-  color: #000;
-  transition: background 0.2s ease;
+  padding: 1rem;
+  background: #fdfdf6;
+  border: 2px solid var(--panel-edge-dark);
+  border-top-color: var(--bevel-light);
+  border-left-color: var(--bevel-light);
+  border-radius: 6px;
+  box-shadow: var(--shadow-pulse);
+  color: var(--text-strong);
+  transition: transform 0.2s ease, background 0.2s ease;
   animation: app-content-enter 0.35s ease-out;
+  font-family: var(--font-display);
+}
+.window-content h1,
+.window-content h2,
+.window-content h3,
+.window-content h4 {
+  font-family: var(--font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 0.45rem;
+}
+.window-content p,
+.window-content li,
+.window-content span,
+.window-content div,
+.window-content section,
+.window-content article {
+  line-height: 1.5;
+  color: var(--text);
+}
+.window-content ul {
+  padding-left: 1.35rem;
+  margin: 0.35rem 0 0 0;
+}
+.window-content li {
+  margin-bottom: 0.35rem;
+}
+.window-content article {
+  background: var(--surface-2);
+  border-radius: 4px;
+  padding: 0.75rem;
+  border: 1px solid var(--panel-edge-dark);
+}
+.window-content a {
+  color: var(--accent);
+}
+.window-content a:hover {
+  text-decoration: underline;
+}
+.window-content .muted {
+  color: var(--muted);
 }
 
 .window-content.app-about .about-revamp > * { animation: app-about-stagger 0.4s ease-out backwards; }
