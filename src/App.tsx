@@ -31,8 +31,8 @@ import {
   HelpCircle,
   BarChart3,
   Puzzle,
-  type LucideIcon
   Cloud,
+  type LucideIcon,
 } from 'lucide-react';
 import {
   UserIcon,
