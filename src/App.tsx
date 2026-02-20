@@ -10,6 +10,8 @@ import {
   type BootStage
 } from './data';
 
+const BASE = import.meta.env.BASE_URL;
+
 import { Win9xBootDialog } from './components/Win9xBoot/Win9xBootDialog';
 import { Win95Login } from './components/win95/Win95Login';
 import { type Credential } from './components/win95/win95Types';
@@ -30,6 +32,7 @@ import {
   BarChart3,
   Puzzle,
   type LucideIcon
+  Cloud,
 } from 'lucide-react';
 import {
   UserIcon,
@@ -285,6 +288,7 @@ export default function App() {
   const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
   const isMobile = useMediaQuery('(max-width: 920px)');
   const [clock, setClock] = useState('');
+  const [taskbarDate, setTaskbarDate] = useState('');
   const [bootStageIndex, setBootStageIndex] = useState(reducedMotion ? bootStages.length - 1 : 0);
   const [bootLineIndex, setBootLineIndex] = useState(reducedMotion ? bootStages[bootStages.length - 1].lines.length : 0);
   const [bootTransitioning, setBootTransitioning] = useState(false);
@@ -303,9 +307,13 @@ export default function App() {
   const [highlightIndex, setHighlightIndex] = useState(0);
 
   useEffect(() => {
-    const renderClock = () => setClock(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-    renderClock();
-    const id = setInterval(renderClock, 1000);
+    const tick = () => {
+      const d = new Date();
+      setClock(d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+      setTaskbarDate(d.toLocaleDateString([], { weekday: 'short', month: 'numeric', day: 'numeric' }));
+    };
+    tick();
+    const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, []);
 
@@ -637,7 +645,7 @@ export default function App() {
                 ))}
               </ul>
             </div>
-            <a href="/assets/resume.pdf" download data-testid="start-menu-resume-link">⬇ Resume.pdf</a>
+            <a href={`${BASE}assets/resume.pdf`} download data-testid="start-menu-resume-link">⬇ Resume.pdf</a>
           </aside>
         )}
 
@@ -656,19 +664,25 @@ export default function App() {
                   onClick={() => (isFocused ? minimizeWindow(app.id) : openWindow(app.id))}
                   aria-pressed={isFocused}
                 >
-                  <span className="taskbar-window-btn-icon"><AppIcon appId={app.id} size={14} /></span>
+                  <span className="taskbar-window-btn-icon"><AppIcon appId={app.id} size={20} /></span>
                   {app.label}
                 </button>
               );
             })}
           </div>
           <div className="taskbar-tray" aria-hidden="true">
+            <span className="taskbar-tray-icon taskbar-tray-cloud" title="Cloud" aria-hidden="true">
+              <Cloud size={20} strokeWidth={2} aria-hidden="true" />
+            </span>
             <span className="taskbar-tray-icon taskbar-tray-wifi" title="Network" aria-hidden="true">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 12a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm0-2a.5.5 0 1 0 0 1 .5.5 0 0 0 0-1zm0-6c-2.5 0-4.5 1.5-5.5 3.5l1 1c.8-1.5 2.3-2.5 4-2.5s3.2 1 4 2.5l1-1C12.5 5.5 10.5 4 8 4zm0 3c-1.7 0-3 1-3.5 2.2l1 .8c.4-.8 1.2-1.3 2.5-1.3s2.1.5 2.5 1.3l1-.8C11 8 9.7 7 8 7z"/></svg>
+              <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 12a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm0-2a.5.5 0 1 0 0 1 .5.5 0 0 0 0-1zm0-6c-2.5 0-4.5 1.5-5.5 3.5l1 1c.8-1.5 2.3-2.5 4-2.5s3.2 1 4 2.5l1-1C12.5 5.5 10.5 4 8 4zm0 3c-1.7 0-3 1-3.5 2.2l1 .8c.4-.8 1.2-1.3 2.5-1.3s2.1.5 2.5 1.3l1-.8C11 8 9.7 7 8 7z"/></svg>
             </span>
             <span className="taskbar-tray-icon" title="Volume">🔊</span>
           </div>
-          <p className="clock" aria-live="off" data-testid="taskbar-clock">{clock}</p>
+          <div className="taskbar-tray-date-time">
+            <span className="taskbar-date" aria-hidden="true">{taskbarDate}</span>
+            <p className="clock" aria-live="off" data-testid="taskbar-clock">{clock}</p>
+          </div>
         </header>
 
       </div>
@@ -902,7 +916,7 @@ function WindowContent({
       <article className="about-revamp">
         <header className="about-hero">
           <div className="about-hero-avatar">
-            <img src="/assets/headshot.jpg" alt="Dayyan Hamid" />
+            <img src={`${BASE}assets/headshot.jpg`} alt="Dayyan Hamid" />
           </div>
           <div className="about-hero-text">
             <h1>Dayyan Hamid</h1>
@@ -930,11 +944,11 @@ function WindowContent({
         <section className="about-section about-links">
           <h2>Connect</h2>
           <p>
-            <a href="https://github.com/dayy346" target="_blank" rel="noreferrer">GitHub</a>
-            {' · '}
-            <a href="https://www.linkedin.com/in/dayyanhamid" target="_blank" rel="noreferrer">LinkedIn</a>
-            {' · '}
-            <a href="/assets/resume.pdf" target="_blank" rel="noreferrer">Resume (PDF)</a>
+<a href="https://github.com/dayy346" target="_blank" rel="noreferrer">GitHub</a>
+        {' · '}
+        <a href="https://www.linkedin.com/in/dayyanhamid" target="_blank" rel="noreferrer">LinkedIn</a>
+        {' · '}
+        <a href={`${BASE}assets/resume.pdf`} target="_blank" rel="noreferrer">Resume (PDF)</a>
           </p>
         </section>
       </article>
@@ -1074,7 +1088,7 @@ function WindowContent({
           <h3>Collegiate Powerlifting · Rutgers University</h3>
           <div className="extracurricular-powerlifting">
             <div className="extracurricular-photo">
-              <img src="/assets/powerlifting.jpg" alt="Powerlifting" />
+              <img src={`${BASE}assets/powerlifting.jpg`} alt="Powerlifting" />
             </div>
             <div className="extracurricular-stats">
               <div className="filter-row">
@@ -1319,7 +1333,7 @@ function HeroSignalRail({ shellStatus, recruiterSignalCount, signalRefresh }: He
         <div className="rail-callout-actions">
           <a
             className="hero-rail-link"
-            href="/assets/resume.pdf"
+            href={`${BASE}assets/resume.pdf`}
             target="_blank"
             rel="noreferrer"
             data-testid="hero-rail-view-resume"
@@ -1401,7 +1415,7 @@ function MobileLite({
         </ul>
       </section>
       <footer>
-        <a href="/assets/resume.pdf" download>Download Resume</a>
+        <a href={`${BASE}assets/resume.pdf`} download>Download Resume</a>
       </footer>
     </div>
   );

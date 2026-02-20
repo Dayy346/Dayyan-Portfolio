@@ -63,7 +63,7 @@ html, body, #root { margin: 0; min-height: 100%; }
 body {
   font-family: var(--font-display), 'Segoe UI', 'MS Sans Serif', sans-serif;
   background-color: #2d5016;
-  background-image: url('/assets/bliss.jpg');
+  /* background-image set in JS so base URL works on GitHub Pages */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -80,7 +80,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-base);
-  padding: calc(var(--spacing-base) * 0.3) var(--spacing-base);
+  padding: calc(var(--spacing-base) * 0.3) var(--spacing-base) calc(var(--spacing-base) * 0.4);
 }
 
 /* During boot: hide shell so body (sky + hills) is visible behind the boot overlay */
@@ -89,15 +89,17 @@ body {
   pointer-events: none;
 }
 
-/* Taskbar: matches window title / desktop text size, clean XP-style */
+/* Taskbar: full-width bar with bottom padding so it doesn’t look cut off */
 .taskbar {
   flex-shrink: 0;
   z-index: 30;
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.35rem 0.5rem;
-  min-height: 34px;
+  margin-left: calc(-1 * var(--spacing-base));
+  margin-right: calc(-1 * var(--spacing-base));
+  padding: 0.4rem var(--spacing-base) 0.5rem var(--spacing-base);
+  min-height: 38px;
   border: none;
   border-top: 1px solid rgba(255, 255, 255, 0.4);
   background: linear-gradient(180deg, #3d72b0 0%, #2662d8 45%, #1e4cb5 100%);
@@ -171,8 +173,8 @@ body {
 
 .taskbar-window-btn-icon svg {
   flex-shrink: 0;
-  width: 14px;
-  height: 14px;
+  width: 20px;
+  height: 20px;
 }
 
 .taskbar-tray {
@@ -197,16 +199,28 @@ body {
 .taskbar-tray-icon svg {
   display: block;
   flex-shrink: 0;
-  width: 14px;
-  height: 14px;
+  width: 20px;
+  height: 20px;
 }
 
+.taskbar-tray-date-time {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 0 0.6rem;
+  line-height: 1.2;
+}
 .taskbar .clock {
-  padding: 0 0.55rem;
   font-size: 0.85rem;
   font-weight: 700;
   color: #fff;
   letter-spacing: 0.03em;
+}
+.taskbar .taskbar-date {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  letter-spacing: 0.02em;
 }
 
 .status-hub {
@@ -285,7 +299,7 @@ body {
 .start-menu {
   position: fixed;
   z-index: 90;
-  bottom: 34px;
+  bottom: 42px;
   left: 0;
   top: auto;
   width: min(360px, 88vw);
@@ -803,12 +817,10 @@ body {
 }
 
 .desktop-icon-grid {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  max-height: calc(100vh - 120px);
+  display: grid;
+  grid-template-columns: repeat(4, 96px);
+  gap: 0.5rem 0.25rem;
+  align-content: start;
   padding: 2.5rem 0 0 0.5rem;
   background: transparent;
   border: none;
