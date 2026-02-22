@@ -341,16 +341,55 @@ small {
   bottom: 42px;
   left: 0;
   top: auto;
-  width: min(360px, 88vw);
+  width: min(380px, 92vw);
   padding: 0.75rem 1rem;
   display: grid;
-  gap: 0.6rem;
+  gap: 0.75rem;
   border: 2px solid var(--bevel-dark);
   border-top-color: var(--bevel-light);
   border-left-color: var(--bevel-light);
-  background: #c0c0c0;
-  box-shadow: inset 1px 1px 0 #fff, 2px 2px 4px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(180deg, #d9d9d2, #bfbfbf);
+  box-shadow: inset 1px 1px 0 #fff, 6px 6px 18px rgba(0,0,0,0.35);
   color: #000;
+}
+
+.start-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+
+.start-menu-panel {
+  background: rgba(255,255,255,0.85);
+  border: 2px solid var(--panel-edge-dark);
+  border-top-color: var(--bevel-light);
+  border-left-color: var(--bevel-light);
+  border-radius: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+}
+
+.start-menu-panel h4 {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--accent-soft);
+}
+
+.start-menu-panel button {
+  width: 100%;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: #111;
+  border-radius: 0.4rem;
+  background: rgba(255,255,255,0.7);
+  padding: 0.4rem 0.5rem;
+  border: 1px solid rgba(0,0,0,0.2);
+}
+
+.start-menu-panel button:hover {
+  background: rgba(255,255,255,1);
 }
 
 .start-menu-header {
