@@ -54,7 +54,7 @@ export function Win95Login({
             ))}
           </div>
           <p className="win9x-login-status" data-testid="login-data-status" aria-hidden="true">{dataStatus}</p>
-          <p className="win9x-login-note" data-testid="login-contrib-note">Double-click <strong>About Me</strong> on the desktop to learn more.</p>
+          <p className="win9x-login-note" data-testid="login-contrib-note"><strong>About Me</strong> will open automatically after you log on.</p>
           <div className="win9x-login-links">
             <a className="win9x-login-btn-link" href={`${import.meta.env.BASE_URL}assets/resume.pdf`} target="_blank" rel="noreferrer" data-testid="view-resume-link">
               View Resume

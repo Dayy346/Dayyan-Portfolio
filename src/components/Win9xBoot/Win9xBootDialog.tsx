@@ -6,8 +6,8 @@ import {
   type BootState,
 } from './bootMachine';
 
-const FROM_VALUE = 'A:\\Dayyan Research\\Payload\\';
-const TO_VALUE = 'C:\\DayyanOS\\Desktop\\';
+const FROM_VALUE = 'A:\\Research\\Payload\\';
+const TO_VALUE = 'C:\\Portfolio\\Desktop\\';
 const FILE_LABEL = 'Saving: ';
 const FILE_NAME = 'Portfolio.dat';
 
@@ -252,7 +252,7 @@ export function Win9xBootDialog({
           data-testid="boot-explorer-preview"
         >
           <header className="win9x-explorer-titlebar">
-            C:\DayyanOS\Desktop
+            C:\Portfolio\Desktop
           </header>
           <div className="win9x-explorer-body">
             <ul>

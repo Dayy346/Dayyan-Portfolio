@@ -51,7 +51,7 @@ export function BootSequence({
       role="dialog"
       aria-live="polite"
       aria-modal="true"
-      aria-label="Dayyan OS boot sequence"
+      aria-label="Portfolio boot sequence"
       data-testid="boot-sequence-dialog"
       data-stage-id={stage.id}
       data-stage-index={stageIndex}
@@ -61,7 +61,7 @@ export function BootSequence({
       <div className="win95-boot-noise" aria-hidden="true" />
       <div className="win95-boot-hw" aria-hidden="true">
         <span className="win95-boot-logo">⊞</span>
-        <p>Windows 95 · Dayyan.OS shell</p>
+        <p>Windows 95 · Portfolio shell</p>
       </div>
       <div className="win95-boot-body">
         <div className="win95-loading-hud" data-testid="boot-stage-header">
@@ -189,8 +189,8 @@ const transferQueue = [
 ] as const;
 
 const transferFields = [
-  { label: 'Source', value: 'A:\\Dayyan Research\\Payload\\', helper: 'Encrypted research vault' },
-  { label: 'Destination', value: 'C:\\DayyanOS\\Boot\\Payload\\', helper: 'Local cinematic shell' }
+  { label: 'Source', value: 'A:\\Research\\Payload\\', helper: 'Encrypted research vault' },
+  { label: 'Destination', value: 'C:\\Portfolio\\Boot\\Payload\\', helper: 'Local shell' }
 ];
 
 type FileTransferDialogProps = {

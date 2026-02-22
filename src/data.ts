@@ -120,7 +120,7 @@ export const bootStages: BootStage[] = [
       '[OK] Story watchers align: focus, mood, and highlight cues',
       '[OK] Repositories, missives, and windows materialized',
       '[OK] Cinematic boot story synced to live analytics',
-      '[READY] DAYYAN.OS interface fully awake · welcoming you home'
+      '[READY] Portfolio interface fully awake · welcoming you home'
     ]
   }
 ];
@@ -160,38 +160,39 @@ export const researchBriefNotes: ResearchNote[] = [
 export const resumeSections: ResumeSection[] = [
   {
     title: 'Education & Certifications',
-    summary: 'Rutgers CS ’25 + structured certifications that reinforce data plus systems fluency.',
+    summary: 'Rutgers BA in Computer Science & Mathematics ’25; certifications in software design, data science, and MLOps.',
     bullets: [
-      'Bachelor of Science in Computer Science — Rutgers University, New Brunswick, NJ · May 2025',
-      'Relevant coursework: Systems Programming, OS Design, Computational Algorithms, Machine Learning Principles, Linear Optimization, Probability & Statistics',
-      'Certifications: Software Design, Data Science Fundamentals, Power BI Desktop · Currently pursuing AWS Cloud Practitioner'
+      'Bachelor of Arts in Computer Science and Mathematics — Rutgers University, New Brunswick, NJ · May 2025',
+      'Relevant coursework: Systems Programming, OS Design, Computational Algorithms, Machine Learning Principles, Linear Optimization, Probability & Statistics, Intro to AI, Design and Analysis of Algorithms',
+      'Certifications: MLOps and Data Pipeline Orchestration for AI Systems (LinkedIn, Oct 2025); Software Design: From Requirements to Release (Aug 2024); Data Science Fundamentals; Power BI Desktop · Pursuing AWS Cloud Practitioner'
     ]
   },
   {
     title: 'Technical Experience',
     bullets: [
-      'QA Junior Document Control Analyst · Regeneron Pharmaceuticals (Jun 2025 — Present): Managed GxP doc suites with OpenText, myQumas, TrackWise; streamlined SharePoint access and ensured traceability for regulated records.',
-      'Software Engineer · CollabLab (Mar 2025 — Present): Early engineer #5 building Node/Express/Vue/Mongo/Daily powered features; shipped the camera enforcement workflow and maintained the collaboration stack.',
-      'QA IRM Developer Intern · Regeneron (May 2024 — Sep 2024): Built Power Automate + Power BI tooling, launched a SharePoint intake site that handled 1,000+ submissions per week and earned recognition for reliability improvements.'
+      'Junior AI Engineer · FCB Health New York | IPG Health (Oct 2025 — Present), Full-time, NYC Metro Hybrid: Backend in Python and FastAPI with storage/retrieval in Azure AI Search; frontend in Nuxt hosted on Azure App Service. Deep Learning, TypeScript, and production healthcare workflows.',
+      'Engineering Manager · Troy Tutors / CollabLab (Jan 2026 — Present), Part-time: Promoted to part-time engineering manager leading a group of full-stack engineers at CollabLab.',
+      'Full Stack Software Engineer · CollabLab (Mar 2025 — Jan 2026), Remote: Engineer #5 at education tech startup under Troy Tutors; Node/Express/Vue/Mongo/Daily; shipped camera-required enforcement for tutoring and proctored rooms. Part-time from June 2025. collablab.dev',
+      'QA Document Control Analyst · Regeneron (Jun 2025 — Oct 2025), Contract: Managed GxP documentation with OpenText, myQumas, TrackWise; improved internal SharePoint site and workflows. Contract through Oxford Global Resources.',
+      'QA Developer Intern · Regeneron (May 2024 — Sep 2024), On-site Albany: Power Automate, Power BI, SharePoint, SQL, PowerApps; launched SharePoint intake site (1,000+ submissions first week); superlative award and program extension. GxP systems: DataMart, OpsTrakker.',
+      'Warehouse Associate · Amazon Fulfillment Technologies & Robotics (Dec 2022 — Mar 2023), Seasonal, Robbinsville NJ.'
     ]
   },
   {
     title: 'Signature Projects',
     bullets: [
-      'Custom Neural Network Model Generator · Flask · PyTorch · React · Docker · TensorFlow: From LeNet-5 base to a 40% accuracy boost via batch norm, dropout, and optimizer tuning; real-time React/Flask telemetry shows training, testing, and export progress.',
-      'Crime Catcher AI Security System · Tkinter · Flask · OpenCV · Vue · SQLite · PyTorch: Motion-triggered weapon detection with real-time alerts and automated email delivery for flagged events.',
-      'Dayyan.OS Research · Retro UX + Cinematic Boot: Curated boot narrative, mood-aware desktop, and telemetry board that inspired this shell redesign.'
+      'Custom Neural Network Model Generator · Flask · PyTorch · React · Docker · TensorFlow: LeNet-5–based image classification; 40% accuracy gain via batch norm, dropout, augmentation; real-time React/Flask telemetry.',
+      'Crime Catcher AI Security System · Tkinter · Flask · OpenCV · Vue · SQLite · PyTorch: Motion-triggered weapon detection, real-time alerts, automated email delivery for flagged events.',
+      'Big Data Bowl · Judge-ing Aggressive vs Defensive Back Coverage (Kaggle): NFL coverage analysis notebook built with a partner—aggressive vs defensive back coverage. See Kaggle submission (mscoop16).'
     ]
   },
   {
     title: 'Leadership & Skills',
     bullets: [
-      'Collegiate Powerlifter, Rutgers University (Sept 2023 — Present): Organized meets, placed 6th at Dec 2024 East Coast Collegiate Championships, and qualified for nationals.',
-      'Secretary — Pakistani Student Association (Sep 2022 — May 2025): Event coordination, communications, and NFC-based attendance system.',
-      'Key employee & server, PJ’s Pancake House (Jun 2020 — Aug 2022): Operational oversight, cash handling, rapid promotion from busser to server.',
-      'Skills: JavaScript, Python, Java, C#, C/C++, SQL, HTML/CSS, Node.js, Vue.js, React.js, Express, Flask, .NET, Docker, MongoDB, PostgreSQL, Power BI, Power Automate, Power Apps, SharePoint'
+      'Collegiate Powerlifter, Rutgers University (Sep 2023 — Present): 6th place, 67.5kg, East Coast Collegiate Championships (Dec 2024); qualified for nationals. Secretary, Pakistani Student Association (Sep 2022 — May 2025). Key employee & server, PJ’s Pancake House (Jun 2020 — Aug 2022).',
+      'Skills: Python, Java, JavaScript, TypeScript, SQL, C#, C/C++; Data Science; Node.js, Vue.js, Nuxt, React.js, Express, Flask, FastAPI; Azure, Azure AI Search; Power BI, Power Automate, Power Apps, SharePoint; Git, Docker, MongoDB, PostgreSQL; Engineering Management, Engineering Leadership'
     ],
-    footer: 'This resume window mirrors the latest PDF so you have a narrative-ready snapshot inside the shell.'
+    footer: 'This resume window mirrors the latest PDF; see LinkedIn for full experience and skills.'
   }
 ];
 
