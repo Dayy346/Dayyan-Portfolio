@@ -169,30 +169,34 @@ small {
 }
 
 .taskbar-window-btn {
-  padding: 0.3rem 0.55rem;
-  min-height: 26px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 2px;
-  background: transparent;
+  padding: 0.45rem 0.85rem;
+  min-height: 32px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: rgba(255, 255, 255, 0.8);
+  border-left-color: rgba(255, 255, 255, 0.8);
+  border-radius: 0.6rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(25, 37, 78, 0.72));
   color: #fff;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
   max-width: 180px;
   text-overflow: ellipsis;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.08em;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 3px 6px rgba(0, 0, 0, 0.6);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .taskbar-window-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.25), rgba(18, 28, 62, 0.9));
 }
 
 .taskbar-window-btn.active {
-  background: rgba(255, 255, 255, 0.22);
-  border-color: rgba(255, 255, 255, 0.45);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(30, 56, 130, 0.9));
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6), 0 4px 10px rgba(0, 0, 0, 0.5);
 }
 
 .taskbar-window-btn-icon {
@@ -212,16 +216,19 @@ small {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0 0.5rem;
+  padding: 0 0.6rem;
   border-left: 1px solid rgba(255, 255, 255, 0.25);
   margin-left: auto;
+  border-radius: 0.6rem;
+  background: rgba(8, 13, 42, 0.85);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .taskbar-tray-icon {
   font-size: 0.85rem;
   line-height: 1;
   cursor: default;
-  filter: brightness(0) invert(1);
+  color: var(--accent);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -232,6 +239,7 @@ small {
   flex-shrink: 0;
   width: 20px;
   height: 20px;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
 }
 
 .taskbar-tray-date-time {
@@ -587,12 +595,39 @@ small {
 }
 
 .desktop-widget {
-  background: rgba(245, 245, 220, 0.92);
-  border: none;
-  box-shadow: none;
-  padding: 0.65rem 0.8rem;
+  width: min(280px, 36vw);
+  background: var(--surface-3);
+  border: 2px solid var(--panel-edge-dark);
+  border-top-color: var(--bevel-light);
+  border-left-color: var(--bevel-light);
+  border-radius: 0.9rem;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.42);
+  padding: 0.75rem 0.9rem;
   font-family: var(--win95-font);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
+  color: var(--text-strong);
+}
+
+.desktop-widget-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.desktop-widget-title {
+  font-size: 0.96rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--accent-soft);
+}
+
+.desktop-widget-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--muted);
 }
 
 .desktop-widget-github {
@@ -1084,19 +1119,22 @@ small {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 2px 4px 3px 6px;
-  background: #000080;
-  color: #fff;
+  padding: 0.35rem 0.9rem;
+  background: linear-gradient(180deg, #122058, #050c30);
+  color: #fefefe;
   font-family: var(--win95-font);
-  font-size: 13px;
+  font-size: 0.85rem;
   font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   cursor: grab;
-  transition: background 0.2s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 0 0 2px rgba(0, 0, 0, 0.6);
 }
 
 .window-title p {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
 }
 
 .window-actions {
@@ -1105,35 +1143,36 @@ small {
 }
 
 .window-actions button {
-  width: 21px;
-  height: 21px;
+  width: 26px;
+  height: 26px;
   padding: 0;
-  border: 1px solid #000;
+  border: 2px solid var(--panel-edge-dark);
   border-top-color: var(--bevel-light);
   border-left-color: var(--bevel-light);
-  background: #c0c0c0;
-  color: #000;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #f5f7ff, #cfd5ee);
+  color: #1f1f1f;
   font-size: 12px;
   line-height: 1;
-  font-weight: 700;
+  font-weight: 800;
   cursor: pointer;
-  box-shadow: inset 1px 1px 0 #fff;
-  transition: box-shadow 0.15s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 3px 5px rgba(0, 0, 0, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .window-actions button:hover {
-  transform: translateY(-1px);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 5px 12px rgba(0, 0, 0, 0.45);
 }
 
 .window-actions button:active {
   transform: translateY(0);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .window-actions button:focus-visible {
-  outline: 2px dotted var(--accent-focus);
-  outline-offset: 1px;
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* Per-app entrance animations (respect reduced-motion in media query below) */
@@ -2431,6 +2470,59 @@ select:focus-visible {
   color: #95a8d9;
 }
 
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.6rem;
+}
+
+.project-card {
+  border: 2px solid var(--panel-edge-dark);
+  border-top-color: var(--bevel-light);
+  border-left-color: var(--bevel-light);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 0.75rem;
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.45);
+}
+
+.project-card h3 {
+  margin-top: 0;
+  margin-bottom: 0.35rem;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+}
+
+.project-card .muted {
+  margin-bottom: 0.4rem;
+  color: var(--muted);
+}
+
+.project-card .project-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.project-card .project-links a {
+  color: var(--accent);
+}
+
+.project-card small {
+  color: #111;
+  letter-spacing: 0.05em;
+}
+
 .contributions-panel {
   display: grid;
   gap: 1rem;
@@ -2440,6 +2532,54 @@ select:focus-visible {
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 18px 30px rgba(0, 0, 0, 0.65);
 }
+.contribution-gauges {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.8rem;
+}
+
+.contribution-gauge {
+  padding: 0.8rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.contribution-gauge p {
+  margin: 0;
+  letter-spacing: 0.15em;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.gauge-track {
+  margin: 0.45rem 0 0.35rem;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.gauge-track span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(120deg, var(--accent-bios), var(--accent-kernel));
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.35);
+}
+
+.gauge-track.secondary span {
+  background: linear-gradient(120deg, var(--accent-kernel), var(--accent-atmos));
+}
+
+.contribution-gauge small {
+  display: block;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+}
+
 .contributions-panel header h2 {
   margin: 0;
 }
