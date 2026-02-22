@@ -599,66 +599,69 @@ export default function App() {
 
         {startMenuOpen && bootDone && (
           <aside className="start-menu" role="menu" aria-label="Start Menu" data-testid="start-menu">
-            <div className="start-menu-panel start-menu-status-panel" data-testid="start-menu-header">
-              <p className="start-menu-status" aria-live="polite" data-testid="start-menu-status">{shellStatus.startMenuStatus}</p>
-              <p className="start-menu-subtitle">Stories · Running · Ready</p>
-            </div>
-            <div className="start-menu-panel start-menu-running-panel" role="list" data-testid="running-section">
-              <div className="start-panel-heading">Running programs</div>
-              {runningApps.length ? (
-                runningApps.map((app) => {
-                  const state = windowMap[app.id];
-                  const isFocused = focused === app.id;
-                  const isMinimized = state.minimized;
-                  const statusLabel = isMinimized ? 'Minimized' : isFocused ? 'Focused' : 'Running';
-                  return (
+            <div className="start-menu-grid">
+              <div className="start-menu-panel start-menu-status-panel" data-testid="start-menu-header">
+                <h4>Status</h4>
+                <p className="start-menu-status" aria-live="polite" data-testid="start-menu-status">{shellStatus.startMenuStatus}</p>
+                <p className="start-menu-subtitle">Stories · Running · Ready</p>
+              </div>
+              <div className="start-menu-panel start-menu-running-panel" role="list" data-testid="running-section">
+                <h4>Running now</h4>
+                {runningApps.length ? (
+                  runningApps.map((app) => {
+                    const state = windowMap[app.id];
+                    const isFocused = focused === app.id;
+                    const isMinimized = state.minimized;
+                    const statusLabel = isMinimized ? 'Minimized' : isFocused ? 'Focused' : 'Running';
+                    return (
+                      <button
+                        key={app.id}
+                        type="button"
+                        role="menuitem"
+                        aria-pressed={isFocused}
+                        className={`running-app ${isMinimized ? 'minimized' : 'active'} ${isFocused ? 'focused' : ''}`}
+                        onClick={() => openWindow(app.id)}
+                        data-testid={`running-app-${app.id}`}
+                      >
+                        <span aria-hidden="true" className="running-icon"><AppIcon appId={app.id} size={16} /></span>
+                        <span className="running-label">{app.label}</span>
+                        <small>{statusLabel}</small>
+                      </button>
+                    );
+                  })
+                ) : (
+                  <p className="muted">No programs active yet. Launch one below.</p>
+                )}
+              </div>
+              <div className="start-menu-panel start-menu-launch-panel">
+                <h4>Launch programs</h4>
+                <div className="launch-grid">
+                  {apps.map((app) => (
                     <button
                       key={app.id}
-                      type="button"
                       role="menuitem"
-                      aria-pressed={isFocused}
-                      className={`running-app ${isMinimized ? 'minimized' : 'active'} ${isFocused ? 'focused' : ''}`}
+                      className="launch-btn"
                       onClick={() => openWindow(app.id)}
-                      data-testid={`running-app-${app.id}`}
+                      data-testid={`start-menu-app-${app.id}`}
                     >
-                      <span aria-hidden="true" className="running-icon"><AppIcon appId={app.id} size={16} /></span>
-                      <span className="running-label">{app.label}</span>
-                      <small>{statusLabel}</small>
+                      <span className="start-menu-app-icon"><AppIcon appId={app.id} size={18} /></span>
+                      <span>{app.label}</span>
                     </button>
-                  );
-                })
-              ) : (
-                <p className="muted">No programs active yet. Launch one below.</p>
-              )}
-            </div>
-            <div className="start-menu-panel start-menu-launch-panel">
-              <div className="start-panel-heading">Launch programs</div>
-              <div className="launch-grid">
-                {apps.map((app) => (
-                  <button
-                    key={app.id}
-                    role="menuitem"
-                    className="launch-btn"
-                    onClick={() => openWindow(app.id)}
-                    data-testid={`start-menu-app-${app.id}`}
-                  >
-                    <span className="start-menu-app-icon"><AppIcon appId={app.id} size={18} /></span>
-                    <span>{app.label}</span>
-                  </button>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-            <div className="start-menu-panel start-menu-shortcuts-panel" data-testid="start-menu-shortcuts">
-              <div className="start-panel-heading">Keyboard shortcuts</div>
-              <ul>
-                {KEYBOARD_SHORTCUTS.map((shortcut) => (
-                  <li key={shortcut.id} data-testid={`shortcut-${shortcut.id}`}>
-                    <kbd>{shortcut.combo}</kbd>
-                    <span>{shortcut.detail}</span>
-                  </li>
-                ))}
-              </ul>
-              <a className="resume-link" href={`${BASE}assets/resume.pdf`} download data-testid="start-menu-resume-link">⬇ Resume.pdf</a>
+              <div className="start-menu-panel start-menu-shortcuts-panel" data-testid="start-menu-shortcuts">
+                <h4>Shortcuts</h4>
+                <ul>
+                  {KEYBOARD_SHORTCUTS.map((shortcut) => (
+                    <li key={shortcut.id} data-testid={`shortcut-${shortcut.id}`}>
+                      <kbd>{shortcut.combo}</kbd>
+                      <span>{shortcut.detail}</span>
+                    </li>
+                  ))}
+                </ul>
+                <a className="resume-link" href={`${BASE}assets/resume.pdf`} download data-testid="start-menu-resume-link">⬇ Resume.pdf</a>
+              </div>
             </div>
           </aside>
         )}

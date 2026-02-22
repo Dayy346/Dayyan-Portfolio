@@ -122,22 +122,40 @@ small {
 
 /* Taskbar: full-width bar with bottom padding so it doesn’t look cut off */
 .taskbar {
-  flex-shrink: 0;
-  z-index: 30;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 52px;
+  z-index: 50;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  margin-left: calc(-1 * var(--spacing-base));
-  margin-right: calc(-1 * var(--spacing-base));
-  padding: 0.4rem var(--spacing-base) 0.5rem var(--spacing-base);
-  min-height: 38px;
-  border: none;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.4);
-  background: linear-gradient(180deg, #3d72b0 0%, #2662d8 45%, #1e4cb5 100%);
-  box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.15);
+  border-left: 2px solid rgba(255, 255, 255, 0.8);
+  border-right: 2px solid rgba(255, 255, 255, 0.5);
+  background: linear-gradient(180deg, #1d428c, #0f2a5a);
+  box-shadow: 0 -3px 6px rgba(0, 0, 0, 0.4);
   font-family: var(--win95-font);
   font-size: 0.85rem;
   color: #fff;
+}
+
+.taskbar-extra {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-left: 0.5rem;
+}
+
+.taskbar-extra span {
+  border-radius: 4px;
+  padding: 0.1rem 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.08);
+  letter-spacing: 0.15em;
+  font-size: 0.7rem;
 }
 
 .start-btn {
@@ -625,12 +643,71 @@ small {
 .desktop-widgets {
   position: absolute;
   top: 0.75rem;
-  right: 0.75rem;
+  left: 0.75rem;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 0.5rem;
+  align-items: flex-start;
+  gap: 0.75rem;
   z-index: 2;
+}
+
+.desktop-widget {
+  width: min(280px, 34vw);
+  background: var(--surface-3);
+  border: 2px solid var(--panel-edge-dark);
+  border-top-color: var(--bevel-light);
+  border-left-color: var(--bevel-light);
+  border-radius: 0.9rem;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.42);
+  padding: 0.75rem 0.9rem;
+  font-family: var(--win95-font);
+  font-size: 0.78rem;
+  color: var(--text-strong);
+  overflow: hidden;
+  background-clip: padding-box;
+}
+
+.desktop-widget-github .desktop-widget-chart {
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.desktop-widget-github .desktop-widget-link,
+.desktop-widget-leetcode .desktop-widget-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.desktop-widget-title {
+  font-size: 0.92rem;
+  letter-spacing: 0.12em;
+  color: var(--accent-soft);
+}
+
+.desktop-widget-leetcode-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.25rem;
+}
+
+.desktop-widget-stat {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 0.4rem;
+  padding: 0.25rem;
+  text-align: center;
+}
+
+.desktop-widget-stat strong {
+  display: block;
+  font-size: 1rem;
+}
+
+.desktop-widget-muted {
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
 }
 
 .desktop-widget {
@@ -1013,10 +1090,11 @@ small {
 
 .desktop-icon-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.75rem 0.8rem;
   align-content: start;
-  padding: 2.5rem 0 0 0.5rem;
+  padding: 3rem 0 1.5rem 1.5rem;
+  margin-left: 200px;
   background: transparent;
 }
 
@@ -1025,23 +1103,19 @@ small {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 0.8rem 0.6rem;
-  border: 2px solid var(--icon-border);
-  border-top-color: var(--bevel-light);
-  border-left-color: var(--bevel-light);
-  border-bottom-color: var(--panel-edge-dark);
-  border-right-color: var(--panel-edge-dark);
-  background: var(--icon-bg);
+  padding: 0.5rem 0.4rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 6px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(205, 227, 255, 0.22));
   font-family: var(--win95-font);
-  font-size: 0.85rem;
+  font-size: 0.79rem;
   font-weight: 600;
-  color: var(--text-strong);
+  color: #0f1e2a;
   text-align: center;
   cursor: pointer;
-  border-radius: 4px;
-  min-height: 104px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 6px 14px rgba(15, 20, 50, 0.25);
-  transition: transform 0.24s ease, box-shadow 0.24s ease, background 0.24s ease;
+  min-height: 94px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 8px 15px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .desktop-icon:focus-visible,
