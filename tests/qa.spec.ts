@@ -123,7 +123,7 @@ async function openAppWindow(page: Page, label: string) {
   return window;
 }
 
-test.describe('Dayyan.OS QA experience flows', () => {
+test.describe('Portfolio QA experience flows', () => {
   test.beforeEach(async ({ page }) => {
     await stubRepos(page);
   });
@@ -264,7 +264,7 @@ test.describe('Dayyan.OS QA experience flows', () => {
   test('mobile view renders the Lite experience after boot', async ({ page }) => {
     await page.setViewportSize({ width: 400, height: 800 });
     await skipBootToDesktop(page, { expectDesktop: false, expectSessionActive: false });
-    await expect(page.getByRole('heading', { name: 'Dayyan.OS Mobile Lite' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Portfolio · Mobile' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Featured Repositories' })).toBeVisible();
     await expect(page.getByText(sampleRepos[0].name)).toBeVisible();
     await expect(page.getByRole('link', { name: 'Download Resume' })).toBeVisible();

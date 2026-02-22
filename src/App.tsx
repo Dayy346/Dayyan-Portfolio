@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ComponentType, type CSSProperties, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import {
   AppId,
   apps,
@@ -11,93 +11,44 @@ import {
 } from './data';
 
 const BASE = import.meta.env.BASE_URL;
+const POST_LOGIN_YOUTUBE_VIDEO_ID = '7nQ2oiVqKHw';
+
+declare global {
+  interface Window {
+    YT?: { Player: new (el: string | HTMLElement, opts: { videoId: string; playerVars?: Record<string, number>; events?: { onReady?: (ev: { target: { playVideo: () => void } }) => void } }) => { playVideo: () => void } };
+    onYouTubeIframeAPIReady?: () => void;
+  }
+}
+
+function loadYouTubeIframeAPI(): Promise<void> {
+  if (typeof window === 'undefined') return Promise.resolve();
+  if (window.YT?.Player) return Promise.resolve();
+  return new Promise((resolve) => {
+    const prev = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = () => {
+      prev?.();
+      resolve();
+    };
+    const script = document.createElement('script');
+    script.src = 'https://www.youtube.com/iframe_api';
+    script.async = true;
+    document.head.appendChild(script);
+  });
+}
 
 import { Win9xBootDialog } from './components/Win9xBoot/Win9xBootDialog';
-import { Win95Login } from './components/win95/Win95Login';
+import { XPLoginScreen } from './components/win95/XPLoginScreen';
 import { type Credential } from './components/win95/win95Types';
 import { GitHubContributionFeed } from './components/widgets/GitHubContributionFeed';
 import { LeetCodeStatsWidget } from './components/widgets/LeetCodeStatsWidget';
 import { DesktopGitHubWidget } from './components/widgets/DesktopGitHubWidget';
 import { DesktopLeetCodeWidget } from './components/widgets/DesktopLeetCodeWidget';
-import {
-  User,
-  FileText,
-  FolderOpen,
-  Briefcase,
-  Settings,
-  Dumbbell,
-  Mail,
-  MessageCircle,
-  HelpCircle,
-  BarChart3,
-  Puzzle,
-  Cloud,
-  type LucideIcon,
-} from 'lucide-react';
-import {
-  UserIcon,
-  DocumentTextIcon,
-  FolderOpenIcon,
-  ChartBarIcon,
-  BriefcaseIcon,
-  Cog6ToothIcon,
-  FireIcon,
-  PuzzlePieceIcon,
-  EnvelopeIcon,
-  ChatBubbleLeftRightIcon,
-  QuestionMarkCircleIcon,
-} from '@heroicons/react/24/solid';
+import { XP_ICONS } from './components/icons/XPIcons';
+import { Cloud } from 'lucide-react';
 
-const APP_ICONS: Record<AppId, LucideIcon> = {
-  about: User,
-  resume: FileText,
-  projects: FolderOpen,
-  contributions: BarChart3,
-  experience: Briefcase,
-  skills: Settings,
-  power: Dumbbell,
-  leetcode: Puzzle,
-  contact: Mail,
-  chatbot: MessageCircle,
-  help: HelpCircle
-};
-
-const APP_ICONS_SOLID: Record<AppId, ComponentType<{ className?: string; style?: CSSProperties }>> = {
-  about: UserIcon,
-  resume: DocumentTextIcon,
-  projects: FolderOpenIcon,
-  contributions: ChartBarIcon,
-  experience: BriefcaseIcon,
-  skills: Cog6ToothIcon,
-  power: FireIcon,
-  leetcode: PuzzlePieceIcon,
-  contact: EnvelopeIcon,
-  chatbot: ChatBubbleLeftRightIcon,
-  help: QuestionMarkCircleIcon
-};
-
-const APP_ICON_COLORS: Record<AppId, string> = {
-  about: '#1e40af',
-  resume: '#b45309',
-  projects: '#15803d',
-  contributions: '#0ea5e9',
-  experience: '#0369a1',
-  skills: '#4b5563',
-  power: '#dc2626',
-  leetcode: '#ca8a04',
-  contact: '#2563eb',
-  chatbot: '#0891b2',
-  help: '#6b7280'
-};
-
-function AppIcon({ appId, size = 28, className = '', colored = false }: { appId: AppId; size?: number; className?: string; colored?: boolean }) {
-  if (colored) {
-    const SolidIcon = APP_ICONS_SOLID[appId];
-    const color = APP_ICON_COLORS[appId];
-    return SolidIcon ? <SolidIcon className={className} style={{ width: size, height: size, color }} aria-hidden /> : null;
-  }
-  const Icon = APP_ICONS[appId];
-  return Icon ? <Icon size={size} className={className} strokeWidth={2} aria-hidden /> : null;
+function XPIcon({ appId, size = 32, className = '' }: { appId: AppId; size?: number; className?: string }) {
+  const Icon = XP_ICONS[appId];
+  return Icon ? <Icon width={size} height={size} className={className} aria-hidden /> : null;
 }
 
 type Repo = { name: string; language: string | null; stargazers_count: number; description: string | null; html_url: string; homepage?: string | null; fork: boolean };
@@ -143,6 +94,7 @@ const ASSIST_PROJECT_DATA: { name: string; description: string }[] = [
   { name: 'NFC Attendance System', description: 'An NFC tag reader connected via USB to track attendance. When an NFC tag is scanned, the system records attendance and stores the data in a spreadsheet. Built in Java.' },
   { name: 'EmailSpamChecker', description: 'A machine learning-based email spam checker that classifies emails as \'spam\' or \'ham\' (legitimate). Provides an automated solution for spam detection.' },
   { name: 'DiscordMusicBot', description: 'A simple Discord bot that joins voice channels, plays audio from YouTube URLs, and controls playback. Uses `discord.py` and `yt-dlp` for streaming.' },
+  { name: 'Big Data Bowl', description: 'NFL Big Data Bowl Kaggle submission: Judge-ing Aggressive vs Defensive Back Coverage. Worked with a partner on coverage analysis. Notebook: https://www.kaggle.com/code/mscoop16/judge-ing-aggressive-defensive-back-coverage/notebook' },
   { name: 'Portfolio Website', description: 'A personal portfolio showcasing projects, GitHub activity, and problem-solving skills. Features an interactive chatbot, GitHub contributions, LeetCode statistics, and a powerlifting section.' }
 ];
 
@@ -201,34 +153,34 @@ type ExperienceUpdate = {
 const EXPERIENCE_UPDATES: ExperienceUpdate[] = [
   {
     id: 'collablab-promo',
-    title: 'CollabLab Leadership',
-    badge: 'Manager + Mentor',
-    summary: 'Promoted into a part-time Engineering Manager role while keeping hands-on delivery with the core product stack.',
-    detail: 'This card mirrors the old Experience.log pride moment by naming the promotion and the feature work that kept the mission moving.',
+    title: 'Promoted to Engineering Manager — CollabLab',
+    badge: 'Part-time',
+    summary: 'Promoted to part-time Engineering Manager at CollabLab under Troy Tutors; leading full-stack engineers while staying hands-on.',
+    detail: 'Engineering management and leadership; execution cadence, mentoring, delivery quality. Jan 2026 — Present.',
     bullets: [
-      'Leads execution cadence, mentoring, and reviews while remaining an active builder on Node/Express/Vue/Mongo/Daily-powered features.',
-      'Delivered the “camera required” enforcement for tutoring and proctored exam rooms, pairing frontend toggles with backend guards.',
-      'Keeps product clarity, roadmap focus, and release rituals aligned with premium UX goals.'
+      'Leads a group of full-stack engineers; roadmap clarity and release quality.',
+      'Previously shipped camera-required enforcement for tutoring and proctored exam rooms.',
+      'collablab.dev'
     ]
   },
   {
-    id: 'junior-ai-engineer',
-    title: 'Junior AI Engineer',
-    badge: 'AI Systems',
-    summary: 'Parlayed frontend craft into a junior AI engineering chapter that prototypes agents, prompts, and operational tooling.',
-    detail: 'The new AI narrative builds on the “Data + Frontend Builder” tagline from the old site while wiring in signal-grade instrumentation.',
+    id: 'fcb-ai',
+    title: 'Junior AI Engineer @ FCB Health',
+    badge: 'Full-time',
+    summary: 'Full-time at FCB Health New York (IPG Health): backend Python/FastAPI with Azure AI Search; frontend Nuxt on Azure App Service.',
+    detail: 'Healthcare workflows, retrieval-driven tooling, Deep Learning and TypeScript. Oct 2025 — Present, NYC Metro Hybrid.',
     bullets: [
-      'Builds lightweight prompt scaffolds, synthetic evaluation dashboards, and agent observability layers for experimental tooling.',
-      'Translates research insights into UX-safe prototypes that keep the shell grounded yet instrumented.',
-      'Syncs training logs, telemetry, and control-room UI updates inside the same delivery rituals that ship Dayyan.OS.'
+      'Backend: Python, FastAPI, Azure AI Search for storage and retrieval.',
+      'Frontend: Nuxt, hosted on Azure App Service.',
+      'Oct 2025 — Present · NYC Metro · Hybrid.'
     ]
   },
   {
     id: 'powerlifting',
     title: 'Collegiate Powerlifting',
-    badge: 'Discipline',
-    summary: 'Powerlifting remains the training ground for focus—3-lift totals, championship grit, and measurable mastery.',
-    detail: 'This content extends the static Power.stats board from earlier versions with specifics drawn from the 2024 competition cycle.',
+    badge: 'Rutgers',
+    summary: '6th place at East Coast Collegiate Championships (Dec 2024), 67.5kg class; qualified for nationals.',
+    detail: 'Squat 215kg · Bench 145kg · Deadlift 250kg. Secretary, Pakistani Student Association.',
     bullets: [
       'Squat 215kg · Bench 145kg · Deadlift 250kg',
       'Dec 2024 East Coast Collegiate Championships · 6th place in the 67.5kg weight class (nationals qualifier)',
@@ -236,22 +188,12 @@ const EXPERIENCE_UPDATES: ExperienceUpdate[] = [
     ]
   },
   {
-    id: 'kaggle-notebook',
-    title: 'Kaggle Notebook · Retro Signals',
-    badge: 'Data Story',
-    summary: 'A narrative Kaggle notebook surfaces telemetry from the retro OS research plus metrics from the shell experiments.',
-    detail: 'Links the old static data story section to a living notebook so the chronology of experiments stays sharable.',
-    bullets: ['Synthesizes telemetry from the shell, boot sequence, and repo feed into readable data storytelling.'],
-    link: 'https://www.kaggle.com/dayyan/retro-os-signal-notebook',
-    linkLabel: 'Open Kaggle notebook ↗'
-  },
-  {
     id: 'github-activity',
-    title: 'GitHub Contributions',
+    title: 'GitHub & Portfolio',
     badge: 'Open Source',
-    summary: 'Live contributions highlight the same coding energy that the old “GitHub Activity & Contributions” section promised.',
-    detail: 'Top non-fork repos surface the open-source thinking powering delivery, backed by the live API feed and mirrored project grid.',
-    bullets: ['Fetches, filters, and ranks the freshest repos while showcasing the cross-stack impact of every signal.'],
+    summary: 'Live GitHub contributions and this portfolio for recruiters.',
+    detail: 'Repos, contribution chart, and project grid wired to live data.',
+    bullets: ['Browse repos and contribution history; site built with React, TypeScript, and the same UX focus.'],
     link: 'https://github.com/dayy346',
     linkLabel: 'Browse GitHub ↗'
   }
@@ -260,7 +202,7 @@ const EXPERIENCE_UPDATES: ExperienceUpdate[] = [
 const createInitialWindowMap = () =>
   apps.reduce((acc, app, i) => {
     acc[app.id] = {
-      isOpen: app.id === 'about',
+      isOpen: false,
       minimized: false,
       maximized: false,
       z: i + 1,
@@ -269,6 +211,13 @@ const createInitialWindowMap = () =>
     };
     return acc;
   }, {} as Record<AppId, WindowState>);
+
+const ABOUT_WINDOW_CENTER_SIZE = { w: 460, h: 420 };
+function getAboutWindowCenter() {
+  const x = Math.max(0, (window.innerWidth - ABOUT_WINDOW_CENTER_SIZE.w) / 2);
+  const y = Math.max(0, (window.innerHeight - ABOUT_WINDOW_CENTER_SIZE.h) / 2);
+  return { x, y };
+}
 
 const getVisibleOpenApps = (map: Record<AppId, WindowState>) =>
   apps.filter((a) => map[a.id].isOpen && !map[a.id].minimized);
@@ -413,7 +362,21 @@ export default function App() {
 
   useEffect(() => {
     if (!loggedIn || defaultWindowsApplied) return;
+    const { x, y } = getAboutWindowCenter();
+    zRef.current += 1;
     setFocused('about');
+    setStartMenuOpen(false);
+    setWindowMap((curr) => ({
+      ...curr,
+      about: {
+        ...curr.about,
+        isOpen: true,
+        minimized: false,
+        z: zRef.current,
+        x,
+        y
+      }
+    }));
     setDefaultWindowsApplied(true);
   }, [loggedIn, defaultWindowsApplied]);
 
@@ -459,7 +422,8 @@ export default function App() {
     }, reducedMotion ? 0 : 160);
   }
 
-  function playWindows95Sound() {
+  /** Fallback chime when XP sound files are not available */
+  function playFallbackChime() {
     if (typeof window === 'undefined') return;
     const AudioCtor = (window.AudioContext || (window as any).webkitAudioContext);
     if (!AudioCtor) return;
@@ -477,20 +441,48 @@ export default function App() {
       osc.start(start);
       osc.stop(start + 0.18);
     });
-    window.setTimeout(() => {
-      ctx.close().catch(() => undefined);
-    }, 1400);
+    window.setTimeout(() => ctx.close().catch(() => undefined), 1400);
   }
+
+  /** No boot sound – only post-login YouTube plays */
+  function playBootSound() {}
+
+  const postLoginPlayerRef = useRef<HTMLDivElement | null>(null);
+  const postLoginPlayedRef = useRef(false);
+
+  useEffect(() => {
+    if (!loggedIn || postLoginPlayedRef.current) return;
+    postLoginPlayedRef.current = true;
+    const run = () => {
+      const el = document.getElementById('yt-post-login');
+      if (!el) return;
+      loadYouTubeIframeAPI()
+        .then(() => {
+          if (!window.YT?.Player) return;
+          new window.YT.Player('yt-post-login', {
+            videoId: POST_LOGIN_YOUTUBE_VIDEO_ID,
+            playerVars: { autoplay: 1 },
+            events: {
+              onReady(ev) {
+                ev.target.playVideo();
+              }
+            }
+          });
+        })
+        .catch(() => {});
+    };
+    const t = window.setTimeout(run, 100);
+    return () => window.clearTimeout(t);
+  }, [loggedIn]);
 
   function handleLogin() {
     if (!bootDone || loginPhase !== 'idle') return;
     setLoginPhase('animating');
     setStartMenuOpen(false);
-    playWindows95Sound();
     window.setTimeout(() => {
       setLoggedIn(true);
       setLoginPhase('idle');
-    }, 1400);
+    }, 320);
   }
 
   function focusWindow(appId: AppId) {
@@ -535,9 +527,32 @@ export default function App() {
     return <MobileLite repos={repos} clock={clock} shellStatus={shellStatus} experienceHighlights={EXPERIENCE_UPDATES} />;
   }
 
+  /* Full-page XP login: replaces desktop until user logs in */
+  if (bootDone && !loggedIn) {
+    return (
+      <>
+        <XPLoginScreen
+          animating={loginPhase === 'animating'}
+          onLogin={handleLogin}
+          reducedMotion={reducedMotion}
+        />
+        {isMobile && <div className="mobile-boot-hint">Tip: click your name to open the desktop.</div>}
+      </>
+    );
+  }
+
   return (
     <>
-      <div className={`os-shell ${bootDone ? 'ready' : 'preboot'} mood-${shellMood}`}>
+      {/* Hidden YouTube player: plays only after login (https://www.youtube.com/watch?v=7nQ2oiVqKHw) */}
+      {loggedIn && (
+        <div
+          id="yt-post-login"
+          ref={postLoginPlayerRef}
+          className="yt-post-login"
+          aria-hidden="true"
+        />
+      )}
+      <div className={`os-shell ${bootDone ? 'ready' : 'preboot'} mood-${shellMood} ${bootDone && !loggedIn ? 'login-visible' : ''}`}>
         <main className="desktop" data-testid="desktop" onClick={() => setStartMenuOpen(false)}>
           <div className="desktop-widgets" aria-label="GitHub and LeetCode widgets">
             <DesktopGitHubWidget />
@@ -566,8 +581,8 @@ export default function App() {
                       }
                     }}
                   >
-                    <span className="desktop-icon-svg">
-                      <AppIcon appId={app.id} size={44} colored />
+                    <span className="desktop-icon-svg" aria-hidden>
+                      <XPIcon appId={app.id} size={44} />
                     </span>
                     <small>{app.label}</small>
                   </button>
@@ -598,59 +613,73 @@ export default function App() {
         </main>
 
         {startMenuOpen && bootDone && (
-          <aside className="start-menu" role="menu" aria-label="Start Menu" data-testid="start-menu">
-            <div className="start-menu-header" data-testid="start-menu-header">
-              <p className="start-menu-status" aria-live="polite" data-testid="start-menu-status">{shellStatus.startMenuStatus}</p>
-            </div>
-            <div className="running-section" role="list" data-testid="running-section">
-              {runningApps.length ? (
-                runningApps.map((app) => {
-                  const state = windowMap[app.id];
-                  const isFocused = focused === app.id;
-                  const isMinimized = state.minimized;
-                  const statusLabel = isMinimized ? 'Minimized' : isFocused ? 'Focused' : 'Running';
-                  return (
+          <aside className="start-menu start-menu-xp" role="menu" aria-label="Start Menu" data-testid="start-menu">
+            <header className="start-menu-header-xp">
+              <img src={`${BASE}assets/headshot.jpg`} alt="" className="start-menu-avatar" />
+              <span className="start-menu-username">Dayyan Hamid</span>
+            </header>
+            <div className="start-menu-body-xp">
+              <div className="start-menu-col start-menu-col-programs">
+                <div className="start-menu-program-list" role="list">
+                  {apps.map((app) => (
                     <button
                       key={app.id}
                       type="button"
                       role="menuitem"
-                      aria-pressed={isFocused}
-                      className={`running-app ${isMinimized ? 'minimized' : 'active'} ${isFocused ? 'focused' : ''}`}
+                      className="start-menu-program-item"
                       onClick={() => openWindow(app.id)}
-                      data-testid={`running-app-${app.id}`}
+                      data-testid={`start-menu-app-${app.id}`}
                     >
-                      <span aria-hidden="true" className="running-icon"><AppIcon appId={app.id} size={16} /></span>
-                      <span className="running-label">{app.label}</span>
-                      <small>{statusLabel}</small>
+                      <span className="start-menu-program-icon" aria-hidden="true"><XPIcon appId={app.id} size={28} /></span>
+                      <span className="start-menu-program-text">
+                        <span className="start-menu-program-title">{app.label}</span>
+                        <span className="start-menu-program-subtitle">{app.id === 'about' ? 'Learn about me' : app.id === 'resume' ? 'Download PDF' : app.id === 'projects' ? 'View repos' : app.id === 'contact' ? 'Get in touch' : app.id === 'experience' ? 'Work history' : app.id === 'skills' ? 'Tech & levels' : app.id === 'power' ? 'Extracurricular' : app.id === 'leetcode' ? 'Practice stats' : app.id === 'contributions' ? 'GitHub activity' : app.id === 'chatbot' ? 'Ask about projects' : app.id === 'help' ? 'Keyboard shortcuts' : 'Open'}</span>
+                      </span>
                     </button>
-                  );
-                })
-              ) : (
-                <p className="muted">No programs active yet. Launch one below.</p>
-              )}
+                  ))}
+                </div>
+                <p className="start-menu-all-programs" aria-hidden="true">All Programs ▶</p>
+              </div>
+              <div className="start-menu-col start-menu-col-shortcuts">
+                <p className="start-menu-col-label">Shortcuts</p>
+                <a href="https://github.com/dayy346" target="_blank" rel="noreferrer" className="start-menu-shortcut-link" data-testid="start-menu-github">GitHub</a>
+                <a href="https://www.linkedin.com/in/dayyan-hamid" target="_blank" rel="noreferrer" className="start-menu-shortcut-link" data-testid="start-menu-linkedin">LinkedIn</a>
+                <a href={`${BASE}assets/resume.pdf`} download className="start-menu-shortcut-link start-menu-resume-link" data-testid="start-menu-resume-link">My Resume</a>
+                <a href="https://leetcode.com/dayy345" target="_blank" rel="noreferrer" className="start-menu-shortcut-link">LeetCode</a>
+              </div>
             </div>
-            <div className="start-menu-divider" aria-hidden="true" />
-            <p>Launch Programs</p>
-            {apps.map((app) => (
-              <button role="menuitem" key={app.id} onClick={() => openWindow(app.id)} data-testid={`start-menu-app-${app.id}`}><span className="start-menu-app-icon"><AppIcon appId={app.id} size={18} /></span> {app.label}</button>
-            ))}
-            <div className="start-menu-shortcuts" data-testid="start-menu-shortcuts">
-              <p>Keyboard shortcuts</p>
-              <ul>
-                {KEYBOARD_SHORTCUTS.map((shortcut) => (
-                  <li key={shortcut.id} data-testid={`shortcut-${shortcut.id}`}>
-                    <kbd>{shortcut.combo}</kbd>
-                    <span>{shortcut.detail}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <a href={`${BASE}assets/resume.pdf`} download data-testid="start-menu-resume-link">⬇ Resume.pdf</a>
+            <footer className="start-menu-footer-xp">
+              <button type="button" className="start-menu-footer-btn" onClick={() => setStartMenuOpen(false)} aria-label="Log off">Log Off</button>
+              <button type="button" className="start-menu-footer-btn start-menu-shutdown" onClick={() => setStartMenuOpen(false)} aria-label="Shut down">Shut Down</button>
+            </footer>
           </aside>
         )}
 
         <header className="taskbar" data-testid="taskbar">
-          <button className="start-btn" onClick={() => setStartMenuOpen((v) => !v)} aria-haspopup="menu" aria-expanded={startMenuOpen} data-testid="start-button">Start</button>
+          <button className="start-btn" onClick={() => setStartMenuOpen((v) => !v)} aria-haspopup="menu" aria-expanded={startMenuOpen} data-testid="start-button">
+            <span className="start-btn-logo" aria-hidden="true">
+              <span className="start-btn-flag-pane start-btn-flag-red" />
+              <span className="start-btn-flag-pane start-btn-flag-green" />
+              <span className="start-btn-flag-pane start-btn-flag-blue" />
+              <span className="start-btn-flag-pane start-btn-flag-yellow" />
+            </span>
+            <span className="start-btn-text">Start</span>
+          </button>
+          <div className="taskbar-quick-launch" aria-label="Quick launch">
+            {DESKTOP_ICON_APPS.map((app) => (
+              <button
+                key={app.id}
+                type="button"
+                className="taskbar-quick-launch-btn"
+                title={app.label}
+                onClick={() => openWindow(app.id)}
+                aria-label={app.label}
+              >
+                <span className="taskbar-quick-launch-icon"><XPIcon appId={app.id} size={26} /></span>
+              </button>
+            ))}
+          </div>
+          <div className="taskbar-divider" aria-hidden="true" />
           <div className="taskbar-windows" aria-label="Open windows">
             {apps.filter((a) => windowMap[a.id].isOpen).map((app) => {
               const isFocused = focused === app.id && !windowMap[app.id].minimized;
@@ -664,7 +693,7 @@ export default function App() {
                   onClick={() => (isFocused ? minimizeWindow(app.id) : openWindow(app.id))}
                   aria-pressed={isFocused}
                 >
-                  <span className="taskbar-window-btn-icon"><AppIcon appId={app.id} size={20} /></span>
+                  <span className="taskbar-window-btn-icon"><XPIcon appId={app.id} size={24} /></span>
                   {app.label}
                 </button>
               );
@@ -692,19 +721,7 @@ export default function App() {
           onComplete={() => setBootDone(true)}
           reducedMotion={reducedMotion}
           durationMs={5000}
-          onBootStart={playWindows95Sound}
-        />
-      )}
-
-      {bootDone && !loggedIn && (
-        <Win95Login
-          animating={loginPhase === 'animating'}
-          onLogin={handleLogin}
-          reducedMotion={reducedMotion}
-          credentials={LOGIN_CREDENTIALS}
-          dataStatus={loginDataStatus}
-          recruiterScore={contributionScore}
-          signalRefresh={signalRefresh}
+          onBootStart={playBootSound}
         />
       )}
 
@@ -789,7 +806,7 @@ function WindowContent({
   recruiterHighlight: string;
 }) {
   const [experiencePanel, setExperiencePanel] = useState<ExperiencePanel>('fcb');
-  const [skillFilter, setSkillFilter] = useState<'all' | 'frontend' | 'backend' | 'cloud'>('all');
+  const [skillFilter, setSkillFilter] = useState<'all' | 'frontend' | 'backend' | 'cloud' | 'data'>('all');
   const [projectQuery, setProjectQuery] = useState('');
   const [sortMode, setSortMode] = useState<'stars' | 'name'>('stars');
   const [useLbs, setUseLbs] = useState(false);
@@ -831,11 +848,14 @@ function WindowContent({
   }, [totalStars, repos.length]);
 
   const skills = [
-    { label: 'React + TS Design Systems', value: 93, lane: 'frontend' },
-    { label: 'Nuxt App Architecture', value: 88, lane: 'frontend' },
-    { label: 'Node + FastAPI Services', value: 85, lane: 'backend' },
-    { label: 'Azure App Service + AI Search', value: 84, lane: 'cloud' },
-    { label: 'Accessibility + Keyboard UX', value: 90, lane: 'frontend' }
+    { label: 'Python & FastAPI', value: 92, lane: 'backend' },
+    { label: 'TypeScript & Nuxt', value: 90, lane: 'frontend' },
+    { label: 'React & Vue', value: 88, lane: 'frontend' },
+    { label: 'Azure AI Search & App Service', value: 85, lane: 'cloud' },
+    { label: 'Data Science & SQL', value: 87, lane: 'data' },
+    { label: 'Node.js & Express', value: 86, lane: 'backend' },
+    { label: 'Power BI, SharePoint, GxP', value: 82, lane: 'data' },
+    { label: 'Engineering Leadership', value: 84, lane: 'backend' }
   ] as const;
 
   const shownSkills = skills.filter((item) => skillFilter === 'all' || item.lane === skillFilter);
@@ -920,35 +940,42 @@ function WindowContent({
           </div>
           <div className="about-hero-text">
             <h1>Dayyan Hamid</h1>
-            <p className="about-tagline">Software Engineer · Rutgers CS ’25</p>
+            <p className="about-tagline">Junior AI Engineer @ FCB Health · Rutgers BA CS & Math ’25</p>
             <p className="about-lead">
-              I build frontend systems and full-stack products with a focus on polish, performance, and clear UX.
-              This portfolio is a retro Windows–style shell to show how I think about interaction and delivery.
+              Recent graduate from Rutgers with a BA in Computer Science and Mathematics. I focus on solving complex problems through full stack development, data engineering, and quality assurance—with a track record of delivering impactful work in healthcare tech, ed-tech, and pharma.
             </p>
           </div>
         </header>
         <section className="about-section">
           <h2>What I do</h2>
           <ul className="about-list">
-            <li><strong>Frontend systems</strong> — React, Vue, TypeScript; reusable components, state, and motion</li>
-            <li><strong>Backend & APIs</strong> — Node, Python/FastAPI; services and integrations</li>
-            <li><strong>Delivery & tooling</strong> — Azure, CI/CD, and keeping things reliable</li>
+            <li><strong>AI & full stack</strong> — Python, FastAPI, Nuxt, TypeScript; Azure AI Search and App Service</li>
+            <li><strong>Data & backend</strong> — SQL, Power BI, APIs; GxP documentation and process tooling</li>
+            <li><strong>Leadership & delivery</strong> — Engineering management at CollabLab; mentoring and release quality</li>
           </ul>
         </section>
         <section className="about-section">
           <h2>Tech</h2>
           <div className="about-chips">
-            <span>React</span><span>TypeScript</span><span>Vue</span><span>Node</span><span>Python</span><span>FastAPI</span><span>Azure</span>
+            <span className="about-chip about-chip-python">Python</span>
+            <span className="about-chip about-chip-typescript">TypeScript</span>
+            <span className="about-chip about-chip-react">React</span>
+            <span className="about-chip about-chip-vue">Vue</span>
+            <span className="about-chip about-chip-node">Node</span>
+            <span className="about-chip about-chip-fastapi">FastAPI</span>
+            <span className="about-chip about-chip-azure">Azure</span>
+            <span className="about-chip about-chip-fastapi">Data Science</span>
+            <span className="about-chip about-chip-node">SQL</span>
           </div>
         </section>
         <section className="about-section about-links">
           <h2>Connect</h2>
           <p>
-<a href="https://github.com/dayy346" target="_blank" rel="noreferrer">GitHub</a>
-        {' · '}
-        <a href="https://www.linkedin.com/in/dayyanhamid" target="_blank" rel="noreferrer">LinkedIn</a>
-        {' · '}
-        <a href={`${BASE}assets/resume.pdf`} target="_blank" rel="noreferrer">Resume (PDF)</a>
+            <a href="https://github.com/dayy346" target="_blank" rel="noreferrer">GitHub</a>
+            {' · '}
+            <a href="https://www.linkedin.com/in/dayyan-hamid" target="_blank" rel="noreferrer">LinkedIn</a>
+            {' · '}
+            <a href={`${BASE}assets/resume.pdf`} target="_blank" rel="noreferrer">Resume (PDF)</a>
           </p>
         </section>
       </article>
@@ -957,21 +984,30 @@ function WindowContent({
 
   if (appId === 'resume') {
     return (
-      <article className="resume-layout">
-        {resumeSections.map((section) => (
-          <section key={`resume-${section.title}`}>
-            <header>
-              <h3>{section.title}</h3>
-              {section.summary && <p className="muted">{section.summary}</p>}
-            </header>
-            <ul>
-              {section.bullets.map((bullet) => (
-                <li key={`${section.title}-${bullet}`}>{bullet}</li>
-              ))}
-            </ul>
-            {section.footer && <p className="muted footer-note">{section.footer}</p>}
-          </section>
-        ))}
+      <article className="resume-window">
+        <header className="resume-window-header">
+          <div className="resume-window-title-row">
+            <h2 className="resume-window-title">Resume</h2>
+            <a href={`${BASE}assets/resume.pdf`} download className="resume-download-btn">
+              Download PDF
+            </a>
+          </div>
+          <p className="resume-window-subtitle">Education, experience, projects & skills — same content as the PDF.</p>
+        </header>
+        <div className="resume-layout">
+          {resumeSections.map((section) => (
+            <section key={`resume-${section.title}`} className="resume-section-card">
+              <h3 className="resume-section-title">{section.title}</h3>
+              {section.summary && <p className="resume-section-summary">{section.summary}</p>}
+              <ul className="resume-section-list">
+                {section.bullets.map((bullet) => (
+                  <li key={`${section.title}-${bullet}`}>{bullet}</li>
+                ))}
+              </ul>
+              {section.footer && <p className="resume-section-footer">{section.footer}</p>}
+            </section>
+          ))}
+        </div>
       </article>
     );
   }
@@ -982,46 +1018,46 @@ function WindowContent({
         <section>
           <h3>
             <button className="exp-toggle" onClick={() => setExperiencePanel('fcb')} aria-expanded={experiencePanel === 'fcb'}>
-              Software Engineer — FCB Health
+              Junior AI Engineer — FCB Health New York
             </button>
           </h3>
           {experiencePanel === 'fcb' && (
             <>
+              <p className="muted">Oct 2025 — Present · Full-time · NYC Metro Hybrid · An IPG Health Company</p>
               <ul>
-                <li>Built Nuxt frontend modules for production-facing healthcare workflows.</li>
-                <li>Implemented Python + FastAPI services supporting operational integrations.</li>
-                <li>Integrated Azure AI Search for retrieval-driven user assistance and data lookup.</li>
-                <li>Deployed and maintained services on Azure App Service with stable release practices.</li>
+                <li>Backend in Python and FastAPI; storage and retrieval in Azure AI Search.</li>
+                <li>Frontend in Nuxt, hosted on Azure App Service.</li>
+                <li>Deep Learning, TypeScript, and production healthcare workflows.</li>
               </ul>
-              <p className="muted">Stack footprint: Nuxt • Python/FastAPI • Azure AI Search • Azure App Service</p>
+              <p className="muted">Stack: Nuxt · Python/FastAPI · Azure AI Search · Azure App Service</p>
             </>
           )}
         </section>
         <section>
           <h3>
             <button className="exp-toggle" onClick={() => setExperiencePanel('collablab')} aria-expanded={experiencePanel === 'collablab'}>
-              Part-time Engineering Manager — CollabLab
+              Engineering Manager & Full Stack Engineer — Troy Tutors (CollabLab)
             </button>
           </h3>
           {experiencePanel === 'collablab' && (
             <>
-              <p>
-                <strong>Promoted internally</strong> while continuing hands-on frontend and full-stack engineering contributions.
-              </p>
-              <p>
-                Leads execution cadence, mentors contributors, and raises delivery quality across team projects.
-              </p>
-              <p className="muted">Bridges engineering management with product execution: roadmap clarity, review quality, and team velocity.</p>
+              <p><strong>Engineering Manager</strong> (Jan 2026 — Present, part-time): Leading a group of full-stack engineers at CollabLab under Troy Tutors. Engineering management and engineering leadership.</p>
+              <p><strong>Full Stack Software Engineer</strong> (Mar 2025 — Jan 2026, remote): Engineer #5 at education tech startup; Node, Express, Vue, MongoDB, Daily.co. Shipped camera-required enforcement for tutoring and proctored exam rooms. Part-time from June 2025. <a href="https://collablab.dev" target="_blank" rel="noreferrer">collablab.dev</a></p>
             </>
           )}
         </section>
         <section>
           <h3>
             <button className="exp-toggle" onClick={() => setExperiencePanel('regeneron')} aria-expanded={experiencePanel === 'regeneron'}>
-              Regeneron Roles
+              Regeneron — QA Document Control & Developer Intern
             </button>
           </h3>
-          {experiencePanel === 'regeneron' && <p>Delivered QA/document-control workflows and Power Platform tooling for process reliability.</p>}
+          {experiencePanel === 'regeneron' && (
+            <>
+              <p><strong>QA Document Control Analyst</strong> (Jun 2025 — Oct 2025, contract): GxP documentation with OpenText, myQumas, TrackWise; improved SharePoint workflows. Contract through Oxford Global Resources.</p>
+              <p><strong>QA Developer Intern</strong> (May 2024 — Sep 2024, Albany on-site): Power Automate, Power BI, SharePoint, SQL, PowerApps; launched SharePoint intake site (1,000+ submissions first week); superlative award and program extension. GxP systems: DataMart, OpsTrakker.</p>
+            </>
+          )}
         </section>
         <section className="experience-updates" aria-label="Experience updates">
           <h3>Experience updates</h3>
@@ -1057,7 +1093,7 @@ function WindowContent({
     return (
       <article>
         <div className="filter-row" role="toolbar" aria-label="Skill filters">
-          {['all', 'frontend', 'backend', 'cloud'].map((key) => (
+          {['all', 'frontend', 'backend', 'cloud', 'data'].map((key) => (
             <button key={key} className={skillFilter === key ? 'active' : ''} onClick={() => setSkillFilter(key as typeof skillFilter)}>{key}</button>
           ))}
         </div>
@@ -1251,13 +1287,16 @@ function WindowContent({
 
   if (appId === 'contact') {
     return (
-      <article className="cards">
-        <button onClick={() => copyText('email', 'dh820@scarletmail.rutgers.edu')}>Copy Email</button>
+      <article className="app-contact-content">
+        <h2>Get in touch</h2>
+        <div className="cards">
+          <button onClick={() => copyText('email', 'dh820@scarletmail.rutgers.edu')}>Copy Email</button>
         <a href="mailto:dh820@scarletmail.rutgers.edu">Email</a>
         <a href="https://www.linkedin.com/in/dayyan-hamid/" target="_blank" rel="noreferrer">LinkedIn</a>
         <a href="https://github.com/dayy346" target="_blank" rel="noreferrer">GitHub</a>
         <a href="https://leetcode.com/dayy345" target="_blank" rel="noreferrer">LeetCode</a>
-        {copied && <p className="muted">Copied {copied} to clipboard.</p>}
+          {copied && <p className="muted">Copied {copied} to clipboard.</p>}
+        </div>
       </article>
     );
   }
@@ -1290,7 +1329,7 @@ function WindowContent({
     );
   }
 
-  return <article><h2>Keyboard Shortcuts</h2><ul><li><kbd>Alt</kbd> + <kbd>Tab</kbd>: cycle focused window</li><li><kbd>Ctrl</kbd> + <kbd>M</kbd>: minimize focused window</li><li><kbd>Esc</kbd>: close Start menu or skip boot</li><li><kbd>S</kbd>, <kbd>Enter</kbd>, <kbd>Space</kbd>: skip boot instantly</li><li>Double-click desktop icons or press <kbd>Enter</kbd> to open apps</li></ul></article>;
+  return <article className="help-panel"><h2>Keyboard Shortcuts</h2><ul><li><kbd>Alt</kbd> + <kbd>Tab</kbd>: cycle focused window</li><li><kbd>Ctrl</kbd> + <kbd>M</kbd>: minimize focused window</li><li><kbd>Esc</kbd>: close Start menu or skip boot</li><li><kbd>S</kbd>, <kbd>Enter</kbd>, <kbd>Space</kbd>: skip boot instantly</li><li>Double-click desktop icons or press <kbd>Enter</kbd> to open apps</li></ul></article>;
 }
 
 type HeroSignalRailProps = {
@@ -1372,7 +1411,7 @@ function MobileLite({
   return (
     <div className="mobile-lite">
       <header>
-        <h1>Dayyan.OS Mobile Lite</h1>
+        <h1>Portfolio · Mobile</h1>
         <p>{clock}</p>
       </header>
       <section>
