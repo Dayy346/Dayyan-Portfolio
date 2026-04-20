@@ -11,13 +11,13 @@ export function DesktopGitHubWidget() {
     <aside className="desktop-widget desktop-widget-github" aria-label="GitHub contributions">
       <a href={profileUrl} target="_blank" rel="noreferrer" className="desktop-widget-link">
         <span className="desktop-widget-title">GitHub</span>
-        <div className="desktop-widget-chart-wrap">
+        <div className="desktop-widget-chart-wrap desktop-widget-chart-wrap--compact">
           <img
             src={chartUrl}
             alt="GitHub contribution chart"
             className="desktop-widget-chart"
-            width={420}
-            height={200}
+            width={468}
+            height={104}
             loading="lazy"
           />
         </div>

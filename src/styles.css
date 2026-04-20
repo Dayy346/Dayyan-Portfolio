@@ -1061,22 +1061,30 @@ small {
 .desktop-widget-chart-wrap {
   width: 100%;
   max-width: 100%;
-  height: 200px;
   overflow: hidden;
   border-radius: 4px;
   background: var(--surface-3);
   margin: 0.25rem 0 0.2rem;
 }
 
+.desktop-widget-chart-wrap--compact {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 88px;
+  max-height: 108px;
+  padding: 0.15rem 0;
+}
+
 .desktop-widget-github .desktop-widget-chart {
   width: 100%;
-  height: 100%;
-  object-fit: fill;
+  height: auto;
+  max-height: 104px;
+  object-fit: contain;
   object-position: center center;
   border-radius: 4px;
   display: block;
   vertical-align: middle;
-  /* White in image becomes wrap color; greens become dark green – no white cutout */
   mix-blend-mode: multiply;
 }
 
@@ -1157,9 +1165,9 @@ small {
   color: var(--muted);
 }
 
-/* GitHub widget: 2× width so chart isn’t stretched; same gray styling, tight padding */
+/* Compact chart card — readable heatmap without spanning the desktop */
 .desktop-widget-github {
-  width: min(770px, 95vw);
+  width: min(312px, 94vw);
   padding: 0.5rem 0.65rem 0.55rem;
 }
 
@@ -1202,10 +1210,6 @@ small {
 .desktop-widget-chart {
   display: block;
   max-width: 100%;
-  width: 100%;
-  height: 100%;
-  object-fit: fill;
-  object-position: center center;
   margin: 0;
 }
 
@@ -1583,6 +1587,45 @@ small {
   margin: 0 auto;
 }
 
+.app-shell-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(232, 240, 255, 0.94) 48%,
+    rgba(214, 228, 252, 0.9) 100%
+  );
+  border: 1px solid rgba(26, 58, 120, 0.38);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 4px 12px rgba(0, 28, 72, 0.18);
+}
+
+.app-shell-icon-glyph {
+  color: #143d84;
+}
+
+.start-menu-program-icon .app-shell-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+}
+
+.taskbar-quick-launch-icon .app-shell-icon,
+.taskbar-window-btn-icon .app-shell-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 2px 6px rgba(0, 28, 72, 0.15);
+}
+
 .desktop-icon .desktop-icon-img {
   width: 36px;
   height: 36px;
@@ -1814,6 +1857,111 @@ small {
   padding: 1rem;
   border: 1px solid #e0e0e0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.window-content article.app-panel-frame {
+  background: linear-gradient(180deg, #ffffff 0%, #f3f6fb 100%);
+  border-radius: 14px;
+  border: 1px solid rgba(12, 46, 122, 0.14);
+  box-shadow:
+    0 12px 32px rgba(12, 40, 90, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.98);
+  padding: 1.15rem 1.25rem;
+}
+
+.app-window-intro {
+  margin: 0 0 0.85rem;
+}
+
+.app-window-intro h2 {
+  margin: 0 0 0.35rem;
+}
+
+.app-window-intro-lead {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: #3a4556;
+}
+
+.contact-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
+  gap: 0.65rem;
+}
+
+.contact-card {
+  padding: 0.75rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid rgba(12, 46, 122, 0.14);
+  background: linear-gradient(165deg, #ffffff 0%, #eef2fb 100%);
+  box-shadow: 0 6px 16px rgba(12, 40, 90, 0.07);
+}
+
+.contact-card-primary {
+  grid-column: span 2;
+}
+
+.contact-card-label {
+  margin: 0 0 0.35rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(26, 40, 58, 0.55);
+}
+
+.contact-copy-btn {
+  display: block;
+  width: 100%;
+  padding: 0.45rem 0.55rem;
+  margin-bottom: 0.35rem;
+  border-radius: 8px;
+  border: 1px solid rgba(12, 46, 122, 0.22);
+  background: rgba(12, 46, 122, 0.06);
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: #0a246a;
+  font-family: inherit;
+}
+
+.contact-copy-btn:hover {
+  background: rgba(12, 46, 122, 0.1);
+}
+
+.contact-card-link {
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.contact-card-linktile {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.contact-card-linktile:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(12, 40, 90, 0.1);
+}
+
+.contact-card-strong {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #0a246a;
+}
+
+.contact-copy-toast {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 520px) {
+  .contact-card-primary {
+    grid-column: span 1;
+  }
 }
 .window-content a {
   color: #0a246a;

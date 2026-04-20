@@ -160,39 +160,41 @@ export const researchBriefNotes: ResearchNote[] = [
 export const resumeSections: ResumeSection[] = [
   {
     title: 'Education & Certifications',
-    summary: 'Rutgers BA in Computer Science & Mathematics ’25; certifications in software design, data science, and MLOps.',
+    summary:
+      'Rutgers University · BA Computer Science · May 2025. Coursework spans ML, AI, algorithms, data structures, and OS.',
     bullets: [
-      'Bachelor of Arts in Computer Science and Mathematics — Rutgers University, New Brunswick, NJ · May 2025',
-      'Relevant coursework: Systems Programming, OS Design, Computational Algorithms, Machine Learning Principles, Linear Optimization, Probability & Statistics, Intro to AI, Design and Analysis of Algorithms',
-      'Certifications: MLOps and Data Pipeline Orchestration for AI Systems (LinkedIn, Oct 2025); Software Design: From Requirements to Release (Aug 2024); Data Science Fundamentals; Power BI Desktop · Pursuing AWS Cloud Practitioner'
+      'Rutgers University, New Brunswick, NJ — BA Computer Science · Graduated May 2025',
+      'Relevant coursework: Machine Learning, Artificial Intelligence, Algorithms, Data Structures, Operating Systems',
+      'Certifications: Software Design · Data Science Fundamentals · MLOps and Data Pipeline Orchestration for AI Systems (LinkedIn)'
     ]
   },
   {
     title: 'Technical Experience',
     bullets: [
-      'Junior AI Engineer · FCB Health New York | IPG Health (Oct 2025 — Present), Full-time, NYC Metro Hybrid: Backend in Python and FastAPI with storage/retrieval in Azure AI Search; frontend in Nuxt hosted on Azure App Service. Deep Learning, TypeScript, and production healthcare workflows.',
-      'Engineering Manager · Troy Tutors / CollabLab (Jan 2026 — Present), Part-time: Promoted to part-time engineering manager leading a group of full-stack engineers at CollabLab.',
-      'Full Stack Software Engineer · CollabLab (Mar 2025 — Jan 2026), Remote: Engineer #5 at education tech startup under Troy Tutors; Node/Express/Vue/Mongo/Daily; shipped camera-required enforcement for tutoring and proctored rooms. Part-time from June 2025. collablab.dev',
-      'QA Document Control Analyst · Regeneron (Jun 2025 — Oct 2025), Contract: Managed GxP documentation with OpenText, myQumas, TrackWise; improved internal SharePoint site and workflows. Contract through Oxford Global Resources.',
-      'QA Developer Intern · Regeneron (May 2024 — Sep 2024), On-site Albany: Power Automate, Power BI, SharePoint, SQL, PowerApps; launched SharePoint intake site (1,000+ submissions first week); superlative award and program extension. GxP systems: DataMart, OpsTrakker.',
-      'Warehouse Associate · Amazon Fulfillment Technologies & Robotics (Dec 2022 — Mar 2023), Seasonal, Robbinsville NJ.'
+      'Junior AI Engineer · FCB Health New York (Omnicom Health) · Oct 2025 — Present · NYC: Full-stack AI applications for pharmaceutical clients on the Conversational AI team — Nuxt + Vue frontends; Python/FastAPI backends with retrieval via Azure AI Search; RAG pipelines with indexes on Azure Blob; NLP with spaCy under GxP constraints; benchmarked LLM/RAG architectures for performance and regulatory alignment.',
+      'Engineering Manager (part-time) · CollabLab / Troy Tutors · Jan 2026 — Present · Remote: Lead a team of five full-stack engineers; directed migration from EC2 to AWS Fargate; code reviews, architecture, and sprint execution with leadership.',
+      'Full Stack Software Engineer (part-time from Jun 2025) · CollabLab · Mar 2025 — Jan 2026 · Remote: Early-stage EdTech; end-to-end features on Vue + Node; CI/CD with Playwright; migrated services to AWS (ECS, S3, CloudFront). collablab.dev',
+      'QA Document Control Analyst (contract) · Regeneron Pharmaceuticals · Jun 2025 — Oct 2025 · East Greenbush, NY: GxP documentation in OpenText, myQumas, TrackWise; improved SharePoint workflows and collaboration.',
+      'QA R&D Developer Intern · Regeneron · May 2024 — Sep 2024 · Albany: SharePoint system handling 1000+ requests in week one (~27% efficiency gain); superlative intern award.',
+      'Warehouse Associate · Amazon Fulfillment Technologies & Robotics · Dec 2022 — Mar 2023 · Seasonal · Robbinsville, NJ.'
     ]
   },
   {
     title: 'Signature Projects',
     bullets: [
-      'Custom Neural Network Model Generator · Flask · PyTorch · React · Docker · TensorFlow: LeNet-5–based image classification; 40% accuracy gain via batch norm, dropout, augmentation; real-time React/Flask telemetry.',
-      'Crime Catcher AI Security System · Tkinter · Flask · OpenCV · Vue · SQLite · PyTorch: Motion-triggered weapon detection, real-time alerts, automated email delivery for flagged events.',
-      'Big Data Bowl · Judge-ing Aggressive vs Defensive Back Coverage (Kaggle): NFL coverage analysis notebook built with a partner—aggressive vs defensive back coverage. See Kaggle submission (mscoop16).'
+      'JUDGE — NFL Big Data Bowl 2026 · Python, XGBoost, Pandas, NumPy · Oct 2025 — Jan 2026: ML pipeline for defensive coverage; novel “JumpLine” geometric feature; XGBoost model (R² ≈ 0.75); JUDGE metric (Jump Underneath Distance Gained Over Expected).',
+      'Custom Neural Network Model Generator · Flask, PyTorch, React, Docker, TensorFlow · Dec 2024 — Jun 2025: Full-stack platform to train and export image classifiers; ~40% accuracy lift via batch norm, dropout, and augmentation.',
+      'Crime Catcher AI Security System (hackathon) · Tkinter, Flask, OpenCV, Vue, SQLite, PyTorch · Nov 2024: Weapon detection with YOLO-class models; real-time alerts and recording hooks.'
     ]
   },
   {
     title: 'Leadership & Skills',
     bullets: [
-      'Collegiate Powerlifter, Rutgers University (Sep 2023 — Present): 6th place, 67.5kg, East Coast Collegiate Championships (Dec 2024); qualified for nationals. Secretary, Pakistani Student Association (Sep 2022 — May 2025). Key employee & server, PJ’s Pancake House (Jun 2020 — Aug 2022).',
-      'Skills: Python, Java, JavaScript, TypeScript, SQL, C#, C/C++; Data Science; Node.js, Vue.js, Nuxt, React.js, Express, Flask, FastAPI; Azure, Azure AI Search; Power BI, Power Automate, Power Apps, SharePoint; Git, Docker, MongoDB, PostgreSQL; Engineering Management, Engineering Leadership'
+      'Collegiate Powerlifter · Rutgers · Sep 2023 — Present: 6th place at Collegiate Championships (67.5 kg, Dec 2024); qualified for Collegiate Nationals.',
+      'Secretary (Executive Board) · Pakistani Student Association · Sep 2022 — May 2025: Events, communications, NFC attendance system still in use at Rutgers.',
+      'Skills — Languages: Python, TypeScript/JavaScript, Java, SQL. AI/ML: PyTorch, TensorFlow, scikit-learn. (See PDF for full stack list.)'
     ],
-    footer: 'This resume window mirrors the latest PDF; see LinkedIn for full experience and skills.'
+    footer: 'Download matches Resume_Dayyan_2026 — update this site when the PDF changes.'
   }
 ];
 

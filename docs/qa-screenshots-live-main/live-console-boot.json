@@ -1,0 +1,9 @@
+{
+  "url": "https://dayy346.github.io/Dayyan-Portfolio/",
+  "errors": [
+    "Access to fetch at 'https://leetcode-stats-api.herokuapp.com/dayy345' from origin 'https://dayy346.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED"
+  ],
+  "warnings": [],
+  "failedRequests": []
+}

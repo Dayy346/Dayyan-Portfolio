@@ -38,13 +38,15 @@ const sampleRepos = [
 
 const appChecks = [
   { label: 'About.me', text: 'Dayyan Hamid' },
-  { label: 'Showcase.exe', text: 'Window Manager Primitives' },
-  { label: 'Projects.dir', text: 'Top GitHub Projects', extra: sampleRepos[0].name },
-  { label: 'Experience.log', text: 'Software Engineer — FCB Health' },
-  { label: 'Skills.cfg', text: 'React + TS Design Systems' },
-  { label: 'Frontend.lab', text: 'Frontend Focus Highlights' },
-  { label: 'Power.stats', text: 'Meet Result' },
-  { label: 'Contact.net', text: 'Copy Email' },
+  { label: 'Resume.pdf', text: 'Education & Certifications' },
+  { label: 'Projects.dir', text: 'Repositories', extra: sampleRepos[0].name },
+  { label: 'Contributions.log', text: 'Contributions.log' },
+  { label: 'Experience.log', text: 'Junior AI Engineer' },
+  { label: 'Skills.cfg', text: 'Python & FastAPI' },
+  { label: 'Extracurricular.log', text: 'Extracurricular Activities' },
+  { label: 'LeetCode.trn', text: 'Problems solved' },
+  { label: 'Contact.net', text: 'dayyan6093@gmail.com' },
+  { label: 'Assist.chat', text: 'Assist.chat' },
   { label: 'Help.txt', text: 'Keyboard Shortcuts' }
 ];
 
@@ -71,7 +73,7 @@ async function stubRepos(page: Page) {
 type SkipBootOptions = { expectDesktop?: boolean; expectSessionActive?: boolean; login?: boolean };
 
 async function skipBootToDesktop(page: Page, options?: SkipBootOptions) {
-  await page.goto('/');
+  await page.goto('');
   const login = options?.login ?? true;
   const expectDesktop = options?.expectDesktop ?? login;
   const expectSessionActive = options?.expectSessionActive ?? login;
@@ -139,7 +141,7 @@ test.describe('Portfolio QA experience flows', () => {
   });
 
   test('Win95 file transfer boot dialog surfaces telemetry and controls', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('');
     const bootDialog = page.getByTestId('boot-sequence-dialog');
     await expect(bootDialog).toBeVisible();
     const transferDialog = bootDialog.getByTestId('file-transfer-dialog');
@@ -162,13 +164,13 @@ test.describe('Portfolio QA experience flows', () => {
     const overlay = page.getByTestId('login-overlay');
     await expect(overlay).toBeVisible();
     await expect(overlay.getByTestId('login-data-status')).toContainText('Secure contributions telemetry');
-    await expect(overlay.getByTestId('view-resume-link')).toHaveAttribute('href', '/assets/resume.pdf');
+    await expect(overlay.getByTestId('view-resume-link')).toHaveAttribute('href', /resume\.pdf$/);
     const loginButton = overlay.getByTestId('login-button');
     await expect(loginButton).toHaveText('OK');
   });
 
   test('desktop transitions from boot to login to hero ready state', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('');
     const bootDialog = page.getByTestId('boot-sequence-dialog');
     await expect(bootDialog).toBeVisible();
     await page.getByTestId('boot-skip-button').click();
@@ -217,7 +219,7 @@ test.describe('Portfolio QA experience flows', () => {
   test('keyboard shortcuts navigate windows and minimize', async ({ page }) => {
     await skipBootToDesktop(page);
     await openAppWindow(page, 'About.me');
-    await openAppWindow(page, 'Showcase.exe');
+    await openAppWindow(page, 'Projects.dir');
     const windowStrip = page.getByTestId('window-strip');
     const getFocusedAppId = async () => {
       const focusedBtn = windowStrip.locator('button[aria-pressed="true"]').first();
