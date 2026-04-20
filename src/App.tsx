@@ -1036,21 +1036,24 @@ function WindowContent({
               Download PDF
             </a>
           </div>
-          <p className="resume-window-subtitle">Same source of truth as the PDF — pulled directly from it. Use the button to download a print-ready copy.</p>
+          <p className="resume-window-subtitle">
+            Built-in PDF viewer. If it doesn’t render in your browser, use the download button.
+          </p>
         </header>
-        <div className="resume-layout">
-          {resumeSections.map((section) => (
-            <section key={`resume-${section.title}`} className="resume-section-card">
-              <h3 className="resume-section-title">{section.title}</h3>
-              {section.summary && <p className="resume-section-summary">{section.summary}</p>}
-              <ul className="resume-section-list">
-                {section.bullets.map((bullet) => (
-                  <li key={`${section.title}-${bullet}`}>{bullet}</li>
-                ))}
-              </ul>
-              {section.footer && <p className="resume-section-footer">{section.footer}</p>}
-            </section>
-          ))}
+        <div className="resume-pdf-viewer">
+          <object
+            data={`${BASE}assets/resume.pdf`}
+            type="application/pdf"
+            className="resume-pdf-object"
+            aria-label="Resume PDF viewer"
+          >
+            <p className="muted">
+              PDF preview not supported in this browser.{' '}
+              <a href={`${BASE}assets/resume.pdf`} target="_blank" rel="noreferrer">
+                Open the PDF ↗
+              </a>
+            </p>
+          </object>
         </div>
       </article>
     );

@@ -12,8 +12,8 @@ export function DesktopGitHubWidget() {
             src={chartUrl}
             alt={`${username} GitHub contribution chart`}
             className="desktop-widget-chart"
-            width={720}
-            height={112}
+            width={920}
+            height={143}
             loading="lazy"
           />
         </div>
