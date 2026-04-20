@@ -320,7 +320,7 @@
 - **Environment:** Mobile, viewport &lt; 920px
 - **Steps to Reproduce:**
   1. Resize to 390px or open on a phone; log in.
-  2. View the Mobile Lite page (sections: Shell telemetry, Experience updates, Omnicom Health highlights, Repos, Download Resume).
+  2. View the Mobile Lite page (sections: Shell telemetry, Experience updates, Olixir highlights, Repos, Download Resume).
 - **Expected:** Panels have Win95/XP-inspired borders, title bars, or bevels; typography and spacing feel consistent with the desktop theme.
 - **Actual:** The whole page is flat light grey rectangles with no distinctive borders, shadows, or title bars. "Download Resume" is a plain blue link, not a button. Line spacing and padding feel inconsistent; "Shell ready" green text has weak contrast on grey. No icons (e.g. for repos or download) match the retro theme.
 - **Evidence:**

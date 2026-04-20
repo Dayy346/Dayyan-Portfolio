@@ -171,7 +171,7 @@ export const resumeSections: ResumeSection[] = [
   {
     title: 'Technical Experience',
     bullets: [
-      'Junior AI Engineer · Omnicom Health · New York · Oct 2025 — Present · NYC: Full-stack AI applications for pharmaceutical clients on the Conversational AI team — Nuxt + Vue frontends; Python/FastAPI backends with retrieval via Azure AI Search; RAG pipelines with indexes on Azure Blob; NLP with spaCy under GxP constraints; benchmarked LLM/RAG architectures for performance and regulatory alignment.',
+      'Junior AI Engineer · Olixir New York (Omnicom) · Oct 2025 — Present · NYC: Full-stack AI applications for pharmaceutical clients on the Conversational AI team — Nuxt + Vue frontends; Python/FastAPI backends with retrieval via Azure AI Search; RAG pipelines with indexes on Azure Blob; NLP with spaCy under GxP constraints; benchmarked LLM/RAG architectures for performance and regulatory alignment.',
       'Engineering Manager (part-time) · CollabLab / Troy Tutors · Jan 2026 — Present · Remote: Lead a team of five full-stack engineers; directed migration from EC2 to AWS Fargate; code reviews, architecture, and sprint execution with leadership.',
       'Full Stack Software Engineer (part-time from Jun 2025) · CollabLab · Mar 2025 — Jan 2026 · Remote: Early-stage EdTech; end-to-end features on Vue + Node; CI/CD with Playwright; migrated services to AWS (ECS, S3, CloudFront). collablab.dev',
       'QA Document Control Analyst (contract) · Regeneron Pharmaceuticals · Jun 2025 — Oct 2025 · East Greenbush, NY: GxP documentation in OpenText, myQumas, TrackWise; improved SharePoint workflows and collaboration.',
