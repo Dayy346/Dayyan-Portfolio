@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Dayyan.OS favicon">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#74c5ff"/>
+      <stop offset="1" stop-color="#1e4cb8"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="14" fill="url(#bg)" stroke="#000000" stroke-opacity="0.55" stroke-width="2"/>
+  <rect x="7" y="7" width="50" height="26" rx="12" fill="url(#shine)"/>
+  <path d="M22 40c3.5-8.8 16.5-8.8 20 0" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="32" cy="28" r="9" fill="#ffffff"/>
+</svg>
