@@ -175,9 +175,10 @@ const EXPERIENCE_UPDATES: ExperienceUpdate[] = [
   },
   {
     id: 'fcb-ai',
-    title: 'Junior AI Engineer @ FCB Health',
+    title: 'Junior AI Engineer @ Omnicom Health',
     badge: 'Full-time',
-    summary: 'Full-time at FCB Health New York (IPG Health): backend Python/FastAPI with Azure AI Search; frontend Nuxt on Azure App Service.',
+    summary:
+      'Full-time at Omnicom Health New York: backend Python/FastAPI with Azure AI Search; frontend Nuxt on Azure App Service.',
     detail: 'Healthcare workflows, retrieval-driven tooling, Deep Learning and TypeScript. Oct 2025 — Present, NYC Metro Hybrid.',
     bullets: [
       'Backend: Python, FastAPI, Azure AI Search for storage and retrieval.',
@@ -984,7 +985,7 @@ function WindowContent({
           </div>
           <div className="about-hero-text">
             <h1>Dayyan Hamid</h1>
-            <p className="about-tagline">Software / AI Engineer · Conversational AI @ FCB Health (Omnicom) · Rutgers CS ’25</p>
+            <p className="about-tagline">Software / AI Engineer · Conversational AI @ Omnicom Health · Rutgers CS ’25</p>
             <p className="about-lead">
               I build full-stack AI products for regulated healthcare — Nuxt/Vue front-ends backed by Python/FastAPI services, Azure AI Search retrieval, and spaCy/LLM pipelines that ship under GxP review. On the side I run engineering for a five-person squad at CollabLab (Vue + Node, migrated EC2 → Fargate), competed at the East Coast Collegiate Powerlifting Championships, and keep a Rutgers CS ’25 grade-A across electives in ML and distributed systems.
             </p>
@@ -1065,12 +1066,12 @@ function WindowContent({
         <section>
           <h3>
             <button className="exp-toggle" onClick={() => setExperiencePanel('fcb')} aria-expanded={experiencePanel === 'fcb'}>
-              Junior AI Engineer — FCB Health New York
+              Junior AI Engineer — Omnicom Health New York
             </button>
           </h3>
           {experiencePanel === 'fcb' && (
             <>
-              <p className="muted">Oct 2025 — Present · Full-time · NYC · Omnicom Health / FCB Health</p>
+              <p className="muted">Oct 2025 — Present · Full-time · NYC · Omnicom Health</p>
               <ul>
                 <li>Full-stack AI apps for pharma clients on the Conversational AI team — Nuxt + Vue.</li>
                 <li>Python/FastAPI backends with Azure AI Search; RAG pipelines and blob-backed indexes.</li>
@@ -1405,7 +1406,7 @@ function WindowContent({
       <article className="chatbot-shell app-panel-frame">
         <header className="chatbot-header">
           <h2>Assist · portfolio bot</h2>
-          <p>Local rules-based bot trained on my project list. Try <em>&quot;list projects&quot;</em>, <em>&quot;tell me about CollabLab&quot;</em>, or <em>&quot;what stack do you use at FCB?&quot;</em>. No external API calls — runs in-browser.</p>
+          <p>Local rules-based bot trained on my project list. Try <em>&quot;list projects&quot;</em>, <em>&quot;tell me about CollabLab&quot;</em>, or <em>&quot;what stack do you use at Omnicom Health?&quot;</em>. No external API calls — runs in-browser.</p>
         </header>
         <div className="chat-window">
           {chatHistory.map((message, idx) => (
@@ -1543,7 +1544,7 @@ function MobileLite({
         </ul>
       </section>
       <section>
-        <h3>FCB Health Highlights</h3>
+        <h3>Omnicom Health Highlights</h3>
         <ul>
           <li>Nuxt frontend development for production workflows</li>
           <li>Python + FastAPI backend services</li>
