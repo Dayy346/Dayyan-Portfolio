@@ -984,9 +984,9 @@ function WindowContent({
           </div>
           <div className="about-hero-text">
             <h1>Dayyan Hamid</h1>
-            <p className="about-tagline">Software / AI Engineer · Conversational AI @ FCB Health · Rutgers CS ’25</p>
+            <p className="about-tagline">Software / AI Engineer · Conversational AI @ FCB Health (Omnicom) · Rutgers CS ’25</p>
             <p className="about-lead">
-              I ship full-stack AI tooling for regulated healthcare: Vue/Nuxt frontends, Python/FastAPI services, retrieval and RAG with Azure AI Search, and NLP under GxP constraints. Earlier work spans EdTech leadership at CollabLab (team of five, infra on AWS), GxP documentation at Regeneron, and ML projects from neural-net tooling to NFL tracking data.
+              I build full-stack AI products for regulated healthcare — Nuxt/Vue front-ends backed by Python/FastAPI services, Azure AI Search retrieval, and spaCy/LLM pipelines that ship under GxP review. On the side I run engineering for a five-person squad at CollabLab (Vue + Node, migrated EC2 → Fargate), competed at the East Coast Collegiate Powerlifting Championships, and keep a Rutgers CS ’25 grade-A across electives in ML and distributed systems.
             </p>
           </div>
         </header>
@@ -1036,7 +1036,7 @@ function WindowContent({
               Download PDF
             </a>
           </div>
-          <p className="resume-window-subtitle">Education, experience, projects & skills — same content as the PDF.</p>
+          <p className="resume-window-subtitle">Same source of truth as the PDF — pulled directly from it. Use the button to download a print-ready copy.</p>
         </header>
         <div className="resume-layout">
           {resumeSections.map((section) => (
@@ -1136,6 +1136,12 @@ function WindowContent({
   if (appId === 'skills') {
     return (
       <article className="app-panel-frame">
+        <header className="app-window-intro">
+          <h2>Skills</h2>
+          <p className="app-window-intro-lead">
+            Self-rated against what I've shipped in production, not what I've read about. <strong>Frontend</strong>: Vue/Nuxt &amp; React/Next on real client work. <strong>Backend</strong>: Python/FastAPI + Node, with Azure AI Search and RAG pipelines. <strong>Cloud</strong>: AWS (ECS, Fargate, S3, CloudFront) + Azure App Service. <strong>Data</strong>: SQL, spaCy, classical ML. Filter to drill in.
+          </p>
+        </header>
         <div className="filter-row" role="toolbar" aria-label="Skill filters">
           {['all', 'frontend', 'backend', 'cloud', 'data'].map((key) => (
             <button key={key} className={skillFilter === key ? 'active' : ''} onClick={() => setSkillFilter(key as typeof skillFilter)}>{key}</button>
@@ -1161,8 +1167,12 @@ function WindowContent({
     ];
     return (
       <article className="extracurricular-panel app-panel-frame">
-        <h2>Extracurricular Activities</h2>
-        <p className="muted">Leadership, competition, and work experience from my resume.</p>
+        <header className="app-window-intro">
+          <h2>Outside the keyboard</h2>
+          <p className="app-window-intro-lead">
+            What grew the discipline behind the engineering. Collegiate powerlifting (qualified for nationals after a top-6 finish at the East Coast Championships), running point as PSA Secretary at Rutgers, and four years working through every front-of-house role at PJ's Pancake House.
+          </p>
+        </header>
 
         <section className="extracurricular-section">
           <h3>Collegiate Powerlifting · Rutgers University</h3>
@@ -1204,6 +1214,12 @@ function WindowContent({
     const routineValue = 92;
     return (
       <article className="leetcode-panel app-panel-frame">
+        <header className="app-window-intro">
+          <h2>LeetCode · @dayy345</h2>
+          <p className="app-window-intro-lead">
+            Daily-ish practice — graphs, DP, and system-design flavored mediums. Counters below pull from leetcode-stats-api when CORS allows; otherwise cached. Open the profile for the live ledger.
+          </p>
+        </header>
         <LeetCodeStatsWidget recruiterSignalCount={recruiterSignalCount} highlight={recruiterHighlight} />
         <div className="leetcode-practice">
           <p>Routine stability</p>
@@ -1229,9 +1245,9 @@ function WindowContent({
     return (
       <article className="app-panel-frame projects-app">
         <header className="app-window-intro">
-          <h2>Repositories</h2>
+          <h2>Projects · github.com/dayy346</h2>
           <p className="app-window-intro-lead">
-            Live GitHub data — filter and sort to explore shipped work. Highlights include ML tooling, portfolio experiments, and EdTech features.
+            Live repo data fetched at boot. Highlights: <strong>RAG/NLP tooling</strong> for healthcare, the <strong>CollabLab</strong> EdTech platform (Vue + Node + AWS Fargate), an <strong>NFL pass-rush ML pipeline</strong>, and a from-scratch neural-net trainer. Filter by name or sort by stars.
           </p>
         </header>
         <p className="repo-summary">
@@ -1286,10 +1302,12 @@ function WindowContent({
     const freshnessPercent = Math.min(100, Math.round((repos.length / 6) * 100));
     return (
       <article className="contributions-panel app-panel-frame">
-        <header>
+        <header className="app-window-intro">
           <p className="muted">Delivery telemetry</p>
           <h2>Contributions.log</h2>
-          <p>{repoStatusLine}</p>
+          <p className="app-window-intro-lead">
+            What I'm actually shipping right now. Pulled live from GitHub on every load — no static screenshots. Signal strength = stars per repo against my goal; freshness = how many repos pushed in the last 90 days. {repoStatusLine}
+          </p>
         </header>
         <div className="contribution-gauges">
           <div className="contribution-gauge">
@@ -1340,7 +1358,7 @@ function WindowContent({
         <header className="app-window-intro">
           <h2>Contact</h2>
           <p className="app-window-intro-lead">
-            Prefer email — same addresses as on my resume. One tap copies the primary inbox.
+            Best path: email. I respond within a day for recruiting, collabs, or technical questions. Phone for time-sensitive interviews. All channels below match what's on my resume.
           </p>
         </header>
         <div className="contact-card-grid">
@@ -1383,8 +1401,8 @@ function WindowContent({
     return (
       <article className="chatbot-shell app-panel-frame">
         <header className="chatbot-header">
-          <h2>Assist.chat</h2>
-          <p>Ask about my projects—e.g. &quot;list projects&quot; or &quot;tell me about Price Tracker&quot;.</p>
+          <h2>Assist · portfolio bot</h2>
+          <p>Local rules-based bot trained on my project list. Try <em>&quot;list projects&quot;</em>, <em>&quot;tell me about CollabLab&quot;</em>, or <em>&quot;what stack do you use at FCB?&quot;</em>. No external API calls — runs in-browser.</p>
         </header>
         <div className="chat-window">
           {chatHistory.map((message, idx) => (

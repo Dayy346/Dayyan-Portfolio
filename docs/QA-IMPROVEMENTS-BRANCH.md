@@ -37,6 +37,20 @@ This report lists **issues observed**, **evidence (screenshots)**, and **what ch
 **Regenerate Playwright captures:**  
 `npx playwright test tests/qa-improvements-report.spec.ts`
 
+### Round-2 captures (`docs/qa-icons-round2/`)
+
+After feedback that the icons looked uniform and the GitHub heatmap had become unreadable, this round replaced the Lucide-on-blue-tile system with **per-app custom SVGs** and widened the GitHub widget.
+
+| File | What it shows |
+|------|----------------|
+| `00-desktop-overview.png` | Desktop with new icons + readable GitHub heatmap (months + weekday labels visible) |
+| `01-desktop-icons-closeup.png` | Vertical strip of all desktop icons — each one a different colored tile + glyph |
+| `02-start-menu.png` | Start menu with the same new icon set in 24px form |
+| `03-github-widget.png` | GitHub widget close-up — wide enough to read each contribution cell |
+| `04-about.png` … `13-chatbot.png` | Each app window with new resume-aligned blurb |
+
+Regenerate: `npx playwright test tests/icons-blurbs-report.spec.ts`
+
 ---
 
 ## Issues still broken / risky (prioritize)
@@ -67,12 +81,21 @@ This report lists **issues observed**, **evidence (screenshots)**, and **what ch
 
 ## What changed on branch `improvements`
 
+### Round 1
 - **Resume-driven copy** in `src/data.ts`, About, Experience panels, Assist project list — aligned to **Resume_Dayyan_2026** (PDF text extraction).
 - **`public/assets/resume.pdf`** — copy of your downloaded PDF for the Download / View links.
-- **Desktop icons** — `AppShellIcon` (**Lucide**) in XP-style tiles (`src/components/icons/AppShellIcon.tsx`).
-- **GitHub desktop widget** — **no longer ~770px wide**; compact width + **`object-fit: contain`** heatmap (`DesktopGitHubWidget.tsx`, `styles.css`).
+- **Desktop icons (round 1)** — `AppShellIcon` (Lucide-react) in XP-style frosted tiles.
+- **GitHub desktop widget (round 1)** — narrowed + `object-fit: contain` heatmap.
 - **App windows** — `app-panel-frame`, projects intro, **contact card grid** (primary **dayyan6093@gmail.com**), phone link.
-- **Playwright** — `baseURL` fixed to **`…/Dayyan-Portfolio/`** and navigation uses **`page.goto('')`** where needed (`playwright.config.ts`, `tests/qa.spec.ts`, `tests/qa-screenshots.spec.ts`).
+- **Playwright** — `baseURL` fixed to **`…/Dayyan-Portfolio/`** (`playwright.config.ts`, `tests/qa.spec.ts`, `tests/qa-screenshots.spec.ts`).
+
+### Round 2 (icons + blurbs)
+- **`AppShellIcon` rebuilt with per-app inline SVGs** — each app now has its own colored tile and glyph (blue badge for About, brown briefcase for Experience, yellow folder for Projects, orange gear for Skills, red barbell for Extracurricular, red envelope with `@` for Contact, teal bot for Assist, etc.). No more uniform Lucide-on-blue look.
+- **Desktop label contrast** — switched icon labels to white text + heavy dark drop-shadow so they stay legible on both the sky and the green grass halves of the XP wallpaper.
+- **GitHub widget widened to 420px** — chart wrap moved to a light `#ebedf0` GitHub-style backdrop (no more `mix-blend-mode: multiply` washing out faint contributions). Image renders at native ratio so each cell, weekday label, and month is readable.
+- **Sharper resume-aligned blurbs** added/rewritten for About, Projects, Contributions, Skills, Extracurricular, LeetCode, Contact, Chatbot, Resume — each window now opens with a 1–3 sentence intro that names concrete tech, employers, and outcomes (FCB Health / Omnicom, CollabLab Vue + Node + Fargate, RAG benchmarking, East Coast Powerlifting Championships, etc.) instead of generic copy.
+- **`tests/icons-blurbs-report.spec.ts`** — Playwright suite that boots through the Win9x dialog, logs in via the XP screen, and captures the desktop, start menu, GitHub widget close-up, and every app window. Stored in `docs/qa-icons-round2/`.
+- **`playwright.config.ts`** — pinned to port `5173` to reuse the long-running Vite dev server instead of spawning a duplicate.
 
 ---
 

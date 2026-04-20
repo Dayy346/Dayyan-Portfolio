@@ -1057,35 +1057,32 @@ small {
   background-clip: padding-box;
 }
 
-/* GitHub chart: no white cutout (multiply blends image with widget gray), large and readable */
+/* GitHub chart: dark backdrop so contribution squares pop, sized large enough to read each cell */
 .desktop-widget-chart-wrap {
   width: 100%;
   max-width: 100%;
   overflow: hidden;
-  border-radius: 4px;
-  background: var(--surface-3);
-  margin: 0.25rem 0 0.2rem;
+  border-radius: 6px;
+  background: #ebedf0;
+  padding: 8px 10px;
+  margin: 0.4rem 0 0.3rem;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 .desktop-widget-chart-wrap--compact {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 88px;
-  max-height: 108px;
-  padding: 0.15rem 0;
+  min-height: 96px;
 }
 
 .desktop-widget-github .desktop-widget-chart {
   width: 100%;
   height: auto;
-  max-height: 104px;
-  object-fit: contain;
-  object-position: center center;
-  border-radius: 4px;
   display: block;
   vertical-align: middle;
-  mix-blend-mode: multiply;
+  image-rendering: -webkit-optimize-contrast;
 }
 
 .desktop-widget-github .desktop-widget-link {
@@ -1165,10 +1162,10 @@ small {
   color: var(--muted);
 }
 
-/* Compact chart card — readable heatmap without spanning the desktop */
+/* GitHub chart card — wide enough that each contribution cell is legible */
 .desktop-widget-github {
-  width: min(312px, 94vw);
-  padding: 0.5rem 0.65rem 0.55rem;
+  width: min(420px, 94vw);
+  padding: 0.65rem 0.8rem 0.7rem;
 }
 
 .desktop-widget-github .desktop-widget-title {
@@ -1548,12 +1545,15 @@ small {
   font-family: var(--win95-font);
   font-size: 0.78rem;
   font-weight: 600;
-  color: #0f1e2a;
+  color: #ffffff;
   text-align: center;
   cursor: pointer;
   box-shadow: none;
   transition: background 0.15s ease;
-  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.9);
+  text-shadow:
+    0 0 2px rgba(0, 0, 0, 0.95),
+    0 1px 2px rgba(0, 0, 0, 0.85),
+    1px 1px 0 rgba(0, 0, 0, 0.6);
   box-sizing: border-box;
 }
 
@@ -1591,39 +1591,30 @@ small {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 46px;
-  height: 46px;
-  border-radius: 12px;
-  background: linear-gradient(
-    165deg,
-    rgba(255, 255, 255, 0.98) 0%,
-    rgba(232, 240, 255, 0.94) 48%,
-    rgba(214, 228, 252, 0.9) 100%
-  );
-  border: 1px solid rgba(26, 58, 120, 0.38);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.95),
-    0 4px 12px rgba(0, 28, 72, 0.18);
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35));
+  line-height: 0;
 }
 
-.app-shell-icon-glyph {
-  color: #143d84;
+.app-shell-icon svg {
+  display: block;
 }
 
-.start-menu-program-icon .app-shell-icon {
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
+.app-shell-icon--desktop {
+  width: 40px;
+  height: 40px;
 }
 
-.taskbar-quick-launch-icon .app-shell-icon,
-.taskbar-window-btn-icon .app-shell-icon {
-  width: 26px;
-  height: 26px;
-  border-radius: 7px;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.85),
-    0 2px 6px rgba(0, 28, 72, 0.15);
+.app-shell-icon--menu {
+  width: 24px;
+  height: 24px;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3));
+}
+
+.app-shell-icon--taskbar,
+.app-shell-icon--window {
+  width: 22px;
+  height: 22px;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.28));
 }
 
 .desktop-icon .desktop-icon-img {

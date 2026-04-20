@@ -1,7 +1,3 @@
-/**
- * Compact desktop widget: GitHub contribution chart + link.
- * Chart wrap background matches image empty-cell color to avoid white cutout; chart is large and readable.
- */
 export function DesktopGitHubWidget() {
   const username = 'dayy346';
   const chartUrl = `https://ghchart.rshah.org/${username}`;
@@ -10,18 +6,18 @@ export function DesktopGitHubWidget() {
   return (
     <aside className="desktop-widget desktop-widget-github" aria-label="GitHub contributions">
       <a href={profileUrl} target="_blank" rel="noreferrer" className="desktop-widget-link">
-        <span className="desktop-widget-title">GitHub</span>
+        <span className="desktop-widget-title">GitHub · last 12 months</span>
         <div className="desktop-widget-chart-wrap desktop-widget-chart-wrap--compact">
           <img
             src={chartUrl}
-            alt="GitHub contribution chart"
+            alt={`${username} GitHub contribution chart`}
             className="desktop-widget-chart"
-            width={468}
-            height={104}
+            width={720}
+            height={112}
             loading="lazy"
           />
         </div>
-        <span className="desktop-widget-cta">View profile →</span>
+        <span className="desktop-widget-cta">@{username} · open profile →</span>
       </a>
     </aside>
   );
