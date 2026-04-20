@@ -38,7 +38,7 @@ export function Win9xBootDialog({
     progress: reducedMotion ? 1 : 0,
   }));
   const [explorerOpen, setExplorerOpen] = useState(false);
-  const cancelResumeRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelResumeRef = useRef<number | null>(null);
   const animRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
   const lastProgressRef = useRef<number>(state.progress);

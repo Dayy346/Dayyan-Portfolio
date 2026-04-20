@@ -1057,27 +1057,32 @@ small {
   background-clip: padding-box;
 }
 
-/* GitHub chart: no white cutout (multiply blends image with widget gray), large and readable */
+/* GitHub chart: dark backdrop so contribution squares pop, sized large enough to read each cell */
 .desktop-widget-chart-wrap {
   width: 100%;
   max-width: 100%;
-  height: 200px;
   overflow: hidden;
-  border-radius: 4px;
-  background: var(--surface-3);
-  margin: 0.25rem 0 0.2rem;
+  border-radius: 6px;
+  background: #ebedf0;
+  padding: 8px 10px;
+  margin: 0.4rem 0 0.3rem;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.desktop-widget-chart-wrap--compact {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 96px;
 }
 
 .desktop-widget-github .desktop-widget-chart {
   width: 100%;
-  height: 100%;
-  object-fit: fill;
-  object-position: center center;
-  border-radius: 4px;
+  height: auto;
   display: block;
   vertical-align: middle;
-  /* White in image becomes wrap color; greens become dark green – no white cutout */
-  mix-blend-mode: multiply;
+  image-rendering: -webkit-optimize-contrast;
 }
 
 .desktop-widget-github .desktop-widget-link {
@@ -1157,10 +1162,10 @@ small {
   color: var(--muted);
 }
 
-/* GitHub widget: 2× width so chart isn’t stretched; same gray styling, tight padding */
+/* GitHub chart card — wide enough that each contribution cell is legible */
 .desktop-widget-github {
-  width: min(770px, 95vw);
-  padding: 0.5rem 0.65rem 0.55rem;
+  width: min(560px, 96vw);
+  padding: 0.65rem 0.8rem 0.7rem;
 }
 
 .desktop-widget-github .desktop-widget-title {
@@ -1202,10 +1207,6 @@ small {
 .desktop-widget-chart {
   display: block;
   max-width: 100%;
-  width: 100%;
-  height: 100%;
-  object-fit: fill;
-  object-position: center center;
   margin: 0;
 }
 
@@ -1520,15 +1521,18 @@ small {
   position: absolute;
   top: 0.75rem;
   right: 0.75rem;
-  bottom: 4rem;
+  bottom: calc(49px + 0.75rem);
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.5rem;
+  gap: 0.4rem;
   padding: 0;
   margin: 0;
   background: transparent;
   z-index: 3;
+  overflow-y: auto;
+  overflow-x: visible;
+  padding-bottom: 0.25rem;
 }
 
 .desktop-icon {
@@ -1542,14 +1546,23 @@ small {
   border-radius: 0;
   background: transparent;
   font-family: var(--win95-font);
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 600;
-  color: #0f1e2a;
+  color: #ffffff;
   text-align: center;
   cursor: pointer;
   box-shadow: none;
   transition: background 0.15s ease;
-  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.9);
+  text-shadow:
+    -1px -1px 0 #000,
+    0 -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 0 0 #000,
+    1px 0 0 #000,
+    -1px 1px 0 #000,
+    0 1px 0 #000,
+    1px 1px 0 #000,
+    0 2px 2px rgba(0, 0, 0, 0.75);
   box-sizing: border-box;
 }
 
@@ -1583,6 +1596,36 @@ small {
   margin: 0 auto;
 }
 
+.app-shell-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35));
+  line-height: 0;
+}
+
+.app-shell-icon svg {
+  display: block;
+}
+
+.app-shell-icon--desktop {
+  width: 40px;
+  height: 40px;
+}
+
+.app-shell-icon--menu {
+  width: 24px;
+  height: 24px;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3));
+}
+
+.app-shell-icon--taskbar,
+.app-shell-icon--window {
+  width: 22px;
+  height: 22px;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.28));
+}
+
 .desktop-icon .desktop-icon-img {
   width: 36px;
   height: 36px;
@@ -1598,10 +1641,21 @@ small {
 }
 
 .desktop-icon small {
-  font-size: 0.82rem;
+  font-size: 0.74rem;
   line-height: 1.4;
   font-weight: 600;
   letter-spacing: 0.02em;
+  color: #ffffff;
+  text-shadow:
+    -1px -1px 0 #000,
+    0 -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 0 0 #000,
+    1px 0 0 #000,
+    -1px 1px 0 #000,
+    0 1px 0 #000,
+    1px 1px 0 #000,
+    0 2px 2px rgba(0, 0, 0, 0.75);
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1641,6 +1695,8 @@ small {
 .window {
   position: absolute;
   min-width: 280px;
+  display: flex;
+  flex-direction: column;
   border: 1px solid #000;
   border-top-color: var(--bevel-light);
   border-left-color: var(--bevel-light);
@@ -1656,8 +1712,8 @@ small {
 .window.maxed {
   left: 0 !important;
   top: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
+  width: 100vw !important;
+  height: calc(100vh - 49px) !important;
   max-width: none;
 }
 
@@ -1776,6 +1832,12 @@ small {
   max-height: min(75vh, 560px);
   overflow-y: auto;
   overflow-x: hidden;
+  flex: 1;
+}
+
+.window.maxed .window-content {
+  max-height: none;
+  height: auto;
 }
 .window-content h1,
 .window-content h2,
@@ -1814,6 +1876,156 @@ small {
   padding: 1rem;
   border: 1px solid #e0e0e0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.window-content article.app-panel-frame {
+  --app-accent: #245ed9;
+  background: linear-gradient(180deg, #ffffff 0%, #f3f6fb 100%);
+  border-radius: 14px;
+  border: 1px solid rgba(12, 46, 122, 0.14);
+  box-shadow:
+    0 12px 32px rgba(12, 40, 90, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.98);
+  padding: 1.15rem 1.25rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.window-content[data-app="about"] { --app-accent: #1b63d8; }
+.window-content[data-app="resume"] { --app-accent: #b46716; }
+.window-content[data-app="projects"] { --app-accent: #2471b6; }
+.window-content[data-app="experience"] { --app-accent: #7b4a1d; }
+.window-content[data-app="skills"] { --app-accent: #c37b00; }
+.window-content[data-app="contributions"] { --app-accent: #2a8a2e; }
+.window-content[data-app="power"] { --app-accent: #b21c1c; }
+.window-content[data-app="leetcode"] { --app-accent: #ffa116; }
+.window-content[data-app="contact"] { --app-accent: #c91d1d; }
+.window-content[data-app="chatbot"] { --app-accent: #0e6e7a; }
+.window-content[data-app="help"] { --app-accent: #1d4baf; }
+
+.window-content article.app-panel-frame::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 10px;
+  background: linear-gradient(180deg, var(--app-accent), rgba(255, 255, 255, 0));
+  opacity: 0.28;
+  pointer-events: none;
+}
+
+.app-window-intro {
+  margin: 0 0 0.85rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  background:
+    radial-gradient(800px 140px at 0% 0%, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0)),
+    linear-gradient(90deg, rgba(36, 94, 217, 0.06), rgba(36, 94, 217, 0));
+  border-radius: 12px;
+  padding-left: 0.9rem;
+  padding-right: 0.9rem;
+  padding-top: 0.7rem;
+  margin-left: -0.15rem;
+  margin-right: -0.15rem;
+}
+
+.app-window-intro h2 {
+  margin: 0 0 0.35rem;
+}
+
+.app-window-intro-lead {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: #3a4556;
+}
+
+.window-content[data-app] .app-window-intro {
+  background:
+    radial-gradient(820px 160px at 0% 0%, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0)),
+    linear-gradient(90deg, color-mix(in srgb, var(--app-accent) 16%, transparent), transparent);
+  border-bottom-color: color-mix(in srgb, var(--app-accent) 35%, rgba(0, 0, 0, 0.08));
+}
+
+.contact-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
+  gap: 0.65rem;
+}
+
+.contact-card {
+  padding: 0.75rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid rgba(12, 46, 122, 0.14);
+  background: linear-gradient(165deg, #ffffff 0%, #eef2fb 100%);
+  box-shadow: 0 6px 16px rgba(12, 40, 90, 0.07);
+}
+
+.contact-card-primary {
+  grid-column: span 2;
+}
+
+.contact-card-label {
+  margin: 0 0 0.35rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(26, 40, 58, 0.55);
+}
+
+.contact-copy-btn {
+  display: block;
+  width: 100%;
+  padding: 0.45rem 0.55rem;
+  margin-bottom: 0.35rem;
+  border-radius: 8px;
+  border: 1px solid rgba(12, 46, 122, 0.22);
+  background: rgba(12, 46, 122, 0.06);
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: #0a246a;
+  font-family: inherit;
+}
+
+.contact-copy-btn:hover {
+  background: rgba(12, 46, 122, 0.1);
+}
+
+.contact-card-link {
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.contact-card-linktile {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.contact-card-linktile:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(12, 40, 90, 0.1);
+}
+
+.contact-card-strong {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #0a246a;
+}
+
+.contact-copy-toast {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 520px) {
+  .contact-card-primary {
+    grid-column: span 1;
+  }
 }
 .window-content a {
   color: #0a246a;
@@ -3279,6 +3491,22 @@ select:focus-visible {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1rem;
+}
+
+.resume-pdf-viewer {
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #d0d0d0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.resume-pdf-object {
+  width: 100%;
+  height: min(72vh, 980px);
+  border: 0;
+  display: block;
+  background: #ffffff;
 }
 
 .resume-section-card {

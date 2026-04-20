@@ -49,7 +49,7 @@ This document maps every section and item from the **original portfolio** (https
 | Old site item | Current location | Status |
 |---------------|------------------|--------|
 | Section "Professional Experience" / "My journey in software engineering..." | `App.tsx` → Experience.log window | ☐ Keep |
-| **Software Engineer — CollabLab 2024 - Present** | Experience timeline: "Software Engineer — FCB Health" + "Part-time Engineering Manager — CollabLab" + EXPERIENCE_UPDATES (CollabLab Leadership, Junior AI Engineer) | ☐ Ensure CollabLab 2024-Present with bullets (security, EC2, etc.) is present |
+| **Software Engineer — CollabLab 2024 - Present** | Experience timeline: "Junior AI Engineer — Olixir New York" + "Part-time Engineering Manager — CollabLab" + EXPERIENCE_UPDATES (CollabLab Leadership, Junior AI Engineer) | ☐ Ensure CollabLab 2024-Present with bullets (security, EC2, etc.) is present |
 | CollabLab bullets: scalable backend/frontend, security & infrastructure, EC2, secrets management | Experience.log expandable sections + EXPERIENCE_UPDATES bullets | ☐ Preserve all bullets |
 | **QA Junior Document Control Analyst — Regeneron Jun 2025 - Present** | Resume `data.ts` resumeSections Technical Experience; Experience.log "Regeneron Roles" | ☐ Keep role, date, GxP, OpenText, myQumas, TrackWise, SharePoint |
 | **QA IRM Developer Intern — Regeneron 2023 - 2024** | Resume + Experience.log Regeneron section | ☐ Keep Power Platform, SharePoint, PowerBI, extension, recognition |

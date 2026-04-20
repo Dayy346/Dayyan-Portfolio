@@ -43,20 +43,25 @@ import { GitHubContributionFeed } from './components/widgets/GitHubContributionF
 import { LeetCodeStatsWidget } from './components/widgets/LeetCodeStatsWidget';
 import { DesktopGitHubWidget } from './components/widgets/DesktopGitHubWidget';
 import { DesktopLeetCodeWidget } from './components/widgets/DesktopLeetCodeWidget';
-import { XP_ICONS } from './components/icons/XPIcons';
-import { Cloud } from 'lucide-react';
+import { AppShellIcon } from './components/icons/AppShellIcon';
+import { ChevronDown, Cloud } from 'lucide-react';
 
-function XPIcon({ appId, size = 32, className = '' }: { appId: AppId; size?: number; className?: string }) {
-  const Icon = XP_ICONS[appId];
-  return Icon ? <Icon width={size} height={size} className={className} aria-hidden /> : null;
-}
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/material-ui-dropdown-menu';
+
 
 type Repo = { name: string; language: string | null; stargazers_count: number; description: string | null; html_url: string; homepage?: string | null; fork: boolean };
 type WindowState = { isOpen: boolean; minimized: boolean; maximized: boolean; x: number; y: number; z: number };
 
 type GitHubRepoResponse = Repo[] | { message?: string };
 
-type ExperiencePanel = 'fcb' | 'collablab' | 'regeneron';
+type ExperiencePanel = 'olixir' | 'collablab' | 'regeneron';
 type ShellMood = 'studio' | 'archive' | 'night';
 
 type RepoStatus = 'idle' | 'loading' | 'ready' | 'error';
@@ -88,6 +93,11 @@ type ChatMessage = { sender: 'bot' | 'user'; text: string; time: string };
 
 /** Same project list as server.js /chat so fallback matches live site */
 const ASSIST_PROJECT_DATA: { name: string; description: string }[] = [
+  {
+    name: 'JUDGE — NFL Big Data Bowl 2026',
+    description:
+      'Coverage analysis pipeline: geometric JumpLine features, XGBoost on tracking data, and the JUDGE defensive metric.'
+  },
   { name: 'LeNet5Tool', description: 'A personal project using a modified version of the LeNet-5 structure to develop machine learning models for any labeled datasets.' },
   { name: 'AI_final', description: 'Comparison between Perceptron and Naïve Bayes algorithms, analyzing their performance on classification tasks.' },
   { name: 'Price Tracker Extension', description: 'A Chrome extension that tracks product prices and notifies users when a price drop occurs. Uses React for the frontend, Puppeteer for web scraping, and Node.js for the backend.' },
@@ -164,10 +174,11 @@ const EXPERIENCE_UPDATES: ExperienceUpdate[] = [
     ]
   },
   {
-    id: 'fcb-ai',
-    title: 'Junior AI Engineer @ FCB Health',
+    id: 'olixir-ai',
+    title: 'Junior AI Engineer @ Olixir New York',
     badge: 'Full-time',
-    summary: 'Full-time at FCB Health New York (IPG Health): backend Python/FastAPI with Azure AI Search; frontend Nuxt on Azure App Service.',
+    summary:
+      'Full-time at Olixir New York (Omnicom): backend Python/FastAPI with Azure AI Search; frontend Nuxt on Azure App Service.',
     detail: 'Healthcare workflows, retrieval-driven tooling, Deep Learning and TypeScript. Oct 2025 — Present, NYC Metro Hybrid.',
     bullets: [
       'Backend: Python, FastAPI, Azure AI Search for storage and retrieval.',
@@ -582,7 +593,7 @@ export default function App() {
                     }}
                   >
                     <span className="desktop-icon-svg" aria-hidden>
-                      <XPIcon appId={app.id} size={44} />
+                      <AppShellIcon appId={app.id} size="desktop" />
                     </span>
                     <small>{app.label}</small>
                   </button>
@@ -630,7 +641,7 @@ export default function App() {
                       onClick={() => openWindow(app.id)}
                       data-testid={`start-menu-app-${app.id}`}
                     >
-                      <span className="start-menu-program-icon" aria-hidden="true"><XPIcon appId={app.id} size={28} /></span>
+                      <span className="start-menu-program-icon" aria-hidden="true"><AppShellIcon appId={app.id} size="menu" /></span>
                       <span className="start-menu-program-text">
                         <span className="start-menu-program-title">{app.label}</span>
                         <span className="start-menu-program-subtitle">{app.id === 'about' ? 'Learn about me' : app.id === 'resume' ? 'Download PDF' : app.id === 'projects' ? 'View repos' : app.id === 'contact' ? 'Get in touch' : app.id === 'experience' ? 'Work history' : app.id === 'skills' ? 'Tech & levels' : app.id === 'power' ? 'Extracurricular' : app.id === 'leetcode' ? 'Practice stats' : app.id === 'contributions' ? 'GitHub activity' : app.id === 'chatbot' ? 'Ask about projects' : app.id === 'help' ? 'Keyboard shortcuts' : 'Open'}</span>
@@ -642,10 +653,44 @@ export default function App() {
               </div>
               <div className="start-menu-col start-menu-col-shortcuts">
                 <p className="start-menu-col-label">Shortcuts</p>
-                <a href="https://github.com/dayy346" target="_blank" rel="noreferrer" className="start-menu-shortcut-link" data-testid="start-menu-github">GitHub</a>
-                <a href="https://www.linkedin.com/in/dayyan-hamid" target="_blank" rel="noreferrer" className="start-menu-shortcut-link" data-testid="start-menu-linkedin">LinkedIn</a>
-                <a href={`${BASE}assets/resume.pdf`} download className="start-menu-shortcut-link start-menu-resume-link" data-testid="start-menu-resume-link">My Resume</a>
-                <a href="https://leetcode.com/dayy345" target="_blank" rel="noreferrer" className="start-menu-shortcut-link">LeetCode</a>
+                <DropdownMenu modal={false}>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className="start-menu-shortcut-link flex w-full items-center gap-1 border-0 bg-transparent font-inherit"
+                      data-testid="start-menu-quick-links-trigger"
+                    >
+                      Quick links
+                      <ChevronDown className="ml-auto size-4 shrink-0 opacity-80" aria-hidden />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" side="right" sideOffset={8} className="min-w-[11rem]">
+                    <DropdownMenuLabel>Quick links</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <a href="https://github.com/dayy346" target="_blank" rel="noreferrer" data-testid="start-menu-github">
+                        GitHub
+                      </a>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <a href="https://www.linkedin.com/in/dayyan-hamid" target="_blank" rel="noreferrer" data-testid="start-menu-linkedin">
+                        LinkedIn
+                      </a>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <a href={`${BASE}assets/resume.pdf`} download data-testid="start-menu-resume-link">
+                        My Resume
+                      </a>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <a href="https://leetcode.com/dayy345" target="_blank" rel="noreferrer">
+                        LeetCode
+                      </a>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem disabled>Theme (coming soon)</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
             <footer className="start-menu-footer-xp">
@@ -675,7 +720,7 @@ export default function App() {
                 onClick={() => openWindow(app.id)}
                 aria-label={app.label}
               >
-                <span className="taskbar-quick-launch-icon"><XPIcon appId={app.id} size={26} /></span>
+                <span className="taskbar-quick-launch-icon"><AppShellIcon appId={app.id} size="taskbar" /></span>
               </button>
             ))}
           </div>
@@ -693,7 +738,7 @@ export default function App() {
                   onClick={() => (isFocused ? minimizeWindow(app.id) : openWindow(app.id))}
                   aria-pressed={isFocused}
                 >
-                  <span className="taskbar-window-btn-icon"><XPIcon appId={app.id} size={24} /></span>
+                  <span className="taskbar-window-btn-icon"><AppShellIcon appId={app.id} size="window" /></span>
                   {app.label}
                 </button>
               );
@@ -805,14 +850,14 @@ function WindowContent({
   recruiterSignalCount: number;
   recruiterHighlight: string;
 }) {
-  const [experiencePanel, setExperiencePanel] = useState<ExperiencePanel>('fcb');
+  const [experiencePanel, setExperiencePanel] = useState<ExperiencePanel>('olixir');
   const [skillFilter, setSkillFilter] = useState<'all' | 'frontend' | 'backend' | 'cloud' | 'data'>('all');
   const [projectQuery, setProjectQuery] = useState('');
   const [sortMode, setSortMode] = useState<'stars' | 'name'>('stars');
   const [useLbs, setUseLbs] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
 
-  const botTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const botTimerRef = useRef<number | null>(null);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>(() => {
     const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     return [
@@ -933,25 +978,25 @@ function WindowContent({
 
   if (appId === 'about') {
     return (
-      <article className="about-revamp">
+      <article className="about-revamp app-panel-frame">
         <header className="about-hero">
           <div className="about-hero-avatar">
             <img src={`${BASE}assets/headshot.jpg`} alt="Dayyan Hamid" />
           </div>
           <div className="about-hero-text">
             <h1>Dayyan Hamid</h1>
-            <p className="about-tagline">Junior AI Engineer @ FCB Health · Rutgers BA CS & Math ’25</p>
+            <p className="about-tagline">Software / AI Engineer · Conversational AI @ Olixir New York (Omnicom) · Rutgers CS ’25</p>
             <p className="about-lead">
-              Recent graduate from Rutgers with a BA in Computer Science and Mathematics. I focus on solving complex problems through full stack development, data engineering, and quality assurance—with a track record of delivering impactful work in healthcare tech, ed-tech, and pharma.
+              I build full-stack AI products for regulated healthcare at Olixir New York (Omnicom) — Nuxt/Vue front-ends backed by Python/FastAPI services, Azure AI Search retrieval, and spaCy/LLM pipelines that ship under GxP review. On the side I run engineering for a five-person squad at CollabLab (Vue + Node, migrated EC2 → Fargate), competed at the East Coast Collegiate Powerlifting Championships, and keep a Rutgers CS ’25 grade-A across electives in ML and distributed systems.
             </p>
           </div>
         </header>
         <section className="about-section">
-          <h2>What I do</h2>
+          <h2>Focus areas</h2>
           <ul className="about-list">
-            <li><strong>AI & full stack</strong> — Python, FastAPI, Nuxt, TypeScript; Azure AI Search and App Service</li>
-            <li><strong>Data & backend</strong> — SQL, Power BI, APIs; GxP documentation and process tooling</li>
-            <li><strong>Leadership & delivery</strong> — Engineering management at CollabLab; mentoring and release quality</li>
+            <li><strong>Applied AI</strong> — LLM/RAG benchmarking, retrieval design, spaCy/NLP pipelines</li>
+            <li><strong>Full stack delivery</strong> — Nuxt · Vue · Node · FastAPI · Azure · AWS</li>
+            <li><strong>Leadership</strong> — EM for a five-engineer squad; CI/CD and cloud migrations</li>
           </ul>
         </section>
         <section className="about-section">
@@ -984,7 +1029,7 @@ function WindowContent({
 
   if (appId === 'resume') {
     return (
-      <article className="resume-window">
+      <article className="resume-window app-panel-frame">
         <header className="resume-window-header">
           <div className="resume-window-title-row">
             <h2 className="resume-window-title">Resume</h2>
@@ -992,21 +1037,24 @@ function WindowContent({
               Download PDF
             </a>
           </div>
-          <p className="resume-window-subtitle">Education, experience, projects & skills — same content as the PDF.</p>
+          <p className="resume-window-subtitle">
+            Built-in PDF viewer. If it doesn’t render in your browser, use the download button.
+          </p>
         </header>
-        <div className="resume-layout">
-          {resumeSections.map((section) => (
-            <section key={`resume-${section.title}`} className="resume-section-card">
-              <h3 className="resume-section-title">{section.title}</h3>
-              {section.summary && <p className="resume-section-summary">{section.summary}</p>}
-              <ul className="resume-section-list">
-                {section.bullets.map((bullet) => (
-                  <li key={`${section.title}-${bullet}`}>{bullet}</li>
-                ))}
-              </ul>
-              {section.footer && <p className="resume-section-footer">{section.footer}</p>}
-            </section>
-          ))}
+        <div className="resume-pdf-viewer">
+          <object
+            data={`${BASE}assets/resume.pdf`}
+            type="application/pdf"
+            className="resume-pdf-object"
+            aria-label="Resume PDF viewer"
+          >
+            <p className="muted">
+              PDF preview not supported in this browser.{' '}
+              <a href={`${BASE}assets/resume.pdf`} target="_blank" rel="noreferrer">
+                Open the PDF ↗
+              </a>
+            </p>
+          </object>
         </div>
       </article>
     );
@@ -1014,22 +1062,22 @@ function WindowContent({
 
   if (appId === 'experience') {
     return (
-      <article className="timeline">
+      <article className="timeline app-panel-frame">
         <section>
           <h3>
-            <button className="exp-toggle" onClick={() => setExperiencePanel('fcb')} aria-expanded={experiencePanel === 'fcb'}>
-              Junior AI Engineer — FCB Health New York
+            <button className="exp-toggle" onClick={() => setExperiencePanel('olixir')} aria-expanded={experiencePanel === 'olixir'}>
+              Junior AI Engineer — Olixir New York
             </button>
           </h3>
-          {experiencePanel === 'fcb' && (
+          {experiencePanel === 'olixir' && (
             <>
-              <p className="muted">Oct 2025 — Present · Full-time · NYC Metro Hybrid · An IPG Health Company</p>
+              <p className="muted">Oct 2025 — Present · Full-time · NYC · Olixir New York (Omnicom)</p>
               <ul>
-                <li>Backend in Python and FastAPI; storage and retrieval in Azure AI Search.</li>
-                <li>Frontend in Nuxt, hosted on Azure App Service.</li>
-                <li>Deep Learning, TypeScript, and production healthcare workflows.</li>
+                <li>Full-stack AI apps for pharma clients on the Conversational AI team — Nuxt + Vue.</li>
+                <li>Python/FastAPI backends with Azure AI Search; RAG pipelines and blob-backed indexes.</li>
+                <li>NLP with spaCy and NLU frameworks under GxP constraints; LLM/RAG architecture research.</li>
               </ul>
-              <p className="muted">Stack: Nuxt · Python/FastAPI · Azure AI Search · Azure App Service</p>
+              <p className="muted">Stack: Nuxt · Vue · Python · FastAPI · Azure AI Search · Blob · spaCy</p>
             </>
           )}
         </section>
@@ -1041,8 +1089,8 @@ function WindowContent({
           </h3>
           {experiencePanel === 'collablab' && (
             <>
-              <p><strong>Engineering Manager</strong> (Jan 2026 — Present, part-time): Leading a group of full-stack engineers at CollabLab under Troy Tutors. Engineering management and engineering leadership.</p>
-              <p><strong>Full Stack Software Engineer</strong> (Mar 2025 — Jan 2026, remote): Engineer #5 at education tech startup; Node, Express, Vue, MongoDB, Daily.co. Shipped camera-required enforcement for tutoring and proctored exam rooms. Part-time from June 2025. <a href="https://collablab.dev" target="_blank" rel="noreferrer">collablab.dev</a></p>
+              <p><strong>Engineering Manager</strong> (Jan 2026 — Present, part-time): Lead five full-stack engineers; architecture, reviews, and sprint execution; directed EC2 → AWS Fargate migration for scale and cost.</p>
+              <p><strong>Full Stack Software Engineer</strong> (Mar 2025 — Jan 2026, remote; part-time from Jun 2025): Core platform on Vue + Node; Playwright CI/CD; AWS ECS, S3, CloudFront migrations; camera enforcement for tutoring rooms. <a href="https://collablab.dev" target="_blank" rel="noreferrer">collablab.dev</a></p>
             </>
           )}
         </section>
@@ -1091,7 +1139,13 @@ function WindowContent({
   }
   if (appId === 'skills') {
     return (
-      <article>
+      <article className="app-panel-frame">
+        <header className="app-window-intro">
+          <h2>Skills</h2>
+          <p className="app-window-intro-lead">
+            Self-rated against what I've shipped in production, not what I've read about. <strong>Frontend</strong>: Vue/Nuxt &amp; React/Next on real client work. <strong>Backend</strong>: Python/FastAPI + Node, with Azure AI Search and RAG pipelines. <strong>Cloud</strong>: AWS (ECS, Fargate, S3, CloudFront) + Azure App Service. <strong>Data</strong>: SQL, spaCy, classical ML. Filter to drill in.
+          </p>
+        </header>
         <div className="filter-row" role="toolbar" aria-label="Skill filters">
           {['all', 'frontend', 'backend', 'cloud', 'data'].map((key) => (
             <button key={key} className={skillFilter === key ? 'active' : ''} onClick={() => setSkillFilter(key as typeof skillFilter)}>{key}</button>
@@ -1116,9 +1170,13 @@ function WindowContent({
       { label: 'Deadlift', kg: 250 }
     ];
     return (
-      <article className="extracurricular-panel">
-        <h2>Extracurricular Activities</h2>
-        <p className="muted">Leadership, competition, and work experience from my resume.</p>
+      <article className="extracurricular-panel app-panel-frame">
+        <header className="app-window-intro">
+          <h2>Outside the keyboard</h2>
+          <p className="app-window-intro-lead">
+            What grew the discipline behind the engineering. Collegiate powerlifting (qualified for nationals after a top-6 finish at the East Coast Championships), running point as PSA Secretary at Rutgers, and four years working through every front-of-house role at PJ's Pancake House.
+          </p>
+        </header>
 
         <section className="extracurricular-section">
           <h3>Collegiate Powerlifting · Rutgers University</h3>
@@ -1159,7 +1217,13 @@ function WindowContent({
   if (appId === 'leetcode') {
     const routineValue = 92;
     return (
-      <article className="leetcode-panel">
+      <article className="leetcode-panel app-panel-frame">
+        <header className="app-window-intro">
+          <h2>LeetCode · @dayy345</h2>
+          <p className="app-window-intro-lead">
+            Daily-ish practice — graphs, DP, and system-design flavored mediums. Counters below pull from leetcode-stats-api when CORS allows; otherwise cached. Open the profile for the live ledger.
+          </p>
+        </header>
         <LeetCodeStatsWidget recruiterSignalCount={recruiterSignalCount} highlight={recruiterHighlight} />
         <div className="leetcode-practice">
           <p>Routine stability</p>
@@ -1183,8 +1247,13 @@ function WindowContent({
 
   if (appId === 'projects') {
     return (
-      <article>
-        <h2>Top GitHub Projects</h2>
+      <article className="app-panel-frame projects-app">
+        <header className="app-window-intro">
+          <h2>Projects · github.com/dayy346</h2>
+          <p className="app-window-intro-lead">
+            Live repo data fetched at boot. Highlights: <strong>RAG/NLP tooling</strong> for healthcare, the <strong>CollabLab</strong> EdTech platform (Vue + Node + AWS Fargate), an <strong>NFL pass-rush ML pipeline</strong>, and a from-scratch neural-net trainer. Filter by name or sort by stars.
+          </p>
+        </header>
         <p className="repo-summary">
           {repoStatusLine}
           <a href="https://github.com/dayy346" target="_blank" rel="noreferrer"> Browse GitHub ↗</a>
@@ -1236,11 +1305,13 @@ function WindowContent({
     const recentRepos = repos.slice(0, 4);
     const freshnessPercent = Math.min(100, Math.round((repos.length / 6) * 100));
     return (
-      <article className="contributions-panel">
-        <header>
+      <article className="contributions-panel app-panel-frame">
+        <header className="app-window-intro">
           <p className="muted">Delivery telemetry</p>
           <h2>Contributions.log</h2>
-          <p>{repoStatusLine}</p>
+          <p className="app-window-intro-lead">
+            What I'm actually shipping right now. Pulled live from GitHub on every load — no static screenshots. Signal strength = stars per repo against my goal; freshness = how many repos pushed in the last 90 days. {repoStatusLine}
+          </p>
         </header>
         <div className="contribution-gauges">
           <div className="contribution-gauge">
@@ -1287,26 +1358,55 @@ function WindowContent({
 
   if (appId === 'contact') {
     return (
-      <article className="app-contact-content">
-        <h2>Get in touch</h2>
-        <div className="cards">
-          <button onClick={() => copyText('email', 'dh820@scarletmail.rutgers.edu')}>Copy Email</button>
-        <a href="mailto:dh820@scarletmail.rutgers.edu">Email</a>
-        <a href="https://www.linkedin.com/in/dayyan-hamid/" target="_blank" rel="noreferrer">LinkedIn</a>
-        <a href="https://github.com/dayy346" target="_blank" rel="noreferrer">GitHub</a>
-        <a href="https://leetcode.com/dayy345" target="_blank" rel="noreferrer">LeetCode</a>
-          {copied && <p className="muted">Copied {copied} to clipboard.</p>}
+      <article className="app-contact-content app-panel-frame">
+        <header className="app-window-intro">
+          <h2>Contact</h2>
+          <p className="app-window-intro-lead">
+            Best path: email. I respond within a day for recruiting, collabs, or technical questions. Phone for time-sensitive interviews. All channels below match what's on my resume.
+          </p>
+        </header>
+        <div className="contact-card-grid">
+          <div className="contact-card contact-card-primary">
+            <p className="contact-card-label">Primary</p>
+            <button type="button" className="contact-copy-btn" onClick={() => copyText('email', 'dayyan6093@gmail.com')}>
+              Copy dayyan6093@gmail.com
+            </button>
+            <a className="contact-card-link" href="mailto:dayyan6093@gmail.com">Open in mail client</a>
+          </div>
+          <div className="contact-card">
+            <p className="contact-card-label">University</p>
+            <button type="button" className="contact-copy-btn" onClick={() => copyText('school email', 'dh820@scarletmail.rutgers.edu')}>
+              Copy Rutgers email
+            </button>
+          </div>
+          <a className="contact-card contact-card-linktile" href="tel:+16099776880">
+            <span className="contact-card-label">Phone</span>
+            <span className="contact-card-strong">(609) 977-6880</span>
+          </a>
+          <a className="contact-card contact-card-linktile" href="https://www.linkedin.com/in/dayyan-hamid/" target="_blank" rel="noreferrer">
+            <span className="contact-card-label">LinkedIn</span>
+            <span className="contact-card-strong">Profile ↗</span>
+          </a>
+          <a className="contact-card contact-card-linktile" href="https://github.com/dayy346" target="_blank" rel="noreferrer">
+            <span className="contact-card-label">GitHub</span>
+            <span className="contact-card-strong">dayy346 ↗</span>
+          </a>
+          <a className="contact-card contact-card-linktile" href="https://leetcode.com/dayy345" target="_blank" rel="noreferrer">
+            <span className="contact-card-label">LeetCode</span>
+            <span className="contact-card-strong">dayy345 ↗</span>
+          </a>
         </div>
+        {copied && <p className="muted contact-copy-toast">Copied {copied}.</p>}
       </article>
     );
   }
 
   if (appId === 'chatbot') {
     return (
-      <article className="chatbot-shell">
+      <article className="chatbot-shell app-panel-frame">
         <header className="chatbot-header">
-          <h2>Assist.chat</h2>
-          <p>Ask about my projects—e.g. &quot;list projects&quot; or &quot;tell me about Price Tracker&quot;.</p>
+          <h2>Assist · portfolio bot</h2>
+          <p>Local rules-based bot trained on my project list. Try <em>&quot;list projects&quot;</em>, <em>&quot;tell me about CollabLab&quot;</em>, or <em>&quot;what stack do you use at Olixir?&quot;</em>. No external API calls — runs in-browser.</p>
         </header>
         <div className="chat-window">
           {chatHistory.map((message, idx) => (
@@ -1329,7 +1429,18 @@ function WindowContent({
     );
   }
 
-  return <article className="help-panel"><h2>Keyboard Shortcuts</h2><ul><li><kbd>Alt</kbd> + <kbd>Tab</kbd>: cycle focused window</li><li><kbd>Ctrl</kbd> + <kbd>M</kbd>: minimize focused window</li><li><kbd>Esc</kbd>: close Start menu or skip boot</li><li><kbd>S</kbd>, <kbd>Enter</kbd>, <kbd>Space</kbd>: skip boot instantly</li><li>Double-click desktop icons or press <kbd>Enter</kbd> to open apps</li></ul></article>;
+  return (
+    <article className="help-panel app-panel-frame">
+      <h2>Keyboard Shortcuts</h2>
+      <ul>
+        <li><kbd>Alt</kbd> + <kbd>Tab</kbd>: cycle focused window</li>
+        <li><kbd>Ctrl</kbd> + <kbd>M</kbd>: minimize focused window</li>
+        <li><kbd>Esc</kbd>: close Start menu or skip boot</li>
+        <li><kbd>S</kbd>, <kbd>Enter</kbd>, <kbd>Space</kbd>: skip boot instantly</li>
+        <li>Double-click desktop icons or press <kbd>Enter</kbd> to open apps</li>
+      </ul>
+    </article>
+  );
 }
 
 type HeroSignalRailProps = {
@@ -1433,7 +1544,7 @@ function MobileLite({
         </ul>
       </section>
       <section>
-        <h3>FCB Health Highlights</h3>
+        <h3>Olixir New York highlights</h3>
         <ul>
           <li>Nuxt frontend development for production workflows</li>
           <li>Python + FastAPI backend services</li>

@@ -10,16 +10,16 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   reporter: 'list',
   use: {
-    baseURL: 'http://127.0.0.1:4173',
+    baseURL: 'http://127.0.0.1:5173/Dayyan-Portfolio/',
     headless: true,
-    viewport: { width: 1280, height: 720 },
+    viewport: { width: 1440, height: 900 },
     actionTimeout: 10_000,
     ignoreHTTPSErrors: true,
     trace: 'retain-on-failure'
   },
   webServer: {
-    command: 'npm run dev -- --host 127.0.0.1 --port 4173',
-    url: 'http://127.0.0.1:4173',
+    command: 'npm run dev -- --host 127.0.0.1 --port 5173',
+    url: 'http://127.0.0.1:5173/Dayyan-Portfolio/',
     reuseExistingServer: true,
     timeout: 120_000
   }
