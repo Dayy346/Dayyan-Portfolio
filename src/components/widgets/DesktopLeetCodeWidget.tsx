@@ -2,28 +2,29 @@ import { useEffect, useState } from 'react';
 
 type Stats = { easySolved: string; mediumSolved: string; hardSolved: string; totalSolved: string };
 
-const FALLBACK: Stats = { easySolved: '110', mediumSolved: '85', hardSolved: '52', totalSolved: '245+' };
-const CACHE_KEY = 'dayyan.leetcode.stats';
-const CACHE_TTL = 1000 * 60 * 45;
-const FETCH_URL = 'https://leetcode-stats-api.herokuapp.com/dayy345';
+const FALLBACK: Stats = { easySolved: '62', mediumSolved: '89', hardSolved: '12', totalSolved: '163' };
+const CACHE_KEY = 'dayyan.leetcode.stats.v2';
+const CACHE_TTL = 1000 * 60 * 60 * 6;
+const STATS_URL = `${import.meta.env.BASE_URL}leetcode-stats.json`;
 
-const normalize = (v: unknown, fallback: string): string => {
-  if (v == null) return fallback;
-  if (typeof v === 'string') return v;
-  if (typeof v === 'number') return String(v);
-  return fallback;
+type StatsPayload = {
+  totalSolved: number | null;
+  easySolved: number | null;
+  mediumSolved: number | null;
+  hardSolved: number | null;
+  updatedAt: string;
 };
 
-/**
- * Compact desktop widget: LeetCode breakdown (easy / medium / hard).
- * Renders in the top-right of the desktop.
- */
+const format = (value: number | null, fallback: string) => (value != null ? String(value) : fallback);
+
+
 export function DesktopLeetCodeWidget() {
   const [stats, setStats] = useState<Stats>(FALLBACK);
 
   useEffect(() => {
     let isActive = true;
     const cached = typeof window !== 'undefined' ? window.localStorage.getItem(CACHE_KEY) : null;
+
     if (cached) {
       try {
         const { fetchedAt, stats: s } = JSON.parse(cached) as { fetchedAt: string; stats: Stats };
@@ -32,26 +33,32 @@ export function DesktopLeetCodeWidget() {
           return;
         }
       } catch {
-        // ignore
+        // disposable cache
       }
     }
-    fetch(FETCH_URL)
-      .then((r) => r.json())
-      .then((payload: Record<string, unknown>) => {
+
+    fetch(STATS_URL, { cache: 'no-cache' })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((payload: StatsPayload) => {
         if (!isActive) return;
         const next: Stats = {
-          easySolved: normalize(payload?.easySolved ?? payload?.easy, FALLBACK.easySolved),
-          mediumSolved: normalize(payload?.mediumSolved ?? payload?.medium, FALLBACK.mediumSolved),
-          hardSolved: normalize(payload?.hardSolved ?? payload?.hard, FALLBACK.hardSolved),
-          totalSolved: normalize(payload?.totalSolved ?? payload?.solved, FALLBACK.totalSolved)
+          easySolved: format(payload.easySolved, FALLBACK.easySolved),
+          mediumSolved: format(payload.mediumSolved, FALLBACK.mediumSolved),
+          hardSolved: format(payload.hardSolved, FALLBACK.hardSolved),
+          totalSolved: format(payload.totalSolved, FALLBACK.totalSolved)
         };
         setStats(next);
+
         if (typeof window !== 'undefined') {
-          window.localStorage.setItem(CACHE_KEY, JSON.stringify({ fetchedAt: new Date().toISOString(), stats: next }));
+          const fetchedAt = payload.updatedAt ?? new Date().toISOString();
+          window.localStorage.setItem(CACHE_KEY, JSON.stringify({ fetchedAt, stats: next }));
         }
       })
       .catch(() => {});
-    return () => { isActive = false; };
+
+    return () => {
+      isActive = false;
+    };
   }, []);
 
   return (

@@ -1,0 +1,38 @@
+name: Refresh LeetCode stats
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Refresh stats
+        env:
+          LEETCODE_USERNAME: dayy345
+        run: node scripts/refresh-leetcode-stats.mjs
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet public/leetcode-stats.json; then
+            echo "No changes"
+          else
+            git add public/leetcode-stats.json
+            git commit -m "chore(data): refresh leetcode stats"
+            git push
+          fi

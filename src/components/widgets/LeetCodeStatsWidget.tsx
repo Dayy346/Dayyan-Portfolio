@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 type StatsBundle = {
   totalSolved: string;
   acceptanceRate: string;
-  rating: string;
+  activeDays: string;
   practiceStreak: string;
   easySolved: string;
   mediumSolved: string;
@@ -11,52 +11,54 @@ type StatsBundle = {
 };
 
 const FALLBACK_STATS: StatsBundle = {
-  totalSolved: '245+',
-  acceptanceRate: '72%',
-  rating: '2100 (self-calibrated)',
-  practiceStreak: '25+ months',
-  easySolved: '110',
-  mediumSolved: '85',
-  hardSolved: '52'
+  totalSolved: '163',
+  acceptanceRate: '68.3%',
+  activeDays: '65',
+  practiceStreak: '12 days',
+  easySolved: '62',
+  mediumSolved: '89',
+  hardSolved: '12'
 };
 
-const CACHE_KEY = 'dayyan.leetcode.stats';
-const CACHE_TTL = 1000 * 60 * 45; // 45 minutes
+const CACHE_KEY = 'dayyan.leetcode.stats.v2';
+const CACHE_TTL = 1000 * 60 * 60 * 6;
 
 const SUMMARY_STATS: { id: keyof StatsBundle; label: string; detail: string }[] = [
-  { id: 'totalSolved', label: 'Problems solved', detail: 'Tracked since late 2023 across algorithms and systems.' },
-  { id: 'rating', label: 'LeetCode rating', detail: 'Recruiter-ready 2k+ tier that reflects steady craft.' },
-  { id: 'practiceStreak', label: 'Practice streak', detail: 'Spaced repetition, story-backed practice every week.' },
-  { id: 'acceptanceRate', label: 'Acceptance rate', detail: 'Confidence metric for reviewers and recruiters.' }
+  { id: 'totalSolved', label: 'Problems solved', detail: 'Across easy / medium / hard, refreshed daily.' },
+  { id: 'activeDays', label: 'Active days', detail: 'Total days I pushed a solve this past year.' },
+  { id: 'practiceStreak', label: 'Current streak', detail: 'Back-to-back days I’ve been in the grind.' },
+  { id: 'acceptanceRate', label: 'Acceptance rate', detail: 'Raw accepted submissions over total attempts.' }
 ];
 
 const DIFFICULTY_STATS: { id: keyof StatsBundle; label: string; detail: string }[] = [
-  { id: 'easySolved', label: 'Easy', detail: 'Systems clarity + foundational algorithms.' },
-  { id: 'mediumSolved', label: 'Medium', detail: 'Architecture, trade-offs, and practical reasoning.' },
-  { id: 'hardSolved', label: 'Hard', detail: 'System-level puzzles, edge cases, and scalability.' }
+  { id: 'easySolved', label: 'Easy', detail: 'Warm-ups and foundational patterns.' },
+  { id: 'mediumSolved', label: 'Medium', detail: 'The real interview-prep bulk.' },
+  { id: 'hardSolved', label: 'Hard', detail: 'Graph, DP, and system-scale puzzles.' }
 ];
 
-const normalizeStat = (value: unknown, fallback: string) => {
-  if (value === undefined || value === null) return fallback;
-  if (typeof value === 'string') return value;
-  if (typeof value === 'number') return value.toString();
-  return fallback;
+type StatsPayload = {
+  totalSolved: number | null;
+  easySolved: number | null;
+  mediumSolved: number | null;
+  hardSolved: number | null;
+  acceptanceRate: string | null;
+  streak: number | null;
+  totalActiveDays: number | null;
+  updatedAt: string;
 };
 
-const toStatsBundle = (payload: Record<string, any>): StatsBundle => {
-  const ratingSource = payload.rating ?? payload.ranking;
-  return {
-    totalSolved: normalizeStat(payload.totalSolved ?? payload.totalSolvedCount ?? payload.solved ?? FALLBACK_STATS.totalSolved, FALLBACK_STATS.totalSolved),
-    acceptanceRate: normalizeStat(payload.acceptanceRate ?? payload.acceptRate ?? FALLBACK_STATS.acceptanceRate, FALLBACK_STATS.acceptanceRate),
-    rating: ratingSource ? normalizeStat(ratingSource, FALLBACK_STATS.rating) : FALLBACK_STATS.rating,
-    practiceStreak: normalizeStat(payload.practiceStreak ?? payload.streak ?? FALLBACK_STATS.practiceStreak, FALLBACK_STATS.practiceStreak),
-    easySolved: normalizeStat(payload.easySolved ?? payload.easy ?? FALLBACK_STATS.easySolved, FALLBACK_STATS.easySolved),
-    mediumSolved: normalizeStat(payload.mediumSolved ?? payload.medium ?? FALLBACK_STATS.mediumSolved, FALLBACK_STATS.mediumSolved),
-    hardSolved: normalizeStat(payload.hardSolved ?? payload.hard ?? FALLBACK_STATS.hardSolved, FALLBACK_STATS.hardSolved)
-  };
-};
+const toStatsBundle = (payload: StatsPayload): StatsBundle => ({
+  totalSolved: payload.totalSolved != null ? String(payload.totalSolved) : FALLBACK_STATS.totalSolved,
+  acceptanceRate: payload.acceptanceRate ?? FALLBACK_STATS.acceptanceRate,
+  activeDays: payload.totalActiveDays != null ? String(payload.totalActiveDays) : FALLBACK_STATS.activeDays,
+  practiceStreak: payload.streak != null ? `${payload.streak} day${payload.streak === 1 ? '' : 's'}` : FALLBACK_STATS.practiceStreak,
+  easySolved: payload.easySolved != null ? String(payload.easySolved) : FALLBACK_STATS.easySolved,
+  mediumSolved: payload.mediumSolved != null ? String(payload.mediumSolved) : FALLBACK_STATS.mediumSolved,
+  hardSolved: payload.hardSolved != null ? String(payload.hardSolved) : FALLBACK_STATS.hardSolved
+});
 
-const fetchUrl = 'https://leetcode-stats-api.herokuapp.com/dayy345';
+const statsUrl = `${import.meta.env.BASE_URL}leetcode-stats.json`;
+
 
 export function LeetCodeStatsWidget({ recruiterSignalCount, highlight }: { recruiterSignalCount: number; highlight: string }) {
   const [stats, setStats] = useState<StatsBundle>(FALLBACK_STATS);
@@ -67,6 +69,7 @@ export function LeetCodeStatsWidget({ recruiterSignalCount, highlight }: { recru
     if (typeof window === 'undefined') return;
     let isActive = true;
     const cached = window.localStorage.getItem(CACHE_KEY);
+
     if (cached) {
       try {
         const parsed = JSON.parse(cached) as { fetchedAt: string; stats: StatsBundle };
@@ -79,7 +82,7 @@ export function LeetCodeStatsWidget({ recruiterSignalCount, highlight }: { recru
           }
         }
       } catch {
-        // ignore cache issues
+        // cache is disposable
       }
     }
 
@@ -88,11 +91,11 @@ export function LeetCodeStatsWidget({ recruiterSignalCount, highlight }: { recru
     const syncStats = async () => {
       setStatus('loading');
       try {
-        const response = await fetch(fetchUrl, { signal: controller.signal });
-        if (!response.ok) throw new Error('LeetCode stats offline');
-        const payload = await response.json();
-        const normalized = toStatsBundle(payload ?? {});
-        const fetchedAt = new Date().toISOString();
+        const response = await fetch(statsUrl, { signal: controller.signal, cache: 'no-cache' });
+        if (!response.ok) throw new Error(`Stats file ${response.status}`);
+        const payload = (await response.json()) as StatsPayload;
+        const normalized = toStatsBundle(payload);
+        const fetchedAt = payload.updatedAt ?? new Date().toISOString();
         window.localStorage.setItem(CACHE_KEY, JSON.stringify({ fetchedAt, stats: normalized }));
         if (!isActive) return;
         setStats(normalized);
@@ -114,7 +117,7 @@ export function LeetCodeStatsWidget({ recruiterSignalCount, highlight }: { recru
   }, []);
 
   const statusLabel = useMemo(() => {
-    if (status === 'loading') return 'Polling LeetCode stats…';
+    if (status === 'loading') return 'Loading LeetCode stats…';
     if (status === 'ready') return 'Practice telemetry live';
     if (status === 'error') return 'Offline · showing cached stats';
     return 'Awaiting sync';
@@ -123,7 +126,7 @@ export function LeetCodeStatsWidget({ recruiterSignalCount, highlight }: { recru
   const syncLabel = useMemo(() => {
     if (lastSync) {
       const date = new Date(lastSync);
-      return `Synced ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+      return `Synced ${date.toLocaleDateString([], { month: 'short', day: 'numeric' })}`;
     }
     return 'No sync yet';
   }, [lastSync]);
