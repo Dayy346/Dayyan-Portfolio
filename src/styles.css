@@ -507,7 +507,8 @@ small {
   overflow: visible;
   border: 1px solid #0a246a;
   border-bottom: none;
-  background: transparent;
+  background:
+    linear-gradient(180deg, #1d579b 0%, #1d579b 74px, #fff 74px, #fff 100%);
   box-shadow: 4px 4px 14px rgba(0, 0, 0, 0.32);
 }
 
