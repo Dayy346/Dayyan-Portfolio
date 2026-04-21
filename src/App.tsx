@@ -49,16 +49,20 @@ import { DesktopGitHubWidget } from './components/widgets/DesktopGitHubWidget';
 import { DesktopLeetCodeWidget } from './components/widgets/DesktopLeetCodeWidget';
 import { AppShellIcon } from './components/icons/AppShellIcon';
 import { FrameworkLogo } from './components/icons/FrameworkLogo';
-import { ChevronDown, Cloud } from 'lucide-react';
-
+import { ShutdownOverlay } from './components/ShutdownOverlay/ShutdownOverlay';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/material-ui-dropdown-menu';
+  ArrowLeft,
+  ChevronRight,
+  Cloud,
+  FileDown,
+  Github,
+  LifeBuoy,
+  Linkedin,
+  LogOut,
+  Mail,
+  Power,
+  Search
+} from 'lucide-react';
 
 
 type Repo = { name: string; language: string | null; stargazers_count: number; description: string | null; html_url: string; homepage?: string | null; fork: boolean };
@@ -153,6 +157,51 @@ const KEYBOARD_SHORTCUTS = [
 
 /** Desktop icons exclude GitHub and LeetCode; those live as top-right widgets. */
 const DESKTOP_ICON_APPS = apps.filter((a) => a.id !== 'leetcode' && a.id !== 'contributions');
+
+const PINNED_START_APP_IDS: AppId[] = ['about', 'projects', 'resume', 'experience', 'chatbot'];
+const SECONDARY_START_APP_IDS: AppId[] = ['skills', 'contributions', 'leetcode', 'power', 'contact'];
+
+const APP_SUBTITLES: Record<AppId, string> = {
+  about: 'A quick intro to who I am',
+  resume: 'Download the latest PDF',
+  projects: 'Live repos + case studies',
+  contact: 'Say hi, send a message',
+  experience: 'Roles, dates, and impact',
+  skills: 'Stack, proof, and depth',
+  power: 'What I do outside of work',
+  leetcode: 'Daily practice telemetry',
+  contributions: 'GitHub activity timeline',
+  chatbot: 'Ask anything about my work',
+  help: 'Keyboard shortcuts + tips'
+};
+
+const RECENT_APPS_STORAGE_KEY = 'dayyan.portfolio.recentApps.v1';
+const MAX_RECENT_APPS = 4;
+
+const readRecentApps = (): AppId[] => {
+  if (typeof window === 'undefined') return [];
+
+  try {
+    const raw = window.localStorage.getItem(RECENT_APPS_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    const known = new Set(apps.map((a) => a.id));
+    return parsed.filter((id): id is AppId => typeof id === 'string' && known.has(id as AppId)).slice(0, MAX_RECENT_APPS);
+  } catch {
+    return [];
+  }
+};
+
+const writeRecentApps = (ids: AppId[]) => {
+  if (typeof window === 'undefined') return;
+
+  try {
+    window.localStorage.setItem(RECENT_APPS_STORAGE_KEY, JSON.stringify(ids.slice(0, MAX_RECENT_APPS)));
+  } catch {
+    // ignore quota/storage errors
+  }
+};
 
 type ExperienceUpdate = {
   id: string;
@@ -259,6 +308,11 @@ export default function App() {
   const [bootTransitioning, setBootTransitioning] = useState(false);
   const [bootDone, setBootDone] = useState(reducedMotion);
   const [startMenuOpen, setStartMenuOpen] = useState(false);
+  const [startSearch, setStartSearch] = useState('');
+  const [allProgramsOpen, setAllProgramsOpen] = useState(false);
+  const [recentAppIds, setRecentAppIds] = useState<AppId[]>(() => readRecentApps());
+  const [shuttingDown, setShuttingDown] = useState(false);
+  const startSearchInputRef = useRef<HTMLInputElement | null>(null);
   const [focused, setFocused] = useState<AppId>('about');
   const [shellMood, setShellMood] = useState<ShellMood>('night');
   const zRef = useRef(20);
@@ -356,7 +410,24 @@ export default function App() {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (!bootDone || isMobile) return;
-      if (e.key === 'Escape') setStartMenuOpen(false);
+
+      if (e.key === 'Escape') {
+        if (allProgramsOpen) {
+          setAllProgramsOpen(false);
+        } else {
+          closeStartMenu();
+        }
+      }
+
+      if (e.key === '/' && startMenuOpen) {
+        const target = e.target as HTMLElement | null;
+
+        if (target?.tagName !== 'INPUT' && target?.tagName !== 'TEXTAREA') {
+          e.preventDefault();
+          startSearchInputRef.current?.focus();
+        }
+      }
+
       if (e.altKey && e.key.toLowerCase() === 'tab') {
         e.preventDefault();
         const open = getVisibleOpenApps(windowMap);
@@ -365,6 +436,7 @@ export default function App() {
         const next = open[(idx >= 0 ? idx + 1 : 0) % open.length].id;
         focusWindow(next);
       }
+
       if (e.ctrlKey && e.key.toLowerCase() === 'm') {
         e.preventDefault();
         if (!windowMap[focused].isOpen) return;
@@ -374,7 +446,7 @@ export default function App() {
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [bootDone, isMobile, focused, windowMap]);
+  }, [bootDone, isMobile, focused, windowMap, startMenuOpen, allProgramsOpen]);
 
   useEffect(() => {
     if (!loggedIn || defaultWindowsApplied) return;
@@ -507,9 +579,25 @@ export default function App() {
     setWindowMap((curr) => ({ ...curr, [appId]: { ...curr[appId], z: zRef.current, minimized: false, isOpen: true } }));
   }
 
+  function closeStartMenu() {
+    setStartMenuOpen(false);
+    setStartSearch('');
+    setAllProgramsOpen(false);
+  }
+
   function openWindow(appId: AppId) {
     focusWindow(appId);
-    setStartMenuOpen(false);
+    closeStartMenu();
+    setRecentAppIds((prev) => {
+      const next = [appId, ...prev.filter((id) => id !== appId)].slice(0, MAX_RECENT_APPS);
+      writeRecentApps(next);
+      return next;
+    });
+  }
+
+  function triggerShutdown() {
+    closeStartMenu();
+    setShuttingDown(true);
   }
 
   function closeWindow(appId: AppId) {
@@ -569,7 +657,7 @@ export default function App() {
         />
       )}
       <div className={`os-shell ${bootDone ? 'ready' : 'preboot'} mood-${shellMood} ${bootDone && !loggedIn ? 'login-visible' : ''}`}>
-        <main className="desktop" data-testid="desktop" onClick={() => setStartMenuOpen(false)}>
+        <main className="desktop" data-testid="desktop" onClick={() => closeStartMenu()}>
           <div className="desktop-widgets" aria-label="GitHub and LeetCode widgets">
             <DesktopGitHubWidget />
             <DesktopLeetCodeWidget />
@@ -628,15 +716,279 @@ export default function App() {
           })}
         </main>
 
-        {startMenuOpen && bootDone && (
+        {startMenuOpen && bootDone && (() => {
+          const searchLower = startSearch.trim().toLowerCase();
+          const matchesSearch = (id: AppId) => {
+            if (!searchLower) return true;
+            const app = apps.find((a) => a.id === id);
+            if (!app) return false;
+            return app.label.toLowerCase().includes(searchLower) || APP_SUBTITLES[id].toLowerCase().includes(searchLower);
+          };
+
+          const shownPinned = PINNED_START_APP_IDS.filter(matchesSearch);
+          const shownSecondary = SECONDARY_START_APP_IDS.filter(matchesSearch);
+          const shownRecent = searchLower
+            ? []
+            : recentAppIds.filter((id) => !PINNED_START_APP_IDS.includes(id)).slice(0, 3);
+
+          const allMatches = [...shownPinned, ...shownSecondary];
+          const handleSearchSubmit = (e: FormEvent<HTMLFormElement>) => {
+            e.preventDefault();
+            if (allMatches.length === 1) openWindow(allMatches[0]);
+          };
+
+          return (
           <aside className="start-menu start-menu-xp" role="menu" aria-label="Start Menu" data-testid="start-menu">
             <header className="start-menu-header-xp">
               <img src={`${BASE}assets/headshot.jpg`} alt="" className="start-menu-avatar" />
-              <span className="start-menu-username">Dayyan Hamid</span>
+              <div className="start-menu-identity">
+                <span className="start-menu-username">Dayyan Hamid</span>
+                <span className="start-menu-subtitle">
+                  <span className="start-menu-online-dot" aria-hidden="true" />
+                  Online · Portfolio 2026
+                </span>
+              </div>
             </header>
+
             <div className="start-menu-body-xp">
               <div className="start-menu-col start-menu-col-programs">
-                <div className="start-menu-program-list" role="list">
+                {shownPinned.length > 0 && (
+                  <>
+                    <p className="start-menu-section-label">{searchLower ? 'Results' : 'Pinned'}</p>
+                    <div className="start-menu-program-list" role="list">
+                      {shownPinned.map((id) => {
+                        const app = apps.find((a) => a.id === id);
+                        if (!app) return null;
+                        return (
+                          <button
+                            key={id}
+                            type="button"
+                            role="menuitem"
+                            className="start-menu-program-item"
+                            onClick={() => openWindow(id)}
+                            data-testid={`start-menu-app-${id}`}
+                          >
+                            <span className="start-menu-program-icon" aria-hidden="true"><AppShellIcon appId={id} size="menu" /></span>
+                            <span className="start-menu-program-text">
+                              <span className="start-menu-program-title">{app.label}</span>
+                              <span className="start-menu-program-subtitle">{APP_SUBTITLES[id]}</span>
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+
+                {shownRecent.length > 0 && (
+                  <>
+                    <div className="start-menu-separator" aria-hidden="true" />
+                    <p className="start-menu-section-label">Recently opened</p>
+                    <div className="start-menu-program-list start-menu-program-list-compact" role="list">
+                      {shownRecent.map((id) => {
+                        const app = apps.find((a) => a.id === id);
+                        if (!app) return null;
+                        return (
+                          <button
+                            key={id}
+                            type="button"
+                            role="menuitem"
+                            className="start-menu-program-item start-menu-program-item-compact"
+                            onClick={() => openWindow(id)}
+                            data-testid={`start-menu-recent-${id}`}
+                          >
+                            <span className="start-menu-program-icon" aria-hidden="true"><AppShellIcon appId={id} size="menu" /></span>
+                            <span className="start-menu-program-title">{app.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+
+                {searchLower && allMatches.length === 0 && (
+                  <p className="start-menu-empty" data-testid="start-menu-empty">
+                    No programs match &ldquo;{startSearch}&rdquo;
+                  </p>
+                )}
+
+                <button
+                  type="button"
+                  className="start-menu-all-programs-btn"
+                  onClick={() => setAllProgramsOpen((v) => !v)}
+                  aria-expanded={allProgramsOpen}
+                  data-testid="start-menu-all-programs"
+                >
+                  <span>All Programs</span>
+                  <ChevronRight className="size-4" aria-hidden />
+                </button>
+              </div>
+
+              <div className="start-menu-col start-menu-col-shortcuts">
+                <form className="start-menu-search-field" onSubmit={handleSearchSubmit} role="search">
+                  <Search className="size-4 shrink-0 opacity-80" aria-hidden />
+                  <input
+                    ref={startSearchInputRef}
+                    id="start-menu-search"
+                    name="startSearch"
+                    type="search"
+                    placeholder="Search apps…"
+                    value={startSearch}
+                    onChange={(e) => setStartSearch(e.target.value)}
+                    autoComplete="off"
+                    spellCheck={false}
+                    data-testid="start-menu-search"
+                    aria-label="Search apps"
+                  />
+                  {startSearch && (
+                    <button
+                      type="button"
+                      className="start-menu-search-clear"
+                      onClick={() => setStartSearch('')}
+                      aria-label="Clear search"
+                    >
+                      ×
+                    </button>
+                  )}
+                </form>
+
+                {shownSecondary.length > 0 && (
+                  <>
+                    <p className="start-menu-col-label">{searchLower ? 'More matches' : 'More apps'}</p>
+                    <ul className="start-menu-shortcut-list" role="list">
+                      {shownSecondary.map((id) => {
+                        const app = apps.find((a) => a.id === id);
+                        if (!app) return null;
+                        return (
+                          <li key={id}>
+                            <button
+                              type="button"
+                              className="start-menu-shortcut-item"
+                              onClick={() => openWindow(id)}
+                              data-testid={`start-menu-app-${id}`}
+                            >
+                              <span className="start-menu-shortcut-icon" aria-hidden="true"><AppShellIcon appId={id} size="menu" /></span>
+                              <span>{app.label}</span>
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </>
+                )}
+
+                {!searchLower && (
+                  <>
+                    <div className="start-menu-separator" aria-hidden="true" />
+                    <p className="start-menu-col-label">Connect</p>
+                    <ul className="start-menu-shortcut-list" role="list">
+                      <li>
+                        <a
+                          className="start-menu-shortcut-item"
+                          href="https://github.com/dayy346"
+                          target="_blank"
+                          rel="noreferrer"
+                          data-testid="start-menu-github"
+                        >
+                          <Github className="start-menu-shortcut-lucide" aria-hidden />
+                          <span>GitHub</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          className="start-menu-shortcut-item"
+                          href="https://www.linkedin.com/in/dayyan-hamid"
+                          target="_blank"
+                          rel="noreferrer"
+                          data-testid="start-menu-linkedin"
+                        >
+                          <Linkedin className="start-menu-shortcut-lucide" aria-hidden />
+                          <span>LinkedIn</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          className="start-menu-shortcut-item"
+                          href="mailto:dayyanhamid@gmail.com"
+                          data-testid="start-menu-email"
+                        >
+                          <Mail className="start-menu-shortcut-lucide" aria-hidden />
+                          <span>Email me</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          className="start-menu-shortcut-item"
+                          href={`${BASE}assets/resume.pdf`}
+                          download
+                          data-testid="start-menu-resume-link"
+                        >
+                          <FileDown className="start-menu-shortcut-lucide" aria-hidden />
+                          <span>Download resume</span>
+                        </a>
+                      </li>
+                    </ul>
+
+                    <div className="start-menu-separator" aria-hidden="true" />
+
+                    <ul className="start-menu-shortcut-list" role="list">
+                      <li>
+                        <button
+                          type="button"
+                          className="start-menu-shortcut-item"
+                          onClick={() => openWindow('help')}
+                          data-testid="start-menu-help"
+                        >
+                          <LifeBuoy className="start-menu-shortcut-lucide" aria-hidden />
+                          <span>Help &amp; Support</span>
+                        </button>
+                      </li>
+                    </ul>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <footer className="start-menu-footer-xp">
+              <button
+                type="button"
+                className="start-menu-footer-btn"
+                onClick={() => closeStartMenu()}
+                data-testid="start-menu-logoff"
+              >
+                <LogOut className="size-4 shrink-0" aria-hidden />
+                <span>Log Off</span>
+              </button>
+              <button
+                type="button"
+                className="start-menu-footer-btn start-menu-shutdown"
+                onClick={triggerShutdown}
+                data-testid="start-menu-shutdown"
+              >
+                <Power className="size-4 shrink-0" aria-hidden />
+                <span>Turn Off Computer</span>
+              </button>
+            </footer>
+
+            {allProgramsOpen && (
+              <aside
+                className="start-menu-all-programs-flyout"
+                role="menu"
+                aria-label="All Programs"
+                data-testid="start-menu-all-programs-flyout"
+              >
+                <div className="start-menu-all-programs-header">
+                  <button
+                    type="button"
+                    className="start-menu-all-programs-back"
+                    onClick={() => setAllProgramsOpen(false)}
+                    aria-label="Back to Start menu"
+                  >
+                    <ArrowLeft className="size-4" aria-hidden />
+                  </button>
+                  <span>All Programs</span>
+                </div>
+                <div className="start-menu-all-programs-list" role="list">
                   {apps.map((app) => (
                     <button
                       key={app.id}
@@ -644,69 +996,30 @@ export default function App() {
                       role="menuitem"
                       className="start-menu-program-item"
                       onClick={() => openWindow(app.id)}
-                      data-testid={`start-menu-app-${app.id}`}
+                      data-testid={`start-menu-all-app-${app.id}`}
                     >
                       <span className="start-menu-program-icon" aria-hidden="true"><AppShellIcon appId={app.id} size="menu" /></span>
                       <span className="start-menu-program-text">
                         <span className="start-menu-program-title">{app.label}</span>
-                        <span className="start-menu-program-subtitle">{app.id === 'about' ? 'Learn about me' : app.id === 'resume' ? 'Download PDF' : app.id === 'projects' ? 'View repos' : app.id === 'contact' ? 'Get in touch' : app.id === 'experience' ? 'Work history' : app.id === 'skills' ? 'Tech & levels' : app.id === 'power' ? 'Extracurricular' : app.id === 'leetcode' ? 'Practice stats' : app.id === 'contributions' ? 'GitHub activity' : app.id === 'chatbot' ? 'Ask about projects' : app.id === 'help' ? 'Keyboard shortcuts' : 'Open'}</span>
+                        <span className="start-menu-program-subtitle">{APP_SUBTITLES[app.id]}</span>
                       </span>
                     </button>
                   ))}
                 </div>
-                <p className="start-menu-all-programs" aria-hidden="true">All Programs ▶</p>
-              </div>
-              <div className="start-menu-col start-menu-col-shortcuts">
-                <p className="start-menu-col-label">Shortcuts</p>
-                <DropdownMenu modal={false}>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      type="button"
-                      className="start-menu-shortcut-link flex w-full items-center gap-1 border-0 bg-transparent font-inherit"
-                      data-testid="start-menu-quick-links-trigger"
-                    >
-                      Quick links
-                      <ChevronDown className="ml-auto size-4 shrink-0 opacity-80" aria-hidden />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" side="right" sideOffset={8} className="min-w-[11rem]">
-                    <DropdownMenuLabel>Quick links</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <a href="https://github.com/dayy346" target="_blank" rel="noreferrer" data-testid="start-menu-github">
-                        GitHub
-                      </a>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <a href="https://www.linkedin.com/in/dayyan-hamid" target="_blank" rel="noreferrer" data-testid="start-menu-linkedin">
-                        LinkedIn
-                      </a>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <a href={`${BASE}assets/resume.pdf`} download data-testid="start-menu-resume-link">
-                        My Resume
-                      </a>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <a href="https://leetcode.com/dayy345" target="_blank" rel="noreferrer">
-                        LeetCode
-                      </a>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem disabled>Theme (coming soon)</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </div>
-            <footer className="start-menu-footer-xp">
-              <button type="button" className="start-menu-footer-btn" onClick={() => setStartMenuOpen(false)} aria-label="Log off">Log Off</button>
-              <button type="button" className="start-menu-footer-btn start-menu-shutdown" onClick={() => setStartMenuOpen(false)} aria-label="Shut down">Shut Down</button>
-            </footer>
+              </aside>
+            )}
           </aside>
-        )}
+          );
+        })()}
 
         <header className="taskbar" data-testid="taskbar">
-          <button className="start-btn" onClick={() => setStartMenuOpen((v) => !v)} aria-haspopup="menu" aria-expanded={startMenuOpen} data-testid="start-button">
+          <button
+            className="start-btn"
+            onClick={() => (startMenuOpen ? closeStartMenu() : setStartMenuOpen(true))}
+            aria-haspopup="menu"
+            aria-expanded={startMenuOpen}
+            data-testid="start-button"
+          >
             <span className="start-btn-logo" aria-hidden="true">
               <span className="start-btn-flag-pane start-btn-flag-red" />
               <span className="start-btn-flag-pane start-btn-flag-green" />
@@ -776,6 +1089,8 @@ export default function App() {
       )}
 
       {isMobile && !bootDone && <div className="mobile-boot-hint">Tip: press S, Enter, or Skip to load Mobile Lite.</div>}
+
+      {shuttingDown && <ShutdownOverlay onRestart={() => window.location.reload()} />}
     </>
   );
 }
