@@ -910,7 +910,7 @@ export default function App() {
                       <li>
                         <a
                           className="start-menu-shortcut-item"
-                          href="mailto:dayyanhamid@gmail.com"
+                          href="mailto:dayyan6093@gmail.com"
                           data-testid="start-menu-email"
                         >
                           <Mail className="start-menu-shortcut-lucide" aria-hidden />
@@ -2300,10 +2300,10 @@ function MobileLite({
 
             <ul className="mp-connect-list">
               <li>
-                <a href="mailto:dayyanh17@gmail.com">
+                <a href="mailto:dayyan6093@gmail.com">
                   <Mail size={18} aria-hidden="true" />
                   <span>
-                    <strong>dayyanh17@gmail.com</strong>
+                    <strong>dayyan6093@gmail.com</strong>
                     <em>Personal email (fastest reply)</em>
                   </span>
                 </a>
