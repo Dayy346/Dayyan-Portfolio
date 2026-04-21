@@ -11,7 +11,8 @@ import {
   resumeSections,
   skillSpotlights,
   stackBadges,
-  type BootStage
+  type BootStage,
+  type StackBadge
 } from './data';
 
 const BASE = import.meta.env.BASE_URL;
@@ -909,7 +910,7 @@ export default function App() {
                       <li>
                         <a
                           className="start-menu-shortcut-item"
-                          href="mailto:dayyanhamid@gmail.com"
+                          href="mailto:dayyan6093@gmail.com"
                           data-testid="start-menu-email"
                         >
                           <Mail className="start-menu-shortcut-lucide" aria-hidden />
@@ -2026,55 +2027,381 @@ function MobileLite({
   shellStatus: ShellStatus;
   experienceHighlights: ExperienceUpdate[];
 }) {
+  const [active, setActive] = useState<'about' | 'work' | 'skills' | 'connect'>('about');
+
+  const stackById = useMemo(() => {
+    const map = new Map<string, StackBadge>();
+    stackBadges.forEach((badge) => map.set(badge.id, badge));
+    return map;
+  }, []);
+
+  const topRepos = repos
+    .filter((repo) => !repo.fork && repo.description)
+    .slice(0, 5);
+
   return (
-    <div className="mobile-lite">
-      <header>
-        <h1>Portfolio · Mobile</h1>
-        <p>{clock}</p>
+    <div className="mobile-portfolio">
+      <header className="mp-header">
+        <div className="mp-identity">
+          <img
+            className="mp-avatar"
+            src={`${BASE}assets/headshot.jpg`}
+            alt="Dayyan Hamid"
+            loading="eager"
+          />
+
+          <div className="mp-identity-text">
+            <p className="mp-kicker">Portfolio · 2026</p>
+            <h1 className="mp-name">Dayyan Hamid</h1>
+            <p className="mp-role">
+              AI Engineer @ Olixir New York <span className="mp-role-sep">·</span> Rutgers CS &rsquo;25
+            </p>
+          </div>
+        </div>
+
+        <p className="mp-status">
+          <span className="mp-status-dot" aria-hidden="true" />
+          {shellStatus.stageTitle} · {shellStatus.stageSubtitle}
+          <span className="mp-status-clock">{clock}</span>
+        </p>
       </header>
-      <section>
-        <h2>Shell telemetry</h2>
-        <p><strong>{shellStatus.stageTitle}</strong> · {shellStatus.stageSubtitle}</p>
-        <p>{shellStatus.highlightCopy}</p>
-      </section>
-      <section>
-        <h3>Experience updates</h3>
-        <ul>
-          {experienceHighlights.map((update) => (
-            <li key={update.id}>
-              <strong>{update.title}</strong> · {update.summary}
-              {update.link && (
-                <a href={update.link} target="_blank" rel="noreferrer"> {update.linkLabel ?? 'Open link'}</a>
-              )}
-            </li>
-          ))}
-        </ul>
-      </section>
-      <section>
-        <h3>Olixir New York highlights</h3>
-        <ul>
-          <li>Nuxt frontend development for production workflows</li>
-          <li>Python + FastAPI backend services</li>
-          <li>Azure AI Search integration</li>
-          <li>Deployment on Azure App Service</li>
-        </ul>
-      </section>
-      <section>
-        <h3>Featured Repositories</h3>
-        <ul>
-          {repos.slice(0, 4).map((repo) => (
-            <li key={repo.name}>
-              <a href={repo.html_url} target="_blank" rel="noreferrer">
-                {repo.name}
+
+      <nav className="mp-tabbar" aria-label="Portfolio sections">
+        {(
+          [
+            { id: 'about', label: 'About' },
+            { id: 'work', label: 'Work' },
+            { id: 'skills', label: 'Skills' },
+            { id: 'connect', label: 'Connect' }
+          ] as const
+        ).map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            className={`mp-tab ${active === tab.id ? 'is-active' : ''}`}
+            onClick={() => setActive(tab.id)}
+            aria-pressed={active === tab.id}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </nav>
+
+      <main className="mp-main">
+        {active === 'about' && (
+          <>
+            <section className="mp-section mp-hero">
+              <p className="mp-hero-copy">
+                I build AI products that need to feel usable to normal people and reliable to the teams behind them.
+                Right now that means healthcare work at Olixir New York, leading a small full-stack squad at CollabLab,
+                and staying competitive in collegiate powerlifting.
+              </p>
+
+              <div className="mp-cta-row">
+                <a className="mp-btn mp-btn-primary" href={`${BASE}assets/resume.pdf`} target="_blank" rel="noreferrer">
+                  <FileDown size={16} aria-hidden="true" /> Resume
+                </a>
+                <a className="mp-btn" href="https://github.com/dayy346" target="_blank" rel="noreferrer">
+                  <Github size={16} aria-hidden="true" /> GitHub
+                </a>
+                <a className="mp-btn" href="https://www.linkedin.com/in/dayyan-hamid" target="_blank" rel="noreferrer">
+                  <Linkedin size={16} aria-hidden="true" /> LinkedIn
+                </a>
+              </div>
+            </section>
+
+            <section className="mp-section">
+              <h2 className="mp-section-title">Snapshot</h2>
+
+              <div className="mp-signal-grid">
+                {aboutSignals.map((signal) => (
+                  <article key={signal.label} className="mp-signal-card">
+                    <p className="mp-signal-label">{signal.label}</p>
+                    <p className="mp-signal-value">{signal.value}</p>
+                    <p className="mp-signal-detail">{signal.detail}</p>
+                  </article>
+                ))}
+              </div>
+            </section>
+
+            <section className="mp-section">
+              <h2 className="mp-section-title">Core stack</h2>
+
+              <div className="mp-stack-grid">
+                {stackBadges.map((badge) => (
+                  <div key={badge.id} className={`mp-stack-chip mp-stack-chip-${badge.lane}`}>
+                    <FrameworkLogo id={badge.id} size={22} />
+                    <div className="mp-stack-text">
+                      <p className="mp-stack-label">{badge.label}</p>
+                      <p className="mp-stack-note">{badge.note}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </>
+        )}
+
+        {active === 'work' && (
+          <>
+            <section className="mp-section">
+              <h2 className="mp-section-title">Experience updates</h2>
+
+              <div className="mp-exp-list">
+                {experienceHighlights.map((update) => (
+                  <article key={update.id} className="mp-exp-card">
+                    <div className="mp-exp-head">
+                      <h3 className="mp-exp-title">{update.title}</h3>
+                      <span className="mp-exp-badge">{update.badge}</span>
+                    </div>
+
+                    <p className="mp-exp-summary">{update.summary}</p>
+
+                    {update.bullets && (
+                      <ul className="mp-exp-bullets">
+                        {update.bullets.slice(0, 3).map((bullet) => (
+                          <li key={bullet}>{bullet}</li>
+                        ))}
+                      </ul>
+                    )}
+
+                    {update.link && (
+                      <a className="mp-exp-link" href={update.link} target="_blank" rel="noreferrer">
+                        {update.linkLabel ?? 'Open link'}
+                      </a>
+                    )}
+                  </article>
+                ))}
+              </div>
+            </section>
+
+            <section className="mp-section">
+              <h2 className="mp-section-title">Featured projects</h2>
+
+              <div className="mp-story-list">
+                {featuredStories.map((story) => (
+                  <article key={story.title} className="mp-story-card">
+                    <p className="mp-story-strap">{story.strap}</p>
+                    <h3 className="mp-story-title">{story.title}</h3>
+                    <p className="mp-story-summary">{story.summary}</p>
+
+                    <ul className="mp-story-outcomes">
+                      {story.outcomes.slice(0, 3).map((outcome) => (
+                        <li key={outcome}>{outcome}</li>
+                      ))}
+                    </ul>
+
+                    <div className="mp-story-stack">
+                      {story.stack.map((id) => {
+                        const badge = stackById.get(id);
+                        if (!badge) return null;
+                        return (
+                          <span key={id} className="mp-story-chip" title={badge.label}>
+                            <FrameworkLogo id={id} size={14} />
+                            {badge.label}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+
+            {topRepos.length > 0 && (
+              <section className="mp-section">
+                <h2 className="mp-section-title">Live repositories</h2>
+
+                <ul className="mp-repo-list">
+                  {topRepos.map((repo) => (
+                    <li key={repo.name}>
+                      <a href={repo.html_url} target="_blank" rel="noreferrer">
+                        <span className="mp-repo-name">{repo.name}</span>
+                        <span className="mp-repo-desc">{repo.description}</span>
+                        {repo.language && <span className="mp-repo-lang">{repo.language}</span>}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+
+                <a className="mp-inline-link" href="https://github.com/dayy346" target="_blank" rel="noreferrer">
+                  Browse everything on GitHub ↗
+                </a>
+              </section>
+            )}
+          </>
+        )}
+
+        {active === 'skills' && (
+          <>
+            <section className="mp-section">
+              <h2 className="mp-section-title">What I&rsquo;m good at</h2>
+
+              <div className="mp-skill-list">
+                {skillSpotlights.map((spotlight) => (
+                  <article key={spotlight.title} className={`mp-skill-card mp-skill-${spotlight.lane}`}>
+                    <div className="mp-skill-head">
+                      <h3 className="mp-skill-title">{spotlight.title}</h3>
+                      <span className="mp-skill-score">{spotlight.score}</span>
+                    </div>
+
+                    <p className="mp-skill-summary">{spotlight.summary}</p>
+                    <p className="mp-skill-proof">{spotlight.proof}</p>
+
+                    <div className="mp-skill-stack">
+                      {spotlight.stack.map((id) => {
+                        const badge = stackById.get(id);
+                        if (!badge) return null;
+                        return (
+                          <span key={id} className="mp-story-chip" title={badge.label}>
+                            <FrameworkLogo id={id} size={14} />
+                            {badge.label}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+
+            <section className="mp-section mp-stats-section">
+              <h2 className="mp-section-title">Live signals</h2>
+
+              <a
+                className="mp-stat-card"
+                href="https://github.com/dayy346"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <p className="mp-stat-label">GitHub · last 12 months</p>
+                <img
+                  src="https://ghchart.rshah.org/dayy346"
+                  alt="dayy346 GitHub contribution chart"
+                  className="mp-stat-chart"
+                  loading="lazy"
+                />
+                <p className="mp-stat-cta">@dayy346 · open profile →</p>
               </a>
-            </li>
-          ))}
-        </ul>
-      </section>
-      <footer>
-        <a href={`${BASE}assets/resume.pdf`} download>Download Resume</a>
+
+              <MobileLeetCodeCard />
+            </section>
+          </>
+        )}
+
+        {active === 'connect' && (
+          <section className="mp-section mp-connect">
+            <h2 className="mp-section-title">Say hi</h2>
+
+            <p className="mp-connect-intro">
+              I&rsquo;m up for AI engineering conversations, small-team collaborations, and recruiter chats.
+              The fastest ways to reach me are below.
+            </p>
+
+            <ul className="mp-connect-list">
+              <li>
+                <a href="mailto:dayyan6093@gmail.com">
+                  <Mail size={18} aria-hidden="true" />
+                  <span>
+                    <strong>dayyan6093@gmail.com</strong>
+                    <em>Personal email (fastest reply)</em>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.linkedin.com/in/dayyan-hamid" target="_blank" rel="noreferrer">
+                  <Linkedin size={18} aria-hidden="true" />
+                  <span>
+                    <strong>LinkedIn</strong>
+                    <em>Best for recruiters and intros</em>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/dayy346" target="_blank" rel="noreferrer">
+                  <Github size={18} aria-hidden="true" />
+                  <span>
+                    <strong>GitHub @dayy346</strong>
+                    <em>Live code + contribution graph</em>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href={`${BASE}assets/resume.pdf`} target="_blank" rel="noreferrer">
+                  <FileDown size={18} aria-hidden="true" />
+                  <span>
+                    <strong>Download resume</strong>
+                    <em>PDF · one page · always current</em>
+                  </span>
+                </a>
+              </li>
+            </ul>
+          </section>
+        )}
+      </main>
+
+      <footer className="mp-footer">
+        <p>
+          Desktop mode lives on iPad and larger screens. Rotate or open on a laptop to explore the full Dayyan.OS shell.
+        </p>
       </footer>
     </div>
+  );
+}
+
+function MobileLeetCodeCard() {
+  type Stats = { totalSolved: string; easySolved: string; mediumSolved: string; hardSolved: string };
+
+  const FALLBACK: Stats = { totalSolved: '163', easySolved: '62', mediumSolved: '89', hardSolved: '12' };
+  const [stats, setStats] = useState<Stats>(FALLBACK);
+
+  useEffect(() => {
+    let active = true;
+
+    fetch(`${BASE}leetcode-stats.json`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!active || !data) return;
+        setStats({
+          totalSolved: data.totalSolved != null ? String(data.totalSolved) : FALLBACK.totalSolved,
+          easySolved: data.easySolved != null ? String(data.easySolved) : FALLBACK.easySolved,
+          mediumSolved: data.mediumSolved != null ? String(data.mediumSolved) : FALLBACK.mediumSolved,
+          hardSolved: data.hardSolved != null ? String(data.hardSolved) : FALLBACK.hardSolved
+        });
+      })
+      .catch(() => undefined);
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  return (
+    <a
+      className="mp-stat-card mp-stat-leet"
+      href="https://leetcode.com/dayy345/"
+      target="_blank"
+      rel="noreferrer"
+    >
+      <p className="mp-stat-label">LeetCode · {stats.totalSolved} solved</p>
+
+      <div className="mp-leet-grid">
+        <div className="mp-leet-cell mp-leet-easy">
+          <span>{stats.easySolved}</span>
+          <em>Easy</em>
+        </div>
+        <div className="mp-leet-cell mp-leet-med">
+          <span>{stats.mediumSolved}</span>
+          <em>Medium</em>
+        </div>
+        <div className="mp-leet-cell mp-leet-hard">
+          <span>{stats.hardSolved}</span>
+          <em>Hard</em>
+        </div>
+      </div>
+
+      <p className="mp-stat-cta">@dayy345 · view profile →</p>
+    </a>
   );
 }
 
