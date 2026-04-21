@@ -48,6 +48,52 @@ export type ContributionHighlight = {
   detail: string;
 };
 
+export type FrameworkLogoId =
+  | 'python'
+  | 'typescript'
+  | 'react'
+  | 'vue'
+  | 'nuxt'
+  | 'fastapi'
+  | 'node'
+  | 'azure'
+  | 'aws'
+  | 'docker'
+  | 'postgresql'
+  | 'playwright'
+  | 'pytorch'
+  | 'tensorflow';
+
+export type StackBadge = {
+  id: FrameworkLogoId;
+  label: string;
+  note: string;
+  lane: 'frontend' | 'backend' | 'cloud' | 'data';
+};
+
+export type SkillSpotlight = {
+  title: string;
+  lane: 'frontend' | 'backend' | 'cloud' | 'data';
+  score: number;
+  summary: string;
+  proof: string;
+  stack: FrameworkLogoId[];
+};
+
+export type ShowcaseStory = {
+  title: string;
+  strap: string;
+  summary: string;
+  outcomes: string[];
+  stack: FrameworkLogoId[];
+};
+
+export type AboutSignal = {
+  label: string;
+  value: string;
+  detail: string;
+};
+
 export const bootStages: BootStage[] = [
   {
     id: 'bios',
@@ -239,5 +285,111 @@ export const contributionHighlights: ContributionHighlight[] = [
   {
     title: 'Open-source energy',
     detail: 'Live repo feed + contributions badge keep the old site’s pulse alive while displaying fresh analytics.'
+  }
+];
+
+export const stackBadges: StackBadge[] = [
+  { id: 'python', label: 'Python', note: 'APIs, ML, data tooling', lane: 'backend' },
+  { id: 'typescript', label: 'TypeScript', note: 'Typed UI + DX', lane: 'frontend' },
+  { id: 'react', label: 'React', note: 'Interactive product surfaces', lane: 'frontend' },
+  { id: 'vue', label: 'Vue', note: 'Client work + shipping velocity', lane: 'frontend' },
+  { id: 'nuxt', label: 'Nuxt', note: 'Production healthcare apps', lane: 'frontend' },
+  { id: 'fastapi', label: 'FastAPI', note: 'Retrieval and service layers', lane: 'backend' },
+  { id: 'node', label: 'Node.js', note: 'Web backends and tooling', lane: 'backend' },
+  { id: 'azure', label: 'Azure', note: 'AI Search + App Service', lane: 'cloud' },
+  { id: 'aws', label: 'AWS', note: 'Fargate, ECS, S3, CloudFront', lane: 'cloud' },
+  { id: 'docker', label: 'Docker', note: 'Containers + local parity', lane: 'cloud' },
+  { id: 'postgresql', label: 'PostgreSQL', note: 'Structured data + SQL', lane: 'data' },
+  { id: 'playwright', label: 'Playwright', note: 'QA and CI confidence', lane: 'data' },
+  { id: 'pytorch', label: 'PyTorch', note: 'Model training + experimentation', lane: 'data' },
+  { id: 'tensorflow', label: 'TensorFlow', note: 'Classifiers + ML workflows', lane: 'data' }
+];
+
+export const skillSpotlights: SkillSpotlight[] = [
+  {
+    title: 'Frontend systems',
+    lane: 'frontend',
+    score: 91,
+    summary: 'I build interfaces that feel sharp under pressure: recruiter-facing dashboards, pharma workflows, and internal tooling that still has to look clean and load fast.',
+    proof: 'Recent work spans Nuxt/Vue at Olixir New York plus React-based portfolio and ML tooling projects.',
+    stack: ['typescript', 'react', 'vue', 'nuxt']
+  },
+  {
+    title: 'Backend + AI product engineering',
+    lane: 'backend',
+    score: 93,
+    summary: 'My strongest lane is stitching product requirements to AI infrastructure: service APIs, retrieval layers, and evaluation loops that teams can actually trust.',
+    proof: 'Python/FastAPI services, Azure AI Search retrieval, spaCy-based NLP, and benchmark work for LLM/RAG architectures.',
+    stack: ['python', 'fastapi', 'node', 'postgresql']
+  },
+  {
+    title: 'Cloud delivery',
+    lane: 'cloud',
+    score: 88,
+    summary: 'I am comfortable owning the path from laptop to production, especially when the work needs to stay maintainable for a team after launch.',
+    proof: 'Migrated CollabLab services from EC2 to Fargate and shipped apps on Azure App Service with storage and retrieval dependencies.',
+    stack: ['aws', 'azure', 'docker', 'playwright']
+  },
+  {
+    title: 'Data + model work',
+    lane: 'data',
+    score: 87,
+    summary: 'I like projects where the engineering and the analysis matter equally: clean data pipelines, interpretable metrics, and models that answer a real question.',
+    proof: 'NFL Big Data Bowl modeling, custom neural-net tooling, SQL-heavy internal systems, and ML experimentation across PyTorch and TensorFlow.',
+    stack: ['pytorch', 'tensorflow', 'python', 'postgresql']
+  }
+];
+
+export const featuredStories: ShowcaseStory[] = [
+  {
+    title: 'Olixir New York · Conversational AI',
+    strap: 'Regulated AI delivery',
+    summary: 'I build internal healthcare tools where the work has to be useful, explainable, and safe under review. That means pairing polished front-end flows with retrieval systems and APIs that hold up under GxP expectations.',
+    outcomes: [
+      'Built Nuxt/Vue interfaces for real pharma workflows rather than demo-only surfaces.',
+      'Shipped Python/FastAPI services backed by Azure AI Search and blob-based retrieval.',
+      'Benchmarked RAG/LLM approaches with performance and regulatory alignment in mind.'
+    ],
+    stack: ['nuxt', 'vue', 'python', 'fastapi', 'azure']
+  },
+  {
+    title: 'CollabLab / Troy Tutors',
+    strap: 'EdTech platform + leadership',
+    summary: 'This is where I got sharper at balancing hands-on engineering with delivery leadership. I still build, but I also think in terms of systems, ownership, and how a small team ships reliably.',
+    outcomes: [
+      'Promoted into part-time engineering management for a five-engineer squad.',
+      'Directed EC2 to AWS Fargate migration work for scale, cost, and cleaner ops.',
+      'Owned product-facing features like camera-required room enforcement and QA automation.'
+    ],
+    stack: ['vue', 'node', 'aws', 'docker', 'playwright']
+  },
+  {
+    title: 'JUDGE · NFL Big Data Bowl',
+    strap: 'ML + storytelling',
+    summary: 'The best side projects for me feel like product work: take a messy problem, build a model, then explain the result in a way another person can trust. JUDGE was exactly that.',
+    outcomes: [
+      'Designed the JumpLine feature to better describe coverage behavior from tracking data.',
+      'Built an XGBoost pipeline with strong predictive performance on a real competition dataset.',
+      'Turned the analysis into a named metric instead of leaving it as a notebook experiment.'
+    ],
+    stack: ['python', 'pytorch', 'tensorflow', 'postgresql']
+  }
+];
+
+export const aboutSignals: AboutSignal[] = [
+  {
+    label: 'Current role',
+    value: 'AI engineer',
+    detail: 'Shipping conversational AI products at Olixir New York under Omnicom.'
+  },
+  {
+    label: 'Leadership',
+    value: '5 engineers',
+    detail: 'Leading a small full-stack squad at CollabLab while staying hands-on.'
+  },
+  {
+    label: 'Outside work',
+    value: 'Nationals qualified',
+    detail: 'Top-6 finish at the East Coast Collegiate Championships in powerlifting.'
   }
 ];

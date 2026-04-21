@@ -2,11 +2,15 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import {
   AppId,
   apps,
+  aboutSignals,
   bootStages,
   contributionHighlights,
+  featuredStories,
   leetCodeInsights,
   researchBriefNotes,
   resumeSections,
+  skillSpotlights,
+  stackBadges,
   type BootStage
 } from './data';
 
@@ -44,6 +48,7 @@ import { LeetCodeStatsWidget } from './components/widgets/LeetCodeStatsWidget';
 import { DesktopGitHubWidget } from './components/widgets/DesktopGitHubWidget';
 import { DesktopLeetCodeWidget } from './components/widgets/DesktopLeetCodeWidget';
 import { AppShellIcon } from './components/icons/AppShellIcon';
+import { FrameworkLogo } from './components/icons/FrameworkLogo';
 import { ChevronDown, Cloud } from 'lucide-react';
 
 import {
@@ -893,17 +898,62 @@ function WindowContent({
   }, [totalStars, repos.length]);
 
   const skills = [
-    { label: 'Python & FastAPI', value: 92, lane: 'backend' },
-    { label: 'TypeScript & Nuxt', value: 90, lane: 'frontend' },
-    { label: 'React & Vue', value: 88, lane: 'frontend' },
-    { label: 'Azure AI Search & App Service', value: 85, lane: 'cloud' },
-    { label: 'Data Science & SQL', value: 87, lane: 'data' },
-    { label: 'Node.js & Express', value: 86, lane: 'backend' },
-    { label: 'Power BI, SharePoint, GxP', value: 82, lane: 'data' },
-    { label: 'Engineering Leadership', value: 84, lane: 'backend' }
+    {
+      label: 'Python + FastAPI',
+      value: 93,
+      lane: 'backend',
+      proof: 'Core stack for AI services, retrieval APIs, and product backends.'
+    },
+    {
+      label: 'Nuxt + Vue',
+      value: 91,
+      lane: 'frontend',
+      proof: 'Used in production healthcare workflows where clarity matters.'
+    },
+    {
+      label: 'React + TypeScript',
+      value: 88,
+      lane: 'frontend',
+      proof: 'Portfolio, tooling, and UI experiments with stronger interaction polish.'
+    },
+    {
+      label: 'Azure AI Search + App Service',
+      value: 87,
+      lane: 'cloud',
+      proof: 'Search-backed retrieval, hosting, and AI-adjacent service delivery.'
+    },
+    {
+      label: 'AWS Fargate + ECS + S3',
+      value: 86,
+      lane: 'cloud',
+      proof: 'Migration and delivery work for CollabLab production infrastructure.'
+    },
+    {
+      label: 'SQL + data workflows',
+      value: 85,
+      lane: 'data',
+      proof: 'Structured data work across analytics, internal tools, and ML projects.'
+    },
+    {
+      label: 'PyTorch + TensorFlow',
+      value: 84,
+      lane: 'data',
+      proof: 'Model training, experimentation, and neural-net side projects.'
+    },
+    {
+      label: 'Leadership + delivery',
+      value: 84,
+      lane: 'backend',
+      proof: 'Roadmaps, reviews, architecture calls, and keeping small teams moving.'
+    }
   ] as const;
 
-  const shownSkills = skills.filter((item) => skillFilter === 'all' || item.lane === skillFilter);
+  const shownSkills = skills.filter(
+    (item) => skillFilter === 'all' || item.lane === skillFilter
+  );
+  const shownSkillSpotlights = skillSpotlights.filter(
+    (item) => skillFilter === 'all' || item.lane === skillFilter
+  );
 
   async function copyText(label: string, value: string) {
     try {
@@ -985,32 +1035,59 @@ function WindowContent({
           </div>
           <div className="about-hero-text">
             <h1>Dayyan Hamid</h1>
-            <p className="about-tagline">Software / AI Engineer · Conversational AI @ Olixir New York (Omnicom) · Rutgers CS ’25</p>
+            <p className="about-tagline">
+              Software / AI Engineer · Conversational AI @ Olixir New York
+              (Omnicom) · Rutgers CS ’25
+            </p>
             <p className="about-lead">
-              I build full-stack AI products for regulated healthcare at Olixir New York (Omnicom) — Nuxt/Vue front-ends backed by Python/FastAPI services, Azure AI Search retrieval, and spaCy/LLM pipelines that ship under GxP review. On the side I run engineering for a five-person squad at CollabLab (Vue + Node, migrated EC2 → Fargate), competed at the East Coast Collegiate Powerlifting Championships, and keep a Rutgers CS ’25 grade-A across electives in ML and distributed systems.
+              I build AI products that need to feel usable to normal people and
+              reliable to the teams behind them. Right now that means healthcare
+              work at Olixir New York: Nuxt/Vue on the front end, Python/FastAPI
+              in the middle, and retrieval pipelines that can survive real review.
+              Outside of that, I lead a five-engineer squad at CollabLab, build ML
+              side projects, and stay competitive in collegiate powerlifting.
             </p>
           </div>
         </header>
+        <section className="about-signal-grid">
+          {aboutSignals.map((signal) => (
+            <article key={signal.label} className="about-signal-card">
+              <p className="about-signal-label">{signal.label}</p>
+              <strong>{signal.value}</strong>
+              <span>{signal.detail}</span>
+            </article>
+          ))}
+        </section>
         <section className="about-section">
-          <h2>Focus areas</h2>
+          <h2>What I’m good at</h2>
           <ul className="about-list">
-            <li><strong>Applied AI</strong> — LLM/RAG benchmarking, retrieval design, spaCy/NLP pipelines</li>
-            <li><strong>Full stack delivery</strong> — Nuxt · Vue · Node · FastAPI · Azure · AWS</li>
-            <li><strong>Leadership</strong> — EM for a five-engineer squad; CI/CD and cloud migrations</li>
+            <li>
+              <strong>Applied AI that ships</strong> — RAG evaluation, retrieval
+              design, and NLP pipelines built for actual product use.
+            </li>
+            <li>
+              <strong>Full-stack execution</strong> — I can move from front-end
+              UX to backend APIs to deployment without losing the thread.
+            </li>
+            <li>
+              <strong>Small-team leverage</strong> — mentoring, architecture
+              decisions, and shipping habits that make a five-person team feel
+              bigger than it is.
+            </li>
           </ul>
         </section>
         <section className="about-section">
-          <h2>Tech</h2>
-          <div className="about-chips">
-            <span className="about-chip about-chip-python">Python</span>
-            <span className="about-chip about-chip-typescript">TypeScript</span>
-            <span className="about-chip about-chip-react">React</span>
-            <span className="about-chip about-chip-vue">Vue</span>
-            <span className="about-chip about-chip-node">Node</span>
-            <span className="about-chip about-chip-fastapi">FastAPI</span>
-            <span className="about-chip about-chip-azure">Azure</span>
-            <span className="about-chip about-chip-fastapi">Data Science</span>
-            <span className="about-chip about-chip-node">SQL</span>
+          <h2>Core stack</h2>
+          <div className="stack-badge-grid">
+            {stackBadges.map((badge) => (
+              <article key={badge.id} className="stack-badge-card">
+                <div className="stack-badge-header">
+                  <FrameworkLogo id={badge.id} size={18} />
+                  <strong>{badge.label}</strong>
+                </div>
+                <p>{badge.note}</p>
+              </article>
+            ))}
           </div>
         </section>
         <section className="about-section about-links">
@@ -1061,8 +1138,33 @@ function WindowContent({
   }
 
   if (appId === 'experience') {
+    const experienceLogos = [
+      'nuxt',
+      'vue',
+      'python',
+      'fastapi',
+      'azure',
+      'aws'
+    ] as const;
+
     return (
       <article className="timeline app-panel-frame">
+        <header className="app-window-intro">
+          <h2>Experience</h2>
+          <p className="app-window-intro-lead">
+            My best work usually sits at the intersection of product, platform,
+            and trust. Healthcare taught me to build carefully. EdTech taught me
+            to move fast with a small team. Regeneron taught me how process and
+            quality actually shape software in regulated environments.
+          </p>
+        </header>
+        <section className="experience-stack-strip" aria-label="Experience stack">
+          {experienceLogos.map((logoId) => (
+            <span key={logoId} className="experience-stack-pill">
+              <FrameworkLogo id={logoId} size={16} />
+            </span>
+          ))}
+        </section>
         <section>
           <h3>
             <button className="exp-toggle" onClick={() => setExperiencePanel('olixir')} aria-expanded={experiencePanel === 'olixir'}>
@@ -1143,19 +1245,56 @@ function WindowContent({
         <header className="app-window-intro">
           <h2>Skills</h2>
           <p className="app-window-intro-lead">
-            Self-rated against what I've shipped in production, not what I've read about. <strong>Frontend</strong>: Vue/Nuxt &amp; React/Next on real client work. <strong>Backend</strong>: Python/FastAPI + Node, with Azure AI Search and RAG pipelines. <strong>Cloud</strong>: AWS (ECS, Fargate, S3, CloudFront) + Azure App Service. <strong>Data</strong>: SQL, spaCy, classical ML. Filter to drill in.
+            This is the stack I can talk through in detail because I’ve used it
+            to ship work, not because I memorized a docs page. The goal here
+            isn’t to claim “expert in everything” — it’s to show where I’m
+            genuinely strongest and what kind of problems I’m useful on.
           </p>
         </header>
+        <section className="skills-logo-cloud" aria-label="Framework logos">
+          {stackBadges.map((badge) => (
+            <article key={badge.id} className="skills-logo-tile">
+              <FrameworkLogo id={badge.id} size={20} />
+              <div>
+                <strong>{badge.label}</strong>
+                <span>{badge.note}</span>
+              </div>
+            </article>
+          ))}
+        </section>
         <div className="filter-row" role="toolbar" aria-label="Skill filters">
           {['all', 'frontend', 'backend', 'cloud', 'data'].map((key) => (
             <button key={key} className={skillFilter === key ? 'active' : ''} onClick={() => setSkillFilter(key as typeof skillFilter)}>{key}</button>
           ))}
         </div>
+        <section className="skill-spotlight-grid">
+          {shownSkillSpotlights.map((spotlight) => (
+            <article key={spotlight.title} className="skill-spotlight-card">
+              <div className="skill-spotlight-top">
+                <p>{spotlight.title}</p>
+                <strong>{spotlight.score}%</strong>
+              </div>
+              <div className="skill-spotlight-logos">
+                {spotlight.stack.map((logo) => (
+                  <span key={`${spotlight.title}-${logo}`} className="skill-spotlight-logo">
+                    <FrameworkLogo id={logo} size={18} />
+                  </span>
+                ))}
+              </div>
+              <h3>{spotlight.summary}</h3>
+              <span>{spotlight.proof}</span>
+            </article>
+          ))}
+        </section>
         <div className="meter-stack">
           {shownSkills.map((skill) => (
             <div className="meter" key={skill.label}>
-              <p>{skill.label}</p>
+              <div className="meter-header">
+                <p>{skill.label}</p>
+                <strong>{skill.value}%</strong>
+              </div>
               <div className="track"><span style={{ width: `${skill.value}%` }} /></div>
+              <small>{skill.proof}</small>
             </div>
           ))}
         </div>
@@ -1251,16 +1390,55 @@ function WindowContent({
         <header className="app-window-intro">
           <h2>Projects · github.com/dayy346</h2>
           <p className="app-window-intro-lead">
-            Live repo data fetched at boot. Highlights: <strong>RAG/NLP tooling</strong> for healthcare, the <strong>CollabLab</strong> EdTech platform (Vue + Node + AWS Fargate), an <strong>NFL pass-rush ML pipeline</strong>, and a from-scratch neural-net trainer. Filter by name or sort by stars.
+            Live repo data is still here, but the point of this window is the
+            story behind the work: healthcare AI, a real EdTech platform, and ML
+            projects that started as curiosity but ended up with strong systems
+            thinking behind them.
           </p>
         </header>
+        <section className="featured-story-grid">
+          {featuredStories.map((story) => (
+            <article key={story.title} className="featured-story-card">
+              <div className="featured-story-head">
+                <p>{story.strap}</p>
+                <h3>{story.title}</h3>
+              </div>
+              <div className="featured-story-logos">
+                {story.stack.map((logo) => (
+                  <span key={`${story.title}-${logo}`} className="featured-story-logo">
+                    <FrameworkLogo id={logo} size={18} />
+                  </span>
+                ))}
+              </div>
+              <p className="featured-story-summary">{story.summary}</p>
+              <ul>
+                {story.outcomes.map((outcome) => (
+                  <li key={`${story.title}-${outcome}`}>{outcome}</li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </section>
         <p className="repo-summary">
           {repoStatusLine}
           <a href="https://github.com/dayy346" target="_blank" rel="noreferrer"> Browse GitHub ↗</a>
         </p>
         <div className="project-controls">
-          <input value={projectQuery} onChange={(e) => setProjectQuery(e.target.value)} placeholder="Filter repositories" aria-label="Filter repositories" />
-          <select value={sortMode} onChange={(e) => setSortMode(e.target.value as typeof sortMode)} aria-label="Sort repositories">
+          <input
+            id="project-filter"
+            name="projectFilter"
+            value={projectQuery}
+            onChange={(e) => setProjectQuery(e.target.value)}
+            placeholder="Filter repositories"
+            aria-label="Filter repositories"
+          />
+          <select
+            id="project-sort"
+            name="projectSort"
+            value={sortMode}
+            onChange={(e) => setSortMode(e.target.value as typeof sortMode)}
+            aria-label="Sort repositories"
+          >
             <option value="stars">Sort: Stars</option>
             <option value="name">Sort: Name</option>
           </select>
@@ -1310,7 +1488,10 @@ function WindowContent({
           <p className="muted">Delivery telemetry</p>
           <h2>Contributions.log</h2>
           <p className="app-window-intro-lead">
-            What I'm actually shipping right now. Pulled live from GitHub on every load — no static screenshots. Signal strength = stars per repo against my goal; freshness = how many repos pushed in the last 90 days. {repoStatusLine}
+            This is the closest thing to a delivery dashboard for my work. It’s
+            part live GitHub feed, part “what have I actually built lately?”
+            summary. Signal strength tracks repo traction; freshness tracks how
+            active the work has been recently. {repoStatusLine}
           </p>
         </header>
         <div className="contribution-gauges">
@@ -1329,6 +1510,15 @@ function WindowContent({
             <small>{repos.length} repos live · {freshnessPercent}% of refresh capacity</small>
           </div>
         </div>
+        <section className="contribution-story-strip">
+          {featuredStories.slice(0, 3).map((story) => (
+            <article key={`contribution-${story.title}`} className="contribution-story-card">
+              <p>{story.strap}</p>
+              <h3>{story.title}</h3>
+              <span>{story.summary}</span>
+            </article>
+          ))}
+        </section>
         <section className="contribution-highlights-grid">
           {contributionHighlights.map((highlight) => (
             <article key={`${highlight.title}-${highlight.detail}`}>
@@ -1418,6 +1608,8 @@ function WindowContent({
         </div>
         <form className="chatbot-form" onSubmit={handleChatSubmit}>
           <input
+            id="chatbot-input"
+            name="chatbotInput"
             value={chatInput}
             onChange={(e) => setChatInput(e.target.value)}
             placeholder="Ask about a project or say 'list projects'"
