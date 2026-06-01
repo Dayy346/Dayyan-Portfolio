@@ -97,92 +97,87 @@ export type AboutSignal = {
 export const bootStages: BootStage[] = [
   {
     id: 'bios',
-    title: 'Crystalline POST',
-    subtitle: 'Cinematic sensor choreography aligns hardware with narrative intent.',
+    title: 'System Check',
+    subtitle: 'A restrained boot sequence that gets straight to the portfolio.',
     accent: '#f0a95e',
-    durationMs: 2000,
-    metricLabel: 'Sensor coherence',
-    metricValue: 'Crystalline POST at 99.7% readiness',
-    narrative: 'Latest CHI research shows early storytelling cues shrink uncertainty. We warm up the instruments in stillness before revealing the story.',
-    pulse: 'Pulse: measured breath, slow amber pulses, and mechanical shutters easing into motion.',
+    durationMs: 1800,
+    metricLabel: 'Readiness',
+    metricValue: 'Portfolio ready · core assets verified',
+    narrative: 'The retro shell stays, but the first impression is calmer and more professional. Clear content always wins over spectacle.',
+    pulse: 'Amber status lights and quiet progress cues set the tone.',
     lines: [
-      '[POST] Crystalline sensors performing 32-bit handshake',
-      '[POST] Haptic keyboard + pointer calibrations verified',
-      '[POST] NVMe memory grid refreshed with redundancy guardrails',
-      '[POST] Ambient light grid warming for premium palettes',
-      '[POST] Story fragments prepped for the cinematic arc',
-      '[OK] BIOS warp drive engaged · hush tuned for stage two'
+      '[CHECK] Core assets verified',
+      '[CHECK] Copy and layout loaded',
+      '[CHECK] Resume, projects, and contact links online',
+      '[READY] Opening portfolio view'
     ]
   },
   {
     id: 'kernel',
-    title: 'Quantum Kernel Rhythm',
-    subtitle: 'Interaction engine, motion cues, and reliability services get in sync.',
+    title: 'Content Sync',
+    subtitle: 'The app windows and live data are loading in a cleaner order.',
     accent: '#82c7b3',
-    durationMs: 1800,
-    metricLabel: 'Kernel cadence',
-    metricValue: 'Scheduler locks 3.2ms beats · input concierge armed',
-    narrative: 'Motion research guided by embodied interaction principles keeps every micro-cue consistent, comfortable, and intentional.',
-    pulse: 'Pulse: ribboned teal glow that swirls with each scheduler beat.',
+    durationMs: 1600,
+    metricLabel: 'Sync status',
+    metricValue: 'Data channels online · interactions ready',
+    narrative: 'This step keeps the desktop feel, but the copy stays focused on the work instead of the novelty.',
+    pulse: 'Soft teal movement keeps the interface feeling active without being loud.',
     lines: [
-      '[OK] Kernel heartbeat synced with atmospheric motion cadence',
-      '[OK] Scheduler choreographs cinematic + comfort zones',
-      '[OK] Window manager wires tuned for layered inertia',
-      '[OK] Input concierge armed: Alt+Tab, Ctrl+M, Enter',
-      '[OK] Missive board + telemetry streaming curated pulses',
-      '[OK] Reduced-motion fallbacks standing by'
+      '[OK] Interaction model aligned',
+      '[OK] Window manager ready',
+      '[OK] GitHub and LeetCode data streams connected',
+      '[OK] Keyboard shortcuts available',
+      '[READY] Portfolio windows can be opened'
     ]
   },
   {
     id: 'atmosphere',
-    title: 'Atmospheric Shell',
-    subtitle: 'Gradient fog, halos, and depth cues paint the workspace.',
+    title: 'Visual Setup',
+    subtitle: 'Spacing, hierarchy, and contrast are now tuned for readability.',
     accent: '#c27dcf',
-    durationMs: 1500,
-    metricLabel: 'Atmospheric depth',
-    metricValue: 'Four matte gradients locked · halo intensity steady',
-    narrative: 'Visual comfort studies affirm that layered gradients and subtle haze keep focus while delivering nostalgia.',
-    pulse: 'Pulse: violet halos ripple gently as if breathing through a retro console.',
+    durationMs: 1400,
+    metricLabel: 'Visual polish',
+    metricValue: 'Type, spacing, and contrast calibrated',
+    narrative: 'The goal is a site that feels designed, not decorated. The interface should support the content instead of competing with it.',
+    pulse: 'Subtle color shifts keep the page feeling polished and intentional.',
     lines: [
-      '[OK] Palette matrix applying atmospheric gradient overlays',
-      '[OK] Atmosphere conductor warms stage lighting + halos',
-      '[OK] Desktop motif introduces matte, chrome, and warmth',
-      '[OK] Narrative audio hints locked to transition cadence',
-      '[OK] Taskbar + overlays tuned to kinetic bounce rhythms',
-      '[READY] Ambient shell present · retro lightscapes ready'
+      '[OK] Typographic scale confirmed',
+      '[OK] Panel contrast tuned',
+      '[OK] Responsive breakpoints checked',
+      '[READY] Layout ready for browsing'
     ]
   },
   {
     id: 'story',
-    title: 'Story Sync & Launch',
-    subtitle: 'Every window, repo, and missive narrates the mission.',
+    title: 'Ready to Browse',
+    subtitle: 'The portfolio is open and the important links are obvious.',
     accent: '#6edb9f',
-    durationMs: 1400,
-    metricLabel: 'Story sync',
-    metricValue: 'Repo + Missive signals streaming · narrative locked',
-    narrative: 'Storytelling research says closing with a friendly narrative hook makes the shell feel alive and trustworthy.',
-    pulse: 'Pulse: emerald streaks cascade toward the horizon, teasing the desktop.',
+    durationMs: 1200,
+    metricLabel: 'Launch state',
+    metricValue: 'Portfolio open · resume and projects available',
+    narrative: 'Now the content can do the talking: work history, projects, skills, and contact links are all easy to find.',
+    pulse: 'A final green cue signals that the site is ready.',
     lines: [
-      '[OK] Story watchers align: focus, mood, and highlight cues',
-      '[OK] Repositories, missives, and windows materialized',
-      '[OK] Cinematic boot story synced to live analytics',
-      '[READY] Portfolio interface fully awake · welcoming you home'
+      '[OK] Resume available',
+      '[OK] Projects and experience visible',
+      '[OK] Contact links ready',
+      '[READY] Portfolio interface fully awake'
     ]
   }
 ];
 
 export const apps = [
-  { id: 'about', icon: '👤', label: 'About.me' },
-  { id: 'resume', icon: '📄', label: 'Resume.pdf' },
-  { id: 'projects', icon: '🗂️', label: 'Projects.dir' },
-  { id: 'contributions', icon: '📈', label: 'Contributions.log' },
-  { id: 'experience', icon: '🧰', label: 'Experience.log' },
-  { id: 'skills', icon: '⚙️', label: 'Skills.cfg' },
-  { id: 'power', icon: '🏋️', label: 'Extracurricular.log' },
-  { id: 'leetcode', icon: '🧩', label: 'LeetCode.trn' },
-  { id: 'contact', icon: '📡', label: 'Contact.net' },
-  { id: 'chatbot', icon: '🤖', label: 'Assist.chat' },
-  { id: 'help', icon: '⌨️', label: 'Help.txt' }
+  { id: 'about', icon: '👤', label: 'About' },
+  { id: 'resume', icon: '📄', label: 'Resume' },
+  { id: 'projects', icon: '🗂️', label: 'Projects' },
+  { id: 'contributions', icon: '📈', label: 'GitHub' },
+  { id: 'experience', icon: '🧰', label: 'Experience' },
+  { id: 'skills', icon: '⚙️', label: 'Skills' },
+  { id: 'power', icon: '🏋️', label: 'Extracurriculars' },
+  { id: 'leetcode', icon: '🧩', label: 'LeetCode' },
+  { id: 'contact', icon: '📡', label: 'Contact' },
+  { id: 'chatbot', icon: '🤖', label: 'Chat' },
+  { id: 'help', icon: '⌨️', label: 'Help' }
 ] as const;
 
 export const researchBriefNotes: ResearchNote[] = [
@@ -240,7 +235,7 @@ export const resumeSections: ResumeSection[] = [
       'Secretary (Executive Board) · Pakistani Student Association · Sep 2022 — May 2025: Events, communications, NFC attendance system still in use at Rutgers.',
       'Skills — Languages: Python, TypeScript/JavaScript, Java, SQL. AI/ML: PyTorch, TensorFlow, scikit-learn. (See PDF for full stack list.)'
     ],
-    footer: 'Download matches Resume_Dayyan_2026 — update this site when the PDF changes.'
+    footer: 'Keep this resume in sync with the PDF whenever the file changes.'
   }
 ];
 
@@ -380,12 +375,12 @@ export const aboutSignals: AboutSignal[] = [
   {
     label: 'Current role',
     value: 'AI engineer',
-    detail: 'Shipping conversational AI products at Olixir New York under Omnicom.'
+    detail: 'Building conversational AI and product tooling at Olixir New York.'
   },
   {
     label: 'Leadership',
     value: '5 engineers',
-    detail: 'Leading a small full-stack squad at CollabLab while staying hands-on.'
+    detail: 'Leading a small full-stack team at CollabLab while staying hands-on.'
   },
   {
     label: 'Outside work',

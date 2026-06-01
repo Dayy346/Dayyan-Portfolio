@@ -6,10 +6,10 @@ import {
   type BootState,
 } from './bootMachine';
 
-const FROM_VALUE = 'A:\\Research\\Payload\\';
-const TO_VALUE = 'C:\\Portfolio\\Desktop\\';
-const FILE_LABEL = 'Saving: ';
-const FILE_NAME = 'Portfolio.dat';
+const FROM_VALUE = 'Portfolio overview';
+const TO_VALUE = 'Desktop ready';
+const FILE_LABEL = 'Launching: ';
+const FILE_NAME = 'Dayyan portfolio';
 
 export type Win9xBootDialogProps = {
   /** Total duration in ms for the simulated transfer (6–10s). */
@@ -118,7 +118,7 @@ export function Win9xBootDialog({
         className="win9x-boot-overlay"
         role="dialog"
         aria-modal="true"
-        aria-label="File transfer"
+        aria-label="Portfolio launch brief"
         data-testid="boot-dialog"
       >
         <div className="win9x-boot-wrapper">
@@ -127,7 +127,7 @@ export function Win9xBootDialog({
             aria-live="polite"
           >
             <header className="win9x-boot-titlebar">
-              <span className="title-text">Copying files...</span>
+              <span className="title-text">Preparing portfolio...</span>
               <button type="button" className="win9x-titlebar-close" aria-label="Close" tabIndex={-1}>✕</button>
             </header>
             <div className="win9x-boot-body">
@@ -152,7 +152,7 @@ export function Win9xBootDialog({
                   aria-valuemin={0}
                   aria-valuemax={100}
                   aria-valuenow={progressPercent}
-                  aria-label="Transfer progress"
+                  aria-label="Launch progress"
                   data-testid="boot-progress"
                 >
                   <div className="win9x-boot-progress-fill" style={{ width: `${progressPercent}%` }} />
@@ -163,44 +163,44 @@ export function Win9xBootDialog({
                   disabled={isCompleted || isCancelling}
                   onClick={handleCancel}
                   data-testid="boot-cancel"
-                  aria-label="Cancel"
+                  aria-label="Skip intro"
                 >
-                  Cancel
+                  Skip intro
                 </button>
               </div>
-            <div className="win9x-boot-fields">
-              <div className="win9x-boot-field">
-                <label htmlFor="boot-from">From:</label>
-                <input
-                  id="boot-from"
-                  type="text"
-                  readOnly
-                  value={FROM_VALUE}
-                  aria-label="From"
-                  data-testid="boot-from"
-                />
+              <div className="win9x-boot-fields">
+                <div className="win9x-boot-field">
+                  <label htmlFor="boot-from">Focus:</label>
+                  <input
+                    id="boot-from"
+                    type="text"
+                    readOnly
+                    value={FROM_VALUE}
+                    aria-label="Focus"
+                    data-testid="boot-from"
+                  />
+                </div>
+                <div className="win9x-boot-field">
+                  <label htmlFor="boot-to">Destination:</label>
+                  <input
+                    id="boot-to"
+                    type="text"
+                    readOnly
+                    value={TO_VALUE}
+                    aria-label="Destination"
+                    data-testid="boot-to"
+                  />
+                </div>
               </div>
-              <div className="win9x-boot-field">
-                <label htmlFor="boot-to">To:</label>
-                <input
-                  id="boot-to"
-                  type="text"
-                  readOnly
-                  value={TO_VALUE}
-                  aria-label="To"
-                  data-testid="boot-to"
-                />
-              </div>
-            </div>
 
             <div className="win9x-boot-stats">
               <span>
-                {isCancelling ? 'Cancelling…' : `${state.rateKbs} KB/s`}
+                {isCancelling ? 'Refreshing…' : `${state.rateKbs} KB/s`}
               </span>
               <span>
                 {isCancelling ? '—' : `Est. ${state.etaSeconds} sec remaining`}
               </span>
-              <span className="simulated-note">(simulated)</span>
+              <span className="simulated-note">(intro)</span>
             </div>
 
             <div className="win9x-boot-checkbox-wrap">
@@ -210,11 +210,11 @@ export function Win9xBootDialog({
                 className="win9x-boot-checkbox"
                 checked={state.closeWhenComplete}
                 onChange={handleCheckboxChange}
-                aria-label="Close this dialog when download completes"
+                aria-label="Close this dialog when launch completes"
                 data-testid="boot-checkbox"
               />
               <label htmlFor="boot-close-when-complete">
-                Close this dialog when download completes
+                Close this dialog when launch completes
               </label>
             </div>
 
@@ -225,18 +225,18 @@ export function Win9xBootDialog({
                 disabled={!isCompleted}
                 onClick={handleOpen}
                 data-testid="boot-open"
-                aria-label="Open when transfer is complete"
+                aria-label="Open portfolio when intro is complete"
               >
-                Open
+                Open portfolio
               </button>
               <button
                 type="button"
                 className="win9x-btn"
                 onClick={handleOpenFolder}
                 data-testid="boot-open-folder"
-                aria-label="Open folder preview"
+                aria-label="Preview desktop highlights"
               >
-                Open Folder
+                Preview highlights
               </button>
             </div>
           </div>
@@ -248,20 +248,20 @@ export function Win9xBootDialog({
         <div
           className="win9x-explorer-preview"
           role="dialog"
-          aria-label="Folder preview"
+          aria-label="Portfolio highlights preview"
           data-testid="boot-explorer-preview"
         >
           <header className="win9x-explorer-titlebar">
-            C:\Portfolio\Desktop
+            Portfolio highlights
           </header>
           <div className="win9x-explorer-body">
             <ul>
-              <li><span className="icon">📁</span> About.me</li>
-              <li><span className="icon">📄</span> Resume.pdf</li>
-              <li><span className="icon">🗂️</span> Projects.dir</li>
-              <li><span className="icon">📈</span> Contributions.log</li>
-              <li><span className="icon">🧩</span> LeetCode.trn</li>
-              <li><span className="icon">📡</span> Contact.net</li>
+              <li><span className="icon">👤</span> About</li>
+              <li><span className="icon">📄</span> Resume</li>
+              <li><span className="icon">🗂️</span> Projects</li>
+              <li><span className="icon">📈</span> GitHub</li>
+              <li><span className="icon">⚙️</span> Skills</li>
+              <li><span className="icon">📡</span> Contact</li>
             </ul>
           </div>
         </div>
