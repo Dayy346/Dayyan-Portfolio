@@ -149,11 +149,11 @@ const PREMIUM_HIGHLIGHTS = [
 ];
 
 const KEYBOARD_SHORTCUTS = [
-  { id: 'alt-tab', combo: 'Alt + Tab', detail: 'Cycle focus between open windows while the hero signal glows.' },
-  { id: 'ctrl-m', combo: 'Ctrl + M', detail: 'Minimize the focused window without reaching for the mouse.' },
-  { id: 'enter', combo: 'Enter', detail: 'Launch icons, confirm login, or trigger the start menu action.' },
-  { id: 'space', combo: 'Space', detail: 'Toggle the recruiter signal detail rail or quick peek an icon.' },
-  { id: 'esc', combo: 'Esc', detail: 'Skip boot, close menus, or replay the narrative log.' }
+  { id: 'alt-tab', combo: 'Alt + Tab', detail: 'Move between open windows.' },
+  { id: 'ctrl-m', combo: 'Ctrl + M', detail: 'Minimize the active window.' },
+  { id: 'enter', combo: 'Enter', detail: 'Open a selected item or confirm an action.' },
+  { id: 'space', combo: 'Space', detail: 'Toggle quick details on selected cards.' },
+  { id: 'esc', combo: 'Esc', detail: 'Close menus or skip the boot sequence.' }
 ] as const;
 
 /** Desktop icons exclude GitHub and LeetCode; those live as top-right widgets. */
@@ -163,17 +163,17 @@ const PINNED_START_APP_IDS: AppId[] = ['about', 'projects', 'resume', 'experienc
 const SECONDARY_START_APP_IDS: AppId[] = ['skills', 'contributions', 'leetcode', 'power', 'contact'];
 
 const APP_SUBTITLES: Record<AppId, string> = {
-  about: 'A quick intro to who I am',
-  resume: 'Download the latest PDF',
-  projects: 'Live repos + case studies',
-  contact: 'Say hi, send a message',
+  about: 'Executive summary and current focus',
+  resume: 'View the latest PDF',
+  projects: 'Selected work and case studies',
+  contact: 'Reach out or send a note',
   experience: 'Roles, dates, and impact',
-  skills: 'Stack, proof, and depth',
-  power: 'What I do outside of work',
-  leetcode: 'Daily practice telemetry',
+  skills: 'Capabilities and proof',
+  power: 'Beyond the keyboard',
+  leetcode: 'Practice and consistency',
   contributions: 'GitHub activity timeline',
-  chatbot: 'Ask anything about my work',
-  help: 'Keyboard shortcuts + tips'
+  chatbot: 'Ask about projects or experience',
+  help: 'Keyboard shortcuts and tips'
 };
 
 const RECENT_APPS_STORAGE_KEY = 'dayyan.portfolio.recentApps.v1';
@@ -278,7 +278,7 @@ const createInitialWindowMap = () =>
     return acc;
   }, {} as Record<AppId, WindowState>);
 
-const ABOUT_WINDOW_CENTER_SIZE = { w: 460, h: 420 };
+const ABOUT_WINDOW_CENTER_SIZE = { w: 520, h: 380 };
 function getAboutWindowCenter() {
   const x = Math.max(0, (window.innerWidth - ABOUT_WINDOW_CENTER_SIZE.w) / 2);
   const y = Math.max(0, (window.innerHeight - ABOUT_WINDOW_CENTER_SIZE.h) / 2);
@@ -663,7 +663,7 @@ export default function App() {
             <DesktopGitHubWidget />
             <DesktopLeetCodeWidget />
           </div>
-          <p className="desktop-hint" data-testid="desktop-hint">Double-click <strong>About Me</strong> to find out about me.</p>
+          <p className="desktop-hint" data-testid="desktop-hint">Open <strong>About</strong> for a concise overview.</p>
           <section className="desktop-icon-grid" role="grid" aria-label="Desktop icons" data-testid="desktop-icon-grid">
               {DESKTOP_ICON_APPS.map((app, idx) => {
                 const row = Math.floor(idx / 4) + 1;
@@ -921,11 +921,10 @@ export default function App() {
                         <a
                           className="start-menu-shortcut-item"
                           href={`${BASE}assets/resume.pdf`}
-                          download
                           data-testid="start-menu-resume-link"
                         >
                           <FileDown className="start-menu-shortcut-lucide" aria-hidden />
-                          <span>Download resume</span>
+                          <span>Open resume PDF</span>
                         </a>
                       </li>
                     </ul>
@@ -1343,6 +1342,7 @@ function WindowContent({
   };
 
   if (appId === 'about') {
+    const selectedStack = stackBadges.slice(0, 6);
     return (
       <article className="about-revamp app-panel-frame">
         <header className="about-hero">
@@ -1352,16 +1352,10 @@ function WindowContent({
           <div className="about-hero-text">
             <h1>Dayyan Hamid</h1>
             <p className="about-tagline">
-              Software / AI Engineer · Conversational AI @ Olixir New York
-              (Omnicom) · Rutgers CS ’25
+              Software and AI engineer · Conversational AI at Olixir New York (Omnicom) · Rutgers CS ’25
             </p>
             <p className="about-lead">
-              I build AI products that need to feel usable to normal people and
-              reliable to the teams behind them. Right now that means healthcare
-              work at Olixir New York: Nuxt/Vue on the front end, Python/FastAPI
-              in the middle, and retrieval pipelines that can survive real review.
-              Outside of that, I lead a five-engineer squad at CollabLab, build ML
-              side projects, and stay competitive in collegiate powerlifting.
+              I build full-stack AI products and internal tools that need to ship cleanly, stay reliable, and be easy for teams to adopt. My current work is healthcare-focused; outside of that I lead a small engineering team, build practical ML projects, and compete in collegiate powerlifting.
             </p>
           </div>
         </header>
@@ -1374,28 +1368,27 @@ function WindowContent({
             </article>
           ))}
         </section>
-        <section className="about-section">
-          <h2>What I’m good at</h2>
+        <section className="about-section about-focus-section">
+          <h2>Focus</h2>
           <ul className="about-list">
             <li>
-              <strong>Applied AI that ships</strong> — RAG evaluation, retrieval
-              design, and NLP pipelines built for actual product use.
+              <strong>Applied AI</strong> — RAG, retrieval, and evaluation loops that support real product decisions.
             </li>
             <li>
-              <strong>Full-stack execution</strong> — I can move from front-end
-              UX to backend APIs to deployment without losing the thread.
+              <strong>Full-stack delivery</strong> — product UX, backend APIs, and deployment with a consistent standard.
             </li>
             <li>
-              <strong>Small-team leverage</strong> — mentoring, architecture
-              decisions, and shipping habits that make a five-person team feel
-              bigger than it is.
+              <strong>Small-team leadership</strong> — architecture, mentoring, and execution habits that improve output.
             </li>
           </ul>
         </section>
-        <section className="about-section">
-          <h2>Core stack</h2>
-          <div className="stack-badge-grid">
-            {stackBadges.map((badge) => (
+        <section className="about-section about-stack-section">
+          <div className="about-section-heading">
+            <h2>Selected stack</h2>
+            <span>See Skills for the full breakdown.</span>
+          </div>
+          <div className="stack-badge-grid stack-badge-grid-compact">
+            {selectedStack.map((badge) => (
               <article key={badge.id} className="stack-badge-card">
                 <div className="stack-badge-header">
                   <FrameworkLogo id={badge.id} size={18} />
@@ -1426,12 +1419,12 @@ function WindowContent({
         <header className="resume-window-header">
           <div className="resume-window-title-row">
             <h2 className="resume-window-title">Resume</h2>
-            <a href={`${BASE}assets/resume.pdf`} download className="resume-download-btn">
-              Download PDF
+            <a href={`${BASE}assets/resume.pdf`} target="_blank" rel="noreferrer" className="resume-download-btn">
+              Open PDF
             </a>
           </div>
           <p className="resume-window-subtitle">
-            Built-in PDF viewer. If it doesn’t render in your browser, use the download button.
+            PDF preview embedded below. If your browser blocks it, use Open PDF.
           </p>
         </header>
         <div className="resume-pdf-viewer">
@@ -1674,7 +1667,7 @@ function WindowContent({
     return (
       <article className="leetcode-panel app-panel-frame">
         <header className="app-window-intro">
-          <h2>LeetCode · @dayy345</h2>
+          <h2>LeetCode · @dayy346</h2>
           <p className="app-window-intro-lead">
             Daily-ish practice — graphs, DP, and system-design flavored mediums. Counters below pull from leetcode-stats-api when CORS allows; otherwise cached. Open the profile for the live ledger.
           </p>
@@ -1911,8 +1904,8 @@ function WindowContent({
     return (
       <article className="chatbot-shell app-panel-frame">
         <header className="chatbot-header">
-          <h2>Assist · portfolio bot</h2>
-          <p>Local rules-based bot trained on my project list. Try <em>&quot;list projects&quot;</em>, <em>&quot;tell me about CollabLab&quot;</em>, or <em>&quot;what stack do you use at Olixir?&quot;</em>. No external API calls — runs in-browser.</p>
+          <h2>Assist · portfolio assistant</h2>
+          <p>Local rules-based assistant trained on my project list. Try <em>&quot;list projects&quot;</em>, <em>&quot;tell me about CollabLab&quot;</em>, or <em>&quot;what stack do you use at Olixir?&quot;</em>. No external API calls — runs in-browser.</p>
         </header>
         <div className="chat-window">
           {chatHistory.map((message, idx) => (
@@ -1962,7 +1955,7 @@ function HeroSignalRail({ shellStatus, recruiterSignalCount, signalRefresh }: He
   return (
     <section className="hero-signal-rail" data-testid="hero-signal-rail" aria-label="Hero signal rail">
       <article className="rail-card rail-card-signal" data-testid="rail-stage-card">
-        <p className="rail-label">Hero signal</p>
+        <p className="rail-label">Overview</p>
         <h3>{shellStatus.stageTitle}</h3>
         <p className="rail-subtitle">{shellStatus.stageSubtitle}</p>
         <div
@@ -1981,8 +1974,8 @@ function HeroSignalRail({ shellStatus, recruiterSignalCount, signalRefresh }: He
         </div>
       </article>
       <article className="rail-card rail-card-recruiter" data-testid="rail-recruiter-card">
-        <p className="rail-label">Recruiter signal rail</p>
-        <h4>Recruiters: {recruiterSignalCount} live signals</h4>
+        <p className="rail-label">Key proof</p>
+        <h4>Recruiter-ready summary</h4>
         <p className="rail-highlight">{shellStatus.highlightCopy}</p>
         <div className="rail-recruiter-metrics">
           <span data-testid="rail-recruiter-progress">Signal progress {progressValue}%</span>
@@ -1996,9 +1989,9 @@ function HeroSignalRail({ shellStatus, recruiterSignalCount, signalRefresh }: He
             rel="noreferrer"
             data-testid="hero-rail-view-resume"
           >
-            View Profiles
+            View resume
           </a>
-          <span className="rail-callout-badge">Premium recruiter ready</span>
+          <span className="rail-callout-badge">Recruiter-ready</span>
         </div>
       </article>
       <article className="rail-card rail-card-shortcuts" data-testid="rail-shortcuts-card">
@@ -2330,7 +2323,7 @@ function MobileLite({
                 <a href={`${BASE}assets/resume.pdf`} target="_blank" rel="noreferrer">
                   <FileDown size={18} aria-hidden="true" />
                   <span>
-                    <strong>Download resume</strong>
+                    <strong>Open resume PDF</strong>
                     <em>PDF · one page · always current</em>
                   </span>
                 </a>

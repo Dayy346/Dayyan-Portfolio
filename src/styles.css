@@ -124,7 +124,7 @@ small {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-base);
-  padding: calc(var(--spacing-base) * 0.3) var(--spacing-base) calc(var(--spacing-base) * 0.4);
+  padding: 0.9rem 1rem 0.6rem;
 }
 
 /* During boot: hide shell so body (sky + hills) is visible behind the boot overlay */
@@ -1301,7 +1301,7 @@ small {
 .desktop-hint {
   position: absolute;
   left: 1rem;
-  top: 0.75rem;
+  top: 1rem;
   margin: 0;
   font-size: 0.85rem;
   color: var(--text-strong);
@@ -1316,8 +1316,8 @@ small {
 /* Top-right desktop widgets: GitHub contribution chart + LeetCode breakdown; right edges aligned */
 .desktop-widgets {
   position: absolute;
-  top: 0.75rem;
-  left: 0.75rem;
+  top: 1rem;
+  left: 1rem;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -1803,13 +1803,13 @@ small {
 /* Desktop icons: right side, vertical column, aligned consistently */
 .desktop-icon-grid {
   position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  bottom: calc(49px + 0.75rem);
+  top: 1rem;
+  right: 1rem;
+  bottom: calc(49px + 0.9rem);
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.4rem;
+  gap: 0.5rem;
   padding: 0;
   margin: 0;
   background: transparent;
@@ -2176,6 +2176,10 @@ small {
 }
 
 .window-content[data-app="about"] { --app-accent: #1b63d8; }
+.window-content.app-about {
+  max-height: min(78vh, 600px);
+  overflow-y: auto;
+}
 .window-content[data-app="resume"] { --app-accent: #b46716; }
 .window-content[data-app="projects"] { --app-accent: #2471b6; }
 .window-content[data-app="experience"] { --app-accent: #7b4a1d; }
@@ -2515,7 +2519,7 @@ small {
   font-size: 0.78rem;
 }
 
-/* About Me — visually appealing layout, no head crop, colorful tech */
+/* About panel — compact, recruiter-friendly overview. */
 .about-revamp {
   max-width: 44rem;
   margin: 0;
@@ -2523,10 +2527,10 @@ small {
 
 .about-hero {
   display: flex;
-  gap: 1.5rem;
+  gap: 1.25rem;
   align-items: flex-start;
-  margin-bottom: 1.5rem;
-  padding: 1.25rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
   padding-top: 0;
   border-bottom: none;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
@@ -2568,22 +2572,22 @@ small {
 }
 
 .about-tagline {
-  margin: 0 0 0.5rem;
-  font-size: 0.95rem;
+  margin: 0 0 0.35rem;
+  font-size: 0.92rem;
   font-weight: 600;
   color: #475569;
 }
 
 .about-lead {
   margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.55;
+  font-size: 0.92rem;
+  line-height: 1.5;
   color: #334155;
 }
 
 .about-section {
-  margin-bottom: 1.35rem;
-  padding: 1rem 0;
+  margin-bottom: 1rem;
+  padding: 0.8rem 0;
   border-bottom: 1px solid #e2e8f0;
 }
 
@@ -2596,8 +2600,8 @@ small {
 }
 
 .about-section h2 {
-  margin: 0 0 0.65rem;
-  font-size: 1.1rem;
+  margin: 0 0 0.45rem;
+  font-size: 1.05rem;
   font-weight: 700;
   letter-spacing: 0.03em;
   color: #0f172a;
@@ -2605,25 +2609,25 @@ small {
 
 .about-list {
   margin: 0;
-  padding-left: 1.35rem;
-  font-size: 0.92rem;
-  line-height: 1.6;
+  padding-left: 1.25rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
   color: #334155;
 }
 
 .about-list li {
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.3rem;
 }
 
 .about-signal-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.65rem;
+  margin-bottom: 0.85rem;
 }
 
 .about-signal-card {
-  padding: 0.85rem 0.95rem;
+  padding: 0.75rem 0.85rem;
   border-radius: 12px;
   border: 1px solid rgba(15, 23, 42, 0.08);
   background: linear-gradient(180deg, #ffffff, #eef4ff);
@@ -2673,7 +2677,7 @@ small {
 .stack-badge-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
-  gap: 0.65rem;
+  gap: 0.6rem;
 }
 
 .stack-badge-card {
@@ -3937,7 +3941,7 @@ select:focus-visible {
   * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
 /* New night-focused panels */
-/* Resume window: clean, readable layout with prominent download */
+/* Resume window: clean, readable layout with a clear PDF action */
 .resume-window {
   display: flex;
   flex-direction: column;

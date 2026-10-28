@@ -182,15 +182,15 @@ export function BootSequence({
 }
 
 const transferQueue = [
-  { name: 'SignalKernel.sys', size: '612 KB', type: 'system kernel call', stage: 'bios' },
-  { name: 'HeroSignal.git', size: '1.1 GB', type: 'signal overlay', stage: 'kernel' },
-  { name: 'RecruiterSignal.dat', size: '412 KB', type: 'insights bundle', stage: 'atmosphere' },
-  { name: 'DesktopPalette.bin', size: '2.2 MB', type: 'gradient matrix', stage: 'story' }
+  { name: 'Hero summary', size: 'Live', type: 'executive overview', stage: 'bios' },
+  { name: 'Selected work', size: 'Curated', type: 'projects and case studies', stage: 'kernel' },
+  { name: 'Professional proof', size: 'Ready', type: 'experience and impact', stage: 'atmosphere' },
+  { name: 'Contact options', size: 'Open', type: 'resume and links', stage: 'story' }
 ] as const;
 
 const transferFields = [
-  { label: 'Source', value: 'A:\\Research\\Payload\\', helper: 'Encrypted research vault' },
-  { label: 'Destination', value: 'C:\\Portfolio\\Boot\\Payload\\', helper: 'Local shell' }
+  { label: 'Overview', value: 'Portfolio-ready', helper: 'Concise, recruiter-friendly summary' },
+  { label: 'Priority', value: 'Projects first', helper: 'Clear path to the best work' }
 ];
 
 type FileTransferDialogProps = {
@@ -221,13 +221,13 @@ function FileTransferDialog({
   const baseSpeed = 160 + stageIndex * 12;
   const speedValue = isPaused ? '0 KB/s' : `${baseSpeed + (percentage % 36)} KB/s`;
   const eta = Math.max(1, Math.round((100 - percentage) / (percentage > 0 ? Math.max(1, percentage / 20) : 1)));
-  const statusCopy = isPaused ? 'Transfer paused · awaiting resume command' : `Transferring ${activeFile.name}`;
+  const statusCopy = isPaused ? 'Intro paused · awaiting resume' : `Building ${activeFile.name.toLowerCase()}`;
   const logLines = useMemo(() => {
     return [
       `Preparing ${activeFile.name}`,
       `${Math.round(progress * 100)}% of ${activeFile.size}`,
       `${speedValue} · ${stageMetric}`,
-      isPaused ? 'Paused for verification' : 'Stream encrypted · chunk verified'
+      isPaused ? 'Paused for review' : 'Content verified · layout in sync'
     ];
   }, [activeFile, progress, speedValue, stageMetric, isPaused]);
 
@@ -238,7 +238,7 @@ function FileTransferDialog({
   };
 
   return (
-    <section
+      <section
       className="win95-transfer-dialog"
       data-testid="file-transfer-dialog"
       aria-live="polite"
@@ -246,7 +246,7 @@ function FileTransferDialog({
     >
       <header className="transfer-header">
         <div>
-          <p data-testid="file-transfer-title">File transfer · Stage {stageIndex + 1}</p>
+          <p data-testid="file-transfer-title">Portfolio brief · Stage {stageIndex + 1}</p>
           <strong>{stageTitle}</strong>
         </div>
         <span className="transfer-status" data-testid="file-transfer-status">

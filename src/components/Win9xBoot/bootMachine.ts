@@ -1,5 +1,5 @@
 /**
- * Boot flow state for the Win9x file-transfer style dialog.
+ * Boot flow state for the Win9x portfolio launch brief.
  * Pure state transitions; no side effects.
  */
 
@@ -27,7 +27,7 @@ export const initialBootState: BootState = {
   etaSeconds: 0,
 };
 
-/** Duration in ms for the full "download" (configurable 6–10s). */
+/** Duration in ms for the full portfolio launch brief (configurable 6–10s). */
 export const BOOT_DURATION_MS = 8000;
 
 /** Compute simulated rate (KB/s) and ETA from progress. */
